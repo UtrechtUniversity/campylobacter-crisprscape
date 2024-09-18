@@ -1,0 +1,12 @@
+name: cctyper
+
+dependencies:
+ - cctyper=1.8.0
+ - biopython=1.79
+ - libxgboost=1.7.1
+ - py-xgboost=1.7.1
+
+channels:
+ - conda-forge
+ - bioconda
+ - russel88
