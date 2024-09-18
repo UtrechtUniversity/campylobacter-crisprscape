@@ -1,28 +1,28 @@
 AllTheBacteria
 
-Metadata files
+Metadata files and sizes
 
- - Assembly statistics `assembly-stats.tsv.gz`
+ - Assembly statistics `assembly-stats.tsv.gz` 74MB
     Lists per sample accession the total length, number of contigs, N50 and more statistics of the assembly.
 
- - CheckM2 results `checkm2.tsv.gz`
+ - CheckM2 results `checkm2.tsv.gz` 63MB
     Lists per sample accession the results of CheckM2 including assembly completeness and contamination in percentages.
 
- - ENA sample metadata `ena_metadata.20240801.tsv.gz`
+ - ENA sample metadata `ena_metadata.20240801.tsv.gz` 677MB
     Lists per sample all the metadata that have been deposited in the European Nucleotide Archive - this is a table with over 100 columns!
 
- - File list `file_list.all.20240805.tsv.gz`
+ - File list `file_list.all.20240805.tsv.gz` 17MB
     This file lists per sample accession the corresponding batch in which it is archived, with download URL, md5sum and file size of the batch archive.
     It can be used to identify which batch archives contain species of interest, e.g.,
     `zgrep -f all_Campylobacter_samples.txt file_list.all.20240805.tsv.gz | cut -f 3,4,5 | sort | uniq`.
 
- - Sample list `sample_list.txt.gz`
+ - Sample list `sample_list.txt.gz` 5.4MB
     This file simply lists all the sample accessions that are present in the dataset.
 
- - Species calls `species_calls.tsv.gz`
+ - Species calls `species_calls.tsv.gz` 17MB
     Lists per sample accession the species identified and whether or not it is of high-quality (T/F).
     This file can be used to identify which sample accessions contain high-quality genomes of the species of interest,
     e.g. `$ zless species_calls.tsv.gz | gzep "Campylobacter_D jejuni" | grep -v "F" | cut -f 1`.
 
- - Sylph results `sylph.tsv.gz`
+ - Sylph results `sylph.tsv.gz` 103MB
     Lists per sample accession the output from Sylph, including relative abundance (%) Average Nucleotide Identity score (%) and assigned species name.
