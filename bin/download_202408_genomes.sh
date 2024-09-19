@@ -15,15 +15,44 @@ do
 
     outputfile="data/tmp/ATB/${filename}"
 
-    if [ ! -f ${outputfile} ]
+    # If the output file is not a file of size greater than zero
+    if [ ! -s ${outputfile} ]
     then
+        # Then download it
         wget -O ${outputfile} ${url}
+    else
+        echo "${outputfile} has been downloaded before!"
     fi
 
+    # Check the md5sum
     if echo ${checksum} ${outputfile} | md5sum -c --status;
     then
         echo "OK: md5sum for ${outputfile} is correct!"
     else
-        echo "BAD: md5sum for ${outputfile} is incorrect..."
+        # If it is wrong, delete the file
+        echo "BAD: md5sum for ${outputfile} is incorrect... Deleting file"
+        rm ${outputfile}
+    fi
+
+    # Extract the batch number from the file name
+    batchnumber=$(basename ${outputfile} | cut -f 6 -d '.')
+    batchdir="data/tmp/ATB/batch_${batchnumber}"
+
+    # If the batch directory has not been made yet
+    if [ ! -d ${batchdir} ]
+    then
+        echo "Extracting ${outputfile} and gzipping each fasta file!"
+
+        mkdir -p ${batchdir}
+
+        # Decompress the XZ archive, send the output to the specified directory,
+        # and strip the leading directory from within the XZ archive.
+        tar -Jxf ${outputfile} -C ${batchdir} --strip-components 1
+
+        # Now compress the fasta files with Gzip to at least save
+        # some disk space, while still allowing working with the files.
+        pigz --fast -p 12 ${batchdir}/*.fa
+    else
+        echo "Fasta files have been extracted and separately compressed previously!"
     fi
 done
