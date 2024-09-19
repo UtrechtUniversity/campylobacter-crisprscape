@@ -12,6 +12,10 @@ Test a CRISPR analysis workflow for the PINNACLE project
 
  - _Campylobacter jujuni_ and _coli_ genomes from [AllTheBacteria](https://allthebacteria.readthedocs.io/en/latest/)
 
+As of 2024-09-19 this includes 129,080 genomes!
+(Up from 104,146 before the incremental update.
+That means there are 24,934 extra genomes now.)
+
 _Note: AllTheBacteria has its own [quality criteria](https://allthebacteria.readthedocs.io/en/latest/sample_metadata.html#high-quality-dataset) for inclusion._
 _This includes:_
 
@@ -74,13 +78,14 @@ _This includes:_
 ├── CITATION.cff
 ├── LICENSE
 ├── README.md
+├── Snakefile          <- Python-based workflow description
 ├── bin                <- Code and programs used in this project/experiment
+├── config             <- Configuration of Snakemake workflow
 ├── data               <- All project data, divided in subfolders
 │   ├── processed      <- Final data, used for visualisation (e.g. tables)
 │   ├── raw            <- Raw data, original, should not be modified (e.g. fastq files)
 │   └── tmp            <- Intermediate data, derived from the raw data, but not yet ready for visualisation
-├── doc                <- Documents such as manuscript
-│   └── literature     <- Subfolder for literature related to the project/experiment
+├── doc                <- Project documentation for readthedocs.io
 ├── envs               <- Conda environments necessary to run the project/experiment
 ├── log                <- Log files from programs
 └── results            <- Figures or reports generated from processed data
