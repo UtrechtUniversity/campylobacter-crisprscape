@@ -22,7 +22,13 @@ Metadata files and sizes
  - Species calls `species_calls.tsv.gz` 17MB
     Lists per sample accession the species identified and whether or not it is of high-quality (T/F).
     This file can be used to identify which sample accessions contain high-quality genomes of the species of interest,
-    e.g. `$ zless species_calls.tsv.gz | gzep "Campylobacter_D jejuni" | grep -v "F" | cut -f 1`.
+    e.g. `$ zless species_calls.tsv.gz | grep "Campylobacter_D jejuni" | grep -v "F" | cut -f 1`.
 
  - Sylph results `sylph.tsv.gz` 103MB
     Lists per sample accession the output from Sylph, including relative abundance (%) Average Nucleotide Identity score (%) and assigned species name.
+
+Quick note on file sizes per batch:
+
+ - a batch of fasta files as .xz archive takes up 12-242MB of disk space (median ~30MB)
+ - the extracted fasta files take up 2.2GB (in the case of the 12MB .xz file)
+ - gzipping each fasta file (in fast mode) shrinks that to 716MB (~ 3x reduction)
