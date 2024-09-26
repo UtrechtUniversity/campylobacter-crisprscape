@@ -1,0 +1,10 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+authors:
+  - family-names: Nooij
+    given-names: Sam
+    orcid: https://orcid.org/0000-0001-5892-5637
+title: "Campylobacter CRISPR-scape"
+version: 0
+
+date-released: 2024-09-26
