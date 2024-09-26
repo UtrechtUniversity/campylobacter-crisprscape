@@ -1,7 +1,7 @@
 # Test CRISPR workflow
 
 _Date: 2024-09-12_  
-_Author: Sam Nooij (s.nooij@uu.nl)_
+_Author: Sam Nooij (s.nooij [at] uu.nl)_
 
 
 Test a CRISPR analysis workflow for the PINNACLE project
@@ -19,12 +19,12 @@ That means there are 24,934 extra genomes now.)
 _Note: AllTheBacteria has its own [quality criteria](https://allthebacteria.readthedocs.io/en/latest/sample_metadata.html#high-quality-dataset) for inclusion._
 _This includes:_
 
- - >=99% species abundance (practically pure)
- - >= 90% completeness (CheckM2)
- - <= 5% contaminated (CheckM2)
+ - \>=99% species abundance (practically pure)
+ - \>= 90% completeness (CheckM2)
+ - \<= 5% contaminated (CheckM2)
  - total length between 100 kbp and 15 Mbp
- - <= 2,000 contigs
- - >= N50 2,000
+ - \<= 2,000 contigs
+ - \>= N50 2,000
 
 ## List of programs/analyses to test
 
@@ -48,6 +48,9 @@ _This includes:_
 2024-09-12:
   - CCTyper does not work from conda installation
     (https://github.com/Russel88/CRISPRCasTyper/issues/55)
+
+  - CCTyper cannot handle gzipped fasta files as input,
+    so the input files need to be uncompressed
 
   - RFPlasmid does not work from local install (file not found, permission denied)
      or conda installation (`rfplasmid --initialize` fails to download database files)
@@ -95,7 +98,7 @@ _This includes:_
 
 ## Licence
 
-This project is licensed under the terms of the [fill in your licence here](LICENSE).
+This project is licensed under the terms of the [New BSD licence](LICENSE).
 
 ---
 
