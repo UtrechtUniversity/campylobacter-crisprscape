@@ -17,48 +17,74 @@ N.B. Variables are set in the configuration files under `config`.
 """
 
 from pathlib import Path
+import functools
+import operator
 
 ### Step 1: Import configuration file ###
 
+
 configfile: Path("config/parameters.yaml")
 
-SAMPLES = config["samples"]
 
+# Use Python functions to automatically detect batches of genomes fasta files
+# in the input directory as 'BATCHES' and 'SAMPLES'
 INPUT_DIR = config["input_directory"]
+
+BATCH_PATHS = list(Path(INPUT_DIR).glob("*"))
+for batch in BATCH_PATHS:
+    assert Path(batch).is_dir(), f"Batches must be directories, got {batch}"
+
+BATCHES = [batch.stem for batch in BATCH_PATHS]
+
+# Fast function to concatenate list of lists thanks to Nico Schlömer, 2017:
+# https://stackoverflow.com/a/45323085
+GENOME_FILES = functools.reduce(
+    operator.iconcat, [list(batch.glob("*.fa")) for batch in BATCH_PATHS], []
+)
+
+SAMPLES = [genome_file.stem for genome_file in GENOME_FILES]
+BATCHES_AND_SAMPLES = [
+    "/".join([genome_file.parent.stem, genome_file.stem]) for genome_file in GENOME_FILES
+]
+
 OUTPUT_DIR = config["output_directory"]
 
 
 ### Step 2: Specify output files ###
 
+
 rule all:
     input:
         # CRISPRCasTyper output (generic file that is always created, as not all genomes have CRISPR spacers!)
-        expand(OUTPUT_DIR + "cctyper/{sample}/arguments.tab",
-               sample = SAMPLES),
+        expand(
+            OUTPUT_DIR + "cctyper/{batch_and_sample}/arguments.tab",
+            batch_and_sample=BATCHES_AND_SAMPLES,
+        ),
 
 
 ### Step 3: Define processing steps that generate the output ###
 
+
 rule crisprcastyper:
     input:
-        INPUT_DIR + "{sample}.fasta"
+        INPUT_DIR + "{batch}/{sample}.fa",
     output:
-        arguments = OUTPUT_DIR + "cctyper/{sample}/arguments.tab",
-        putative_operons = OUTPUT_DIR + "cctyper/{sample}/cas_operons_putative.tab",
-        genes = OUTPUT_DIR + "cctyper/{sample}/genes.tab",
-        hmmer = OUTPUT_DIR + "cctyper/{sample}/hmmer.tab"
+        arguments=OUTPUT_DIR + "cctyper/{batch}/{sample}/arguments.tab",
+        putative_operons=OUTPUT_DIR
+        + "cctyper/{batch}/{sample}/cas_operons_putative.tab",
+        genes=OUTPUT_DIR + "cctyper/{batch}/{sample}/genes.tab",
+        hmmer=OUTPUT_DIR + "cctyper/{batch}/{sample}/hmmer.tab",
     params:
-        out_dir = OUTPUT_DIR + "cctyper/{sample}"
+        out_dir=OUTPUT_DIR + "cctyper/{batch}/{sample}",
     conda:
         "envs/cctyper.yaml"
-    threads:
-        config["cctyper"]["threads"]
+    threads: config["cctyper"]["threads"]
     log:
-        "log/cctyper-{sample}.txt"
+        "log/cctyper/{batch}/{sample}.txt",
     benchmark:
-        "log/benchmark/cctyper-{sample}.txt"
+        "log/benchmark/cctyper/{batch}/{sample}.txt"
     shell:
         """
 rm -rf {params.out_dir}
-cctyper -t {threads} {input} {params.out_dir}
+cctyper -t {threads} {input} {params.out_dir} > {log} 2>&1
         """
