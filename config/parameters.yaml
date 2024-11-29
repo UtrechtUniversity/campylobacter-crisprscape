@@ -5,8 +5,15 @@
 input_directory: "data/tmp/ATB/"
 output_directory: "data/tmp/"
 
+genomad_database: "data/genomad_db/"
 
 ### 2. Tool-specific parameters ###
 
 cctyper:
-  threads: 4
+  threads: 20
+
+genomad:
+  threads: 20
+
+jaeger:
+  threads: 16

@@ -60,6 +60,12 @@ rule all:
             OUTPUT_DIR + "cctyper/{batch_and_sample}/arguments.tab",
             batch_and_sample=BATCHES_AND_SAMPLES,
         ),
+        
+        # geNomad output table with classification probabilities
+        expand(
+            OUTPUT_DIR + "genomad/{batch_and_sample}/{sample}_aggregated_classification/{sample}_aggregated_classification.tsv",
+            batch_and_sample=BATCHES_AND_SAMPLES, sample=SAMPLES,
+        ),
 
 
 ### Step 3: Define processing steps that generate the output ###
@@ -87,4 +93,29 @@ rule crisprcastyper:
         """
 rm -rf {params.out_dir}
 cctyper -t {threads} {input} {params.out_dir} > {log} 2>&1
+        """
+
+rule prepare_genomad_database:
+    output:
+
+rule genomad:
+    input:
+        genome=INPUT_DIR + "{batch}/{sample}.fa",
+        db=config["genomad_database"],
+    output:
+        aggregated_classification=OUTPUT_DIR + "genomad/{batch}/{sample}/{sample}_aggregated_classification/{sample}_aggregated_classification.tsv",
+        plasmid_summary=OUTPUT_DIR + "genomad/{batch}/{sample}/{sample}_summary/{sample}_plasmid_summary.tsv",
+        virus_summary=OUTPUT_DIR + "genomad/{batch}/{sample}/{sample}_summary/{sample}_virus_summary.tsv",
+    params:
+        output_dir=OUTPUT_DIR + "genomad/{batch}/{sample}",
+    conda:
+        "envs/genomad.yaml"
+    threads: config["genomad"]["threads"]
+    log:
+        "log/genomad/{batch}/{sample}.txt",
+    benchmark:
+        "log/benchmark/genomad/{batch}/{sample}.txt"
+    shell:
+        """
+genomad end-to-end -t {threads} --cleanup --enable-score-calibration {input.genome} {params.output_dir} {input.db} > {log} 2>&1
         """
