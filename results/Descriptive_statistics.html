@@ -131,7 +131,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="crispr-spacers-in-campylobacter" class="level1">
 <h1>CRISPR spacers in <em>Campylobacter</em></h1>
 <p><strong>Descriptive statistics of CRISPR arrays in <em>Campylobacter</em> genomes from <a href="https://allthebacteria.readthedocs.io/" title="AllTheBacteria documentation">AllTheBacteria</a></strong></p>
-<p>We have downloaded all the <em>Campylobacter</em> <em>jejuni</em> and <em>C. coli</em> genomes from AllTheBacteria (ATB) to screen for CRISPR spacers. The current experiment includes all genomes that have been classified as ‘Campylobacter_D jejuni*’ or ‘Campylobacter_D coli*’ using <a href="https://www.nature.com/articles/s41587-024-02412-y" title="Shaw &amp; Yu, 2024. Nature Biotechnology">Sylph</a> (which the creators of ATB ran on all genomes), that have been added to ATB in the incremental update of August 2024. (∗: any species designation matching these name prefixes were included.) These genomes have been screened for CRISPR (<a href="https://en.wikipedia.org/wiki/CRISPR" title="CRISPR wiki">Clustered Regularly Interspaced Short Palindromic Repeats</a>) spacers and <em>Cas</em> (CRISPR-associated) genes using <a href="https://www.biorxiv.org/content/10.1101/2020.05.15.097824v1" title="Russel et al., 2020. bioRxiv">CCTyper</a> (version 1.8.0). CCTyper produces tab-separated tables that summarise the CRISPR spacers, the repeat sequences in between, Cas genes including statistics and sequences of the spacers.</p>
+<p>We have downloaded all the <em>Campylobacter</em> <em>jejuni</em> and <em>C. coli</em> genomes from AllTheBacteria (ATB) to screen for CRISPR spacers (<a href="#fig-number_of_species" class="quarto-xref">Figure&nbsp;1</a>). The current experiment includes all genomes that have been classified as ‘Campylobacter_D jejuni*’ or ‘Campylobacter_D coli*’ using <a href="https://www.nature.com/articles/s41587-024-02412-y" title="Shaw &amp; Yu, 2024. Nature Biotechnology">Sylph</a> (which the creators of ATB ran on all genomes), that have been added to ATB in the incremental update of August 2024. (∗: any species designation matching these name prefixes were included.) These genomes have been screened for CRISPR (<a href="https://en.wikipedia.org/wiki/CRISPR" title="CRISPR wiki">Clustered Regularly Interspaced Short Palindromic Repeats</a>) spacers and <em>Cas</em> (CRISPR-associated) genes using <a href="https://www.biorxiv.org/content/10.1101/2020.05.15.097824v1" title="Russel et al., 2020. bioRxiv">CCTyper</a> (version 1.8.0). CCTyper produces tab-separated tables that summarise the CRISPR spacers, the repeat sequences in between, Cas genes including statistics and sequences of the spacers.</p>
 <p>In this analysis report, we summarise the prevalence and other general descriptive statistics of the CRISPR spacers. Therefore, we first need to import the results from CCTyper:</p>
 <div class="cell">
 <details class="code-fold">
@@ -155,12 +155,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span>(<span class="fu">file.exists</span>(table_file)) {</span>
 <span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>    <span class="fu">message</span>(<span class="fu">paste</span>(<span class="fu">basename</span>(table_file), <span class="st">"exists already, reading from file!"</span>))</span>
 <span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>    <span class="fu">return</span>(<span class="fu">read_delim</span>(table_file, <span class="at">show_col_types =</span> F))</span>
-<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>  } <span class="cf">else</span> {</span>
 <span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>    <span class="fu">message</span>(<span class="fu">paste</span>(</span>
 <span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>      <span class="fu">basename</span>(table_file),</span>
 <span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>      <span class="st">"does not yet exist. Concatenating batch tables..."</span>))</span>
-<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>    table_wildcard <span class="ot">&lt;-</span> <span class="fu">gsub</span>(<span class="at">x =</span> <span class="fu">basename</span>(table_file),</span>
 <span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>                           <span class="at">pattern =</span> <span class="st">"concatenated"</span>,</span>
 <span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>                           <span class="at">replace =</span> <span class="st">"*"</span>)</span>
@@ -202,7 +202,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>  campylobacter_metadata <span class="ot">&lt;-</span> <span class="fu">read_delim</span>(</span>
 <span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    campylobacter_metadata_file,</span>
 <span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">show_col_types =</span> F)</span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>} <span class="cf">else</span> {</span>
 <span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">message</span>(<span class="st">"Creating Campylobacter metadata file..."</span>)</span>
 <span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>  total_campylobacter_metadata <span class="ot">&lt;-</span> <span class="fu">read_delim</span>(</span>
@@ -210,18 +210,18 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">delim =</span> <span class="st">"</span><span class="sc">\t</span><span class="st">"</span>,</span>
 <span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">col_names =</span> F,</span>
 <span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">show_col_types =</span> F)</span>
-<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>  older_campylobacter_metadata <span class="ot">&lt;-</span> <span class="fu">read_delim</span>(</span>
 <span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>    <span class="st">"../data/ATB/ena_metadata.0.2.20240606.selection-only_Campylobacter.tsv.gz"</span>,</span>
 <span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">delim =</span> <span class="st">"</span><span class="sc">\t</span><span class="st">"</span>,</span>
 <span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">col_names =</span> F,</span>
 <span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">show_col_types =</span> F)</span>
-<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Remove the older entries to keep only the Campylobacter genomes</span></span>
 <span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>  <span class="co"># from the incremental update</span></span>
 <span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>  campylobacter_metadata <span class="ot">&lt;-</span> total_campylobacter_metadata <span class="sc">%&gt;%</span></span>
 <span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>    <span class="fu">filter</span>(<span class="sc">!</span> X2 <span class="sc">%in%</span> older_campylobacter_metadata<span class="sc">$</span>X1)</span>
-<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Take the column names from the table before grepping</span></span>
 <span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a>  <span class="fu">colnames</span>(campylobacter_metadata) <span class="ot">&lt;-</span> <span class="fu">read_delim</span>(</span>
 <span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a>    <span class="at">file =</span> <span class="st">"../data/ATB/ena_metadata.20240801.selection.tsv.gz"</span>,</span>
@@ -229,28 +229,28 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a>    <span class="at">delim =</span> <span class="st">"</span><span class="sc">\t</span><span class="st">"</span>,</span>
 <span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a>    <span class="at">show_col_types =</span> F</span>
 <span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span> <span class="fu">colnames</span>()</span>
-<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Remove columns that contain only NA values</span></span>
 <span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a>  campylobacter_metadata <span class="ot">&lt;-</span> campylobacter_metadata <span class="sc">%&gt;%</span></span>
 <span id="cb2-38"><a href="#cb2-38" aria-hidden="true" tabindex="-1"></a>    <span class="fu">select_if</span>(<span class="sc">~</span><span class="fu">sum</span>(<span class="sc">!</span><span class="fu">is.na</span>(.)) <span class="sc">&gt;</span> <span class="dv">0</span>)</span>
-<span id="cb2-39"><a href="#cb2-39" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb2-39"><a href="#cb2-39" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-40"><a href="#cb2-40" aria-hidden="true" tabindex="-1"></a>  simplified_species <span class="ot">&lt;-</span> <span class="fu">read_delim</span>(</span>
 <span id="cb2-41"><a href="#cb2-41" aria-hidden="true" tabindex="-1"></a>    <span class="at">file =</span> <span class="st">"../data/ATB/sylph.tsv.gz"</span>,</span>
 <span id="cb2-42"><a href="#cb2-42" aria-hidden="true" tabindex="-1"></a>    <span class="at">delim =</span> <span class="st">"</span><span class="sc">\t</span><span class="st">"</span>,</span>
 <span id="cb2-43"><a href="#cb2-43" aria-hidden="true" tabindex="-1"></a>    <span class="at">show_col_types =</span> F) <span class="sc">%&gt;%</span></span>
 <span id="cb2-44"><a href="#cb2-44" aria-hidden="true" tabindex="-1"></a>    <span class="fu">select</span>(Sample, Species)</span>
-<span id="cb2-45"><a href="#cb2-45" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb2-45"><a href="#cb2-45" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-46"><a href="#cb2-46" aria-hidden="true" tabindex="-1"></a>  campylobacter_metadata <span class="ot">&lt;-</span> <span class="fu">left_join</span>(</span>
 <span id="cb2-47"><a href="#cb2-47" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> campylobacter_metadata,</span>
 <span id="cb2-48"><a href="#cb2-48" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> simplified_species,</span>
 <span id="cb2-49"><a href="#cb2-49" aria-hidden="true" tabindex="-1"></a>    <span class="at">by =</span> <span class="fu">c</span>(<span class="st">"sample_accession"</span> <span class="ot">=</span> <span class="st">"Sample"</span>)</span>
 <span id="cb2-50"><a href="#cb2-50" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb2-51"><a href="#cb2-51" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb2-51"><a href="#cb2-51" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-52"><a href="#cb2-52" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Remove all genomes whose taxonomic annotation (species) does</span></span>
 <span id="cb2-53"><a href="#cb2-53" aria-hidden="true" tabindex="-1"></a>  <span class="co"># not start with 'Campylobacter'</span></span>
 <span id="cb2-54"><a href="#cb2-54" aria-hidden="true" tabindex="-1"></a>  campylobacter_metadata <span class="ot">&lt;-</span> campylobacter_metadata <span class="sc">%&gt;%</span></span>
 <span id="cb2-55"><a href="#cb2-55" aria-hidden="true" tabindex="-1"></a>    <span class="fu">filter</span>(<span class="fu">grepl</span>(<span class="st">"Campylobacter_D jejuni|Campylobacter_D coli"</span>, Species))</span>
-<span id="cb2-56"><a href="#cb2-56" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb2-56"><a href="#cb2-56" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-57"><a href="#cb2-57" aria-hidden="true" tabindex="-1"></a>  <span class="fu">write_delim</span>(<span class="at">x =</span> campylobacter_metadata,</span>
 <span id="cb2-58"><a href="#cb2-58" aria-hidden="true" tabindex="-1"></a>              <span class="at">file =</span> campylobacter_metadata_file,</span>
 <span id="cb2-59"><a href="#cb2-59" aria-hidden="true" tabindex="-1"></a>              <span class="at">delim =</span> <span class="st">"</span><span class="sc">\t</span><span class="st">"</span>)</span>
@@ -331,7 +331,7 @@ Figure&nbsp;1: Number of species present in dataset
 <span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>                <span class="at">y =</span> Orphan_CRISPRs)</span>
 <span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>) <span class="sc">+</span></span>
 <span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">position =</span> <span class="fu">position_jitter</span>(),</span>
-<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a>             <span class="at">alpha =</span> <span class="fl">0.3</span>) <span class="sc">+</span></span>
+<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a>             <span class="at">size =</span> <span class="fl">0.7</span>, <span class="at">alpha =</span> <span class="fl">0.3</span>) <span class="sc">+</span></span>
 <span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_pubr</span>()</span>
 <span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a>crispr_near_cas_density <span class="ot">=</span> <span class="fu">ggplot</span>(</span>
@@ -359,13 +359,13 @@ Figure&nbsp;1: Number of species present in dataset
 <span id="cb3-53"><a href="#cb3-53" aria-hidden="true" tabindex="-1"></a>  <span class="fu">plot_layout</span>(<span class="at">design =</span> design,</span>
 <span id="cb3-54"><a href="#cb3-54" aria-hidden="true" tabindex="-1"></a>              <span class="at">axes =</span> <span class="st">"collect"</span>)</span>
 <span id="cb3-55"><a href="#cb3-55" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-56"><a href="#cb3-56" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(spacers_per_genome_figure)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb3-56"><a href="#cb3-56" aria-hidden="true" tabindex="-1"></a>spacers_per_genome_figure</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
 <div id="fig-crisprs_per_genome" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-crisprs_per_genome-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="Descriptive_statistics_files/figure-html/fig-crisprs_per_genome-1.png" class="img-fluid figure-img" width="672">
+<img src="Descriptive_statistics_files/figure-html/fig-crisprs_per_genome-1.png" class="img-fluid figure-img" width="720">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-crisprs_per_genome-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;2: Number of CRISPR spacers per genome

@@ -62,9 +62,10 @@ from
 [AllTheBacteria](https://allthebacteria.readthedocs.io/ "AllTheBacteria documentation")**
 
 We have downloaded all the *Campylobacter* *jejuni* and *C. coli*
-genomes from AllTheBacteria (ATB) to screen for CRISPR spacers. The
-current experiment includes all genomes that have been classified as
-'Campylobacter_D jejuni\*' or 'Campylobacter_D coli\*' using
+genomes from AllTheBacteria (ATB) to screen for CRISPR spacers
+(@fig-number_of_species). The current experiment includes all genomes
+that have been classified as 'Campylobacter_D jejuni\*' or
+'Campylobacter_D coli\*' using
 [Sylph](https://www.nature.com/articles/s41587-024-02412-y "Shaw & Yu, 2024. Nature Biotechnology")
 (which the creators of ATB ran on all genomes), that have been added to
 ATB in the incremental update of August 2024. (∗: any species
@@ -270,6 +271,8 @@ of CRISPR spacers as scatterplot (@fig-crisprs_per_genome).
 ```{r spacers_per_genome}
 #| label: fig-crisprs_per_genome
 #| fig-cap: "Number of CRISPR spacers per genome"
+#| fig-height: 4.5
+#| fig-width: 7.5
 
 annotated_crispr_number_df <- left_join(
   x = campylobacter_metadata %>%
@@ -298,7 +301,7 @@ number_of_crisprs_scatterplot <- ggplot(
                 y = Orphan_CRISPRs)
 ) +
   geom_point(position = position_jitter(),
-             alpha = 0.3) +
+             size = 0.7, alpha = 0.3) +
   theme_pubr()
 
 crispr_near_cas_density = ggplot(
@@ -326,7 +329,7 @@ spacers_per_genome_figure <- crispr_near_cas_density +
   plot_layout(design = design,
               axes = "collect")
 
-print(spacers_per_genome_figure)
+spacers_per_genome_figure
 ```
 
 From this figure, it appears that by far the most genomes have no CRISPR
