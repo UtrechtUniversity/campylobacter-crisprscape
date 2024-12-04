@@ -1,0 +1,6 @@
+bin/
+data/
+log/
+results/
+work/
+.snakemake/

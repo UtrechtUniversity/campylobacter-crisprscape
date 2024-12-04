@@ -1,0 +1,304 @@
+---
+title: "Descriptive statistics"
+author:
+  - name: "Sam Nooij"
+    affiliations:
+      - ref: UU-KLIF
+    orcid: 0000-0001-5892-5637
+    email: s.nooij [at] uu.nl
+    corresponding: true
+
+affiliations:
+  - id: UU-KLIF
+    name: Utrecht University
+    department: Faculty of Veterinary Medicine, Department of Clinical Infectiology
+    address: Yalelaan 1
+    city: Utrecht
+    country: The Netherlands
+    postal-code: 3584CL
+
+date: "2024-12-03"
+
+execute: 
+  echo: true
+  warning: false
+  message: false
+  cache: true
+
+format: 
+  html:
+    toc: true
+    toc-depth: 3
+    code-fold: true
+    df-print: paged
+    fig-height: 4
+    fig-width: 7
+  pdf:
+    documentclass: report
+    classoption: [twocolumn, landscape]
+    mainfont: "Open Sans"
+    mainfontoptions:
+      - Color=101010
+    colorlinks: true
+    toc: true
+    toc-depth: 3
+    number-sections: true
+    number-depth: 3
+    highlight-style: github
+
+knitr:
+  opts_chunk: 
+    cache: true
+
+editor:
+  markdown:
+    wrap: 72
+---
+
+# CRISPR spacers in *Campylobacter*
+
+**Descriptive statistics of CRISPR arrays in *Campylobacter* genomes
+from
+[AllTheBacteria](https://allthebacteria.readthedocs.io/ "AllTheBacteria documentation")**
+
+We have downloaded all the *Campylobacter* *jejuni* and *C. coli*
+genomes from AllTheBacteria (ATB) to screen for CRISPR spacers. The
+current experiment includes all genomes that have been classified as
+'Campylobacter_D jejuni\*' or 'Campylobacter_D coli\*' using
+[Sylph](https://www.nature.com/articles/s41587-024-02412-y "Shaw & Yu, 2024. Nature Biotechnology")
+(which the creators of ATB ran on all genomes), that have been added to
+ATB in the incremental update of August 2024. (∗: any species
+designation matching these name prefixes were included.) These genomes
+have been screened for CRISPR ([Clustered Regularly Interspaced Short
+Palindromic
+Repeats](https://en.wikipedia.org/wiki/CRISPR "CRISPR wiki")) spacers
+and *Cas* (CRISPR-associated) genes using
+[CCTyper](https://www.biorxiv.org/content/10.1101/2020.05.15.097824v1 "Russel et al., 2020. bioRxiv")
+(version 1.8.0). CCTyper produces tab-separated tables that summarise
+the CRISPR spacers, the repeat sequences in between, Cas genes including
+statistics and sequences of the spacers.
+
+```{r setup, include=FALSE}
+library(knitr)
+library(rmarkdown)
+library(here)
+library(tidyverse)
+library(ggpubr)
+library(RColorBrewer)
+library(viridisLite)
+library(patchwork) # Combine figures while aligning axes
+library(rstatix) # for convenient statistical tests and p-value reporting
+library(scales) # for manually adjusting log-scale figure axes
+library(colorspace) # for filling boxplots/violins with lighter shade of same colour
+
+knitr::opts_knit$set(base.dir = here(""))
+```
+
+In this analysis report, we summarise the prevalence and other general
+descriptive statistics of the CRISPR spacers. Therefore, we first need
+to import the results from CCTyper:
+
+```{r import_cctyper_results}
+batches <- Sys.glob("../data/tmp/cctyper/batch_*")
+
+read_multiple_tables <- function(input_files) {
+  return(
+    data.frame(Filename = input_files,
+               read_delim(input_files, trim_ws = T))
+  )
+}
+
+CRISPR_Cas_files <- Sys.glob(paste0(batches, "/CRISPR_Cas-*.tab"))
+CRISPR_Cas_df <- do.call("rbind", lapply(CRISPR_Cas_files, read_multiple_tables))
+
+crisprs_all_files <- Sys.glob(paste0(batches, "/crisprs_all-*.tab"))
+crisprs_all_df <- do.call("rbind", lapply(crisprs_all_files, read_multiple_tables))
+
+crisprs_near_cas_files <- Sys.glob(paste0(batches, "/crisprs_near_cas-*.tab"))
+crisprs_near_cas_df <- do.call("rbind", lapply(crisprs_near_cas_files,
+                                               read_multiple_tables)) %>%
+  select(-Contig) %>%
+  separate_wider_delim(cols = CRISPR, delim = ".",
+                       names = c("sample_accession", "Contig")) %>%
+  separate_wider_delim(cols = Contig, delim = "_",
+                       names = c("Contig", "CRISPR_number"))
+
+crisprs_orphan_files <- Sys.glob(paste0(batches, "/crisprs_orphan-*.tab"))
+crisprs_orphan_df <- do.call("rbind", lapply(crisprs_orphan_files,
+                                                read_multiple_tables)) %>%
+  select(-Contig) %>%
+  separate_wider_delim(cols = CRISPR, delim = ".",
+                       names = c("sample_accession", "Contig")) %>%
+  separate_wider_delim(cols = Contig, delim = "_",
+                       names = c("Contig", "CRISPR_number"))
+```
+
+```{r import_metadata}
+total_campylobacter_metadata <- read_delim(
+  "../data/ATB/ena_metadata.20240801.selection-only_Campylobacter.tsv.gz",
+  delim = "\t",
+  col_names = F)
+
+older_campylobacter_metadata <- read_delim(
+  "../data/ATB/ena_metadata.0.2.20240606.selection-only_Campylobacter.tsv.gz",
+  delim = "\t",
+  col_names = F
+)
+
+# Remove the older entries to keep only the Campylobacter genomes
+# from the incremental update
+campylobacter_metadata <- total_campylobacter_metadata %>%
+  filter(! X2 %in% older_campylobacter_metadata$X1)
+
+# Take the column names from the table before grepping
+colnames(campylobacter_metadata) <- read_delim(
+  file = "../data/ATB/ena_metadata.20240801.selection.tsv.gz",
+  n_max = 1,
+  delim = "\t"
+) %>% colnames()
+
+# Remove columns that contain only NA values
+campylobacter_metadata <- campylobacter_metadata %>%
+  select_if(~sum(!is.na(.)) > 0)
+
+simplified_species <- read_delim(
+  file = "../data/ATB/sylph.tsv.gz",
+  delim = "\t"
+) %>%
+  select(Sample, Species)
+
+campylobacter_metadata <- left_join(
+  x = campylobacter_metadata,
+  y = simplified_species,
+  by = c("sample_accession" = "Sample")
+)
+
+# Remove all genomes whose taxonomic annotation (species) does
+# not start with 'Campylobacter'
+campylobacter_metadata <- campylobacter_metadata %>%
+  filter(startsWith(Species, "Campylobacter"))
+```
+
+# Spacers per genome
+
+We have identified CRISPR spacer in all *Campylobacter jejuni* and *C.
+coli* genomes using
+[CCTyper](https://github.com/Russel88/CRISPRCasTyper "GitHub repository for CRISPRCasTyper").
+CCTyper separately annotates CRISPR spacers near *Cas* genes and
+separate CRISPR arrays, called 'orphans'. To inventory the prevalence
+and size of both types of CRISPR arrays, show for each genome the number
+of CRISPR spacers as scatterplot (@fig-crisprs_per_genome).
+
+```{r spacers_per_genome}
+#| label: fig-crisprs_per_genome
+#| fig-cap: "Number of CRISPR spacers per genome"
+
+annotated_crispr_number_df <- left_join(
+  x = campylobacter_metadata %>%
+    select(sample_accession, country, host, isolation_source,
+           scientific_name, tax_id, Species, description),
+  y = full_join(
+    x = crisprs_near_cas_df %>%
+      group_by(sample_accession) %>%
+      count() %>%
+      rename("CRISPRs_near_Cas" = "n"),
+    y = crisprs_orphan_df %>%
+      group_by(sample_accession) %>%
+      count() %>%
+      rename("Orphan_CRISPRs" = "n"),
+    by = "sample_accession"
+  )
+) %>%
+  mutate(
+    across(CRISPRs_near_Cas:Orphan_CRISPRs,
+           ~replace_na(., 0))
+  )
+
+number_of_crisprs_scatterplot <- ggplot(
+  data = annotated_crispr_number_df,
+  mapping = aes(x = CRISPRs_near_Cas,
+                y = Orphan_CRISPRs)
+) +
+  geom_point(position = position_jitter(),
+             alpha = 0.3) +
+  theme_pubr()
+
+crispr_near_cas_density = ggplot(
+  data = annotated_crispr_number_df,
+  mapping = aes(x = CRISPRs_near_Cas)) +
+  geom_density(fill = "grey20") +
+  theme_pubr() +
+  theme(axis.title.x = element_blank())
+
+orphan_crispr_density = ggplot(
+  data = annotated_crispr_number_df,
+  mapping = aes(y = Orphan_CRISPRs)) +
+  geom_density(fill = "grey20") +
+  theme_pubr()
+
+design <- "
+1111#
+22223
+22223
+"
+
+spacers_per_genome_figure <- crispr_near_cas_density +
+  number_of_crisprs_scatterplot +
+  orphan_crispr_density +
+  plot_layout(design = design,
+              axes = "collect")
+
+print(spacers_per_genome_figure)
+```
+
+From this figure, it appears that by far the most genomes have no CRISPR
+spacers at all, and otherwise they mostly have one CRISPR spacer near
+*Cas* genes. At most, CCTyper has found 3 CRISPRs near *Cas* genes and
+up to 4 orphan CRISPR spacers. Let's see this distribution in numbers
+and separate them between *C. jejuni* and *coli*.
+
+```{r spacers_per_genome_stats}
+total_genomes = nrow(annotated_crispr_number_df)
+
+annotated_crispr_number_df %>%
+  count(CRISPRs_near_Cas, name = "Genomes") %>%
+  mutate(Percentage = round(Genomes / total_genomes * 100, 2))
+
+print("CRISPRs in Campylobacter jejuni")
+annotated_crispr_number_df %>%
+  filter(grepl(pattern = "Campylobacter_D jejuni", Species)) %>%
+  group_by(CRISPRs_near_Cas) %>%
+  summarise(Genomes = length(CRISPRs_near_Cas)) %>%
+  mutate(total_genomes = sum(Genomes),
+         Percentage = round(Genomes / total_genomes * 100, 2)) %>%
+  select(-total_genomes)
+# The number of other jejuni subspecies(?) is too low to do
+# separate analyses, so just put them all together
+
+print("Orphan CRISPRs in C. jejuni")
+annotated_crispr_number_df %>%
+  filter(grepl(pattern = "Campylobacter_D jejuni", Species)) %>%
+  group_by(Orphan_CRISPRs) %>%
+  summarise(Genomes = length(Orphan_CRISPRs)) %>%
+  mutate(total_genomes = sum(Genomes),
+         Percentage = round(Genomes / total_genomes * 100, 2)) %>%
+  select(-total_genomes)
+
+print("CRISPRs in Campylobacter coli")
+annotated_crispr_number_df %>%
+  filter(grepl(pattern = "Campylobacter_D coli", Species)) %>%
+  group_by(CRISPRs_near_Cas) %>%
+  summarise(Genomes = length(CRISPRs_near_Cas)) %>%
+  mutate(total_genomes = sum(Genomes),
+         Percentage = round(Genomes / total_genomes * 100, 2)) %>%
+  select(-total_genomes)
+
+print("Orphan CRISPRs in C. coli")
+annotated_crispr_number_df %>%
+  filter(grepl(pattern = "Campylobacter_D coli", Species)) %>%
+  group_by(Orphan_CRISPRs) %>%
+  summarise(Genomes = length(Orphan_CRISPRs)) %>%
+  mutate(total_genomes = sum(Genomes),
+         Percentage = round(Genomes / total_genomes * 100, 2)) %>%
+  select(-total_genomes)
+```
