@@ -99,33 +99,56 @@ descriptive statistics of the CRISPR spacers. Therefore, we first need
 to import the results from CCTyper:
 
 ```{r import_cctyper_results}
+#| message: false
+
+# Files were originally processed in batches
 batches <- Sys.glob("../data/tmp/cctyper/batch_*")
 
+# Read the tab-separated files for each batch and concatenate them
 read_multiple_tables <- function(input_files) {
   return(
     data.frame(Filename = input_files,
-               read_delim(input_files, trim_ws = T))
+               read_delim(input_files,
+                          show_col_types = F,
+                          trim_ws = T))
   )
 }
 
-CRISPR_Cas_files <- Sys.glob(paste0(batches, "/CRISPR_Cas-*.tab"))
-CRISPR_Cas_df <- do.call("rbind", lapply(CRISPR_Cas_files, read_multiple_tables))
+# Try reading concatenated files, or read separate files from batches
+#  and save as one concatenated file
+read_or_create <- function(table_file) {
+  if(file.exists(table_file)) {
+    message(paste(basename(table_file), "exists already, reading from file!"))
+    return(read_delim(table_file, show_col_types = F))
 
-crisprs_all_files <- Sys.glob(paste0(batches, "/crisprs_all-*.tab"))
-crisprs_all_df <- do.call("rbind", lapply(crisprs_all_files, read_multiple_tables))
+  } else {
+    message(paste(
+      basename(table_file),
+      "does not yet exist. Concatenating batch tables..."))
 
-crisprs_near_cas_files <- Sys.glob(paste0(batches, "/crisprs_near_cas-*.tab"))
-crisprs_near_cas_df <- do.call("rbind", lapply(crisprs_near_cas_files,
-                                               read_multiple_tables)) %>%
+    table_wildcard <- gsub(x = basename(table_file),
+                           pattern = "concatenated",
+                           replace = "*")
+    file_list <- Sys.glob(paste0(batches, "/", table_wildcard))
+    df <- do.call("rbind", lapply(file_list, read_multiple_tables))
+    write_delim(x = df, file = table_file, delim = "\t")
+    return(df)
+  }
+}
+
+
+CRISPR_Cas_df <- read_or_create("../data/processed/CRISPR_Cas-concatenated.tab")
+
+crisprs_all_df <- read_or_create("../data/processed/crisprs_all-concatenated.tab")
+
+crisprs_near_cas_df <- read_or_create("../data/processed/crisprs_near_cas-concatenated.tab") %>%
   select(-Contig) %>%
   separate_wider_delim(cols = CRISPR, delim = ".",
                        names = c("sample_accession", "Contig")) %>%
   separate_wider_delim(cols = Contig, delim = "_",
                        names = c("Contig", "CRISPR_number"))
 
-crisprs_orphan_files <- Sys.glob(paste0(batches, "/crisprs_orphan-*.tab"))
-crisprs_orphan_df <- do.call("rbind", lapply(crisprs_orphan_files,
-                                                read_multiple_tables)) %>%
+crisprs_orphan_df <- read_or_create("../data/processed/crisprs_orphan-concatenated.tab") %>%
   select(-Contig) %>%
   separate_wider_delim(cols = CRISPR, delim = ".",
                        names = c("sample_accession", "Contig")) %>%
@@ -133,50 +156,105 @@ crisprs_orphan_df <- do.call("rbind", lapply(crisprs_orphan_files,
                        names = c("Contig", "CRISPR_number"))
 ```
 
+The output of CCTyper only contains sample accession IDs that can be
+used to identify samples. Import a minimal set of ENA metadata and
+species identifications by Sylph:
+
 ```{r import_metadata}
-total_campylobacter_metadata <- read_delim(
-  "../data/ATB/ena_metadata.20240801.selection-only_Campylobacter.tsv.gz",
-  delim = "\t",
-  col_names = F)
+#| fig-width: 5
+#| fig-height: 1
+#| label: fig-number_of_species
+#| fig-cap: "Number of species present in dataset"
+#| message: false
 
-older_campylobacter_metadata <- read_delim(
-  "../data/ATB/ena_metadata.0.2.20240606.selection-only_Campylobacter.tsv.gz",
-  delim = "\t",
-  col_names = F
-)
+campylobacter_metadata_file <- "../data/processed/Campylobacter_ATB_metadata.tsv"
 
-# Remove the older entries to keep only the Campylobacter genomes
-# from the incremental update
-campylobacter_metadata <- total_campylobacter_metadata %>%
-  filter(! X2 %in% older_campylobacter_metadata$X1)
+if(file.exists(campylobacter_metadata_file)) {
+  message("Reading Campylobacter metadata file!")
+  campylobacter_metadata <- read_delim(
+    campylobacter_metadata_file,
+    show_col_types = F)
 
-# Take the column names from the table before grepping
-colnames(campylobacter_metadata) <- read_delim(
-  file = "../data/ATB/ena_metadata.20240801.selection.tsv.gz",
-  n_max = 1,
-  delim = "\t"
-) %>% colnames()
+} else {
+  message("Creating Campylobacter metadata file...")
+  total_campylobacter_metadata <- read_delim(
+    "../data/ATB/ena_metadata.20240801.selection-only_Campylobacter.tsv.gz",
+    delim = "\t",
+    col_names = F,
+    show_col_types = F)
 
-# Remove columns that contain only NA values
-campylobacter_metadata <- campylobacter_metadata %>%
-  select_if(~sum(!is.na(.)) > 0)
+  older_campylobacter_metadata <- read_delim(
+    "../data/ATB/ena_metadata.0.2.20240606.selection-only_Campylobacter.tsv.gz",
+    delim = "\t",
+    col_names = F,
+    show_col_types = F)
 
-simplified_species <- read_delim(
-  file = "../data/ATB/sylph.tsv.gz",
-  delim = "\t"
-) %>%
-  select(Sample, Species)
+  # Remove the older entries to keep only the Campylobacter genomes
+  # from the incremental update
+  campylobacter_metadata <- total_campylobacter_metadata %>%
+    filter(! X2 %in% older_campylobacter_metadata$X1)
 
-campylobacter_metadata <- left_join(
-  x = campylobacter_metadata,
-  y = simplified_species,
-  by = c("sample_accession" = "Sample")
-)
+  # Take the column names from the table before grepping
+  colnames(campylobacter_metadata) <- read_delim(
+    file = "../data/ATB/ena_metadata.20240801.selection.tsv.gz",
+    n_max = 1,
+    delim = "\t",
+    show_col_types = F
+  ) %>% colnames()
 
-# Remove all genomes whose taxonomic annotation (species) does
-# not start with 'Campylobacter'
-campylobacter_metadata <- campylobacter_metadata %>%
-  filter(startsWith(Species, "Campylobacter"))
+  # Remove columns that contain only NA values
+  campylobacter_metadata <- campylobacter_metadata %>%
+    select_if(~sum(!is.na(.)) > 0)
+
+  simplified_species <- read_delim(
+    file = "../data/ATB/sylph.tsv.gz",
+    delim = "\t",
+    show_col_types = F) %>%
+    select(Sample, Species)
+
+  campylobacter_metadata <- left_join(
+    x = campylobacter_metadata,
+    y = simplified_species,
+    by = c("sample_accession" = "Sample")
+  )
+
+  # Remove all genomes whose taxonomic annotation (species) does
+  # not start with 'Campylobacter'
+  campylobacter_metadata <- campylobacter_metadata %>%
+    filter(grepl("Campylobacter_D jejuni|Campylobacter_D coli", Species))
+
+  write_delim(x = campylobacter_metadata,
+              file = campylobacter_metadata_file,
+              delim = "\t")
+}
+
+campylobacter_species_numbers <- campylobacter_metadata %>%
+  mutate(species = if_else(grepl("jejuni", Species), "jejuni", "coli")) %>%
+  count(species)
+
+# Alternative visualisation method: stacked bar chart
+stacked_species_plot <- ggplot(data = campylobacter_species_numbers,
+                             aes(x = 0, y = n, fill = species)) +
+  geom_bar(stat = "identity") +
+  theme_pubr() +
+  ggtitle(paste("Total genomes:",
+                format(sum(campylobacter_species_numbers$n),
+                       big.mark = ","))) +
+  theme(axis.title = element_blank(),
+        axis.ticks.y = element_blank(),
+        axis.text.y = element_blank(),
+        legend.position = "right") +
+  scale_fill_manual(name = "Species",
+                    values = c("#895d45", "#c6903c")) +
+  coord_flip() +
+  scale_y_continuous(expand = expansion(mult = c(0, 0.01))) +
+  geom_text(aes(label = n %>%
+                  format(big.mark = ",")),
+            position = position_stack(vjust = 0.5),
+            size = 4.5,
+            color = "black")
+
+stacked_species_plot
 ```
 
 # Spacers per genome
