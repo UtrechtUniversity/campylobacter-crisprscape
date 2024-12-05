@@ -62,22 +62,41 @@ from
 [AllTheBacteria](https://allthebacteria.readthedocs.io/ "AllTheBacteria documentation")**
 
 We have downloaded all the *Campylobacter* *jejuni* and *C. coli*
-genomes from AllTheBacteria (ATB) to screen for CRISPR spacers
-(@fig-number_of_species). The current experiment includes all genomes
-that have been classified as 'Campylobacter_D jejuni\*' or
-'Campylobacter_D coli\*' using
+genomes from AllTheBacteria (ATB) to screen for CRISPR spacers. The
+current experiment includes all genomes that have been classified as
+'Campylobacter_D jejuni\*' or 'Campylobacter_D coli\*' using
 [Sylph](https://www.nature.com/articles/s41587-024-02412-y "Shaw & Yu, 2024. Nature Biotechnology")
 (which the creators of ATB ran on all genomes), that have been added to
-ATB in the incremental update of August 2024. (∗: any species
-designation matching these name prefixes were included.) These genomes
-have been screened for CRISPR ([Clustered Regularly Interspaced Short
-Palindromic
+ATB in the incremental update of August 2024 (@fig-number_of_species).
+(∗: any species designation matching these name prefixes were included.)
+These genomes have been screened for CRISPR ([Clustered Regularly
+Interspaced Short Palindromic
 Repeats](https://en.wikipedia.org/wiki/CRISPR "CRISPR wiki")) spacers
 and *Cas* (CRISPR-associated) genes using
 [CCTyper](https://www.biorxiv.org/content/10.1101/2020.05.15.097824v1 "Russel et al., 2020. bioRxiv")
 (version 1.8.0). CCTyper produces tab-separated tables that summarise
-the CRISPR spacers, the repeat sequences in between, Cas genes including
-statistics and sequences of the spacers.
+the CRISPRs, including number of contigs containing CRISPR arrays,
+number of spacers per array, number of repeat sequences, consensus
+repeat sequence, and presence of Cas genes. From these results, we can
+view:
+
+1.  The [number of CRISPR arrays](#crispr-arrays-per-genome) detected
+    per genome\
+    (Taking into account the presence of *Cas* genes)
+
+2.  Prevalence of CRISPR arrays overall and per species
+
+3.  Type of CRISPR arrays (and prevalence)
+
+4.  Number of CRISPR spacers per genome and per species
+
+5.  Length of the CRISPR spacers and repeat sequences
+
+6.  Repeat consensus sequence diversity
+
+*Note: see the relevant [CCTyper
+documentation](https://github.com/Russel88/CRISPRCasTyper?tab=readme-ov-file#output- "CCTyper output files documentation")
+of output files.*
 
 ```{r setup, include=FALSE}
 library(knitr)
@@ -266,19 +285,20 @@ stacked_species_plot <- ggplot(data = campylobacter_species_numbers,
 stacked_species_plot
 ```
 
-# Spacers per genome
+# CRISPR arrays per genome
 
-We have identified CRISPR spacer in all *Campylobacter jejuni* and *C.
-coli* genomes using
+We have identified CRISPRs in all *Campylobacter jejuni* and *C. coli*
+genomes using
 [CCTyper](https://github.com/Russel88/CRISPRCasTyper "GitHub repository for CRISPRCasTyper").
-CCTyper separately annotates CRISPR spacers near *Cas* genes and
-separate CRISPR arrays, called 'orphans'. To inventory the prevalence
-and size of both types of CRISPR arrays, show for each genome the number
-of CRISPR spacers as scatterplot (@fig-crisprs_per_genome).
+CCTyper separately annotates CRISPRs near *Cas* genes and separate
+CRISPR arrays, called 'orphans'. To inventory the prevalence and size of
+both types of CRISPR arrays, show for each genome the number of CRISPR
+arrays as a scatterplot (@fig-crisprs_per_genome). (Derived from the
+`CRISPR` field in CCTyper's output.)
 
-```{r spacers_per_genome}
+```{r crisprs_per_genome}
 #| label: fig-crisprs_per_genome
-#| fig-cap: "Number of CRISPR spacers per genome"
+#| fig-cap: "Number of CRISPR arrays per genome"
 #| fig-height: 4.5
 #| fig-width: 7.5
 
@@ -290,23 +310,23 @@ annotated_crispr_number_df <- left_join(
     x = crisprs_near_cas_df %>%
       group_by(sample_accession) %>%
       count() %>%
-      rename("CRISPRs_near_Cas" = "n"),
+      rename("CRISPRs near Cas" = "n"),
     y = crisprs_orphan_df %>%
       group_by(sample_accession) %>%
       count() %>%
-      rename("Orphan_CRISPRs" = "n"),
+      rename("Orphan CRISPRs" = "n"),
     by = "sample_accession"
   )
 ) %>%
   mutate(
-    across(CRISPRs_near_Cas:Orphan_CRISPRs,
+    across(`CRISPRs near Cas`:`Orphan CRISPRs`,
            ~replace_na(., 0))
   )
 
 number_of_crisprs_scatterplot <- ggplot(
   data = annotated_crispr_number_df,
-  mapping = aes(x = CRISPRs_near_Cas,
-                y = Orphan_CRISPRs)
+  mapping = aes(x = `CRISPRs near Cas`,
+                y = `Orphan CRISPRs`)
 ) +
   geom_point(position = position_jitter(),
              size = 0.7, alpha = 0.3) +
@@ -314,14 +334,14 @@ number_of_crisprs_scatterplot <- ggplot(
 
 crispr_near_cas_density = ggplot(
   data = annotated_crispr_number_df,
-  mapping = aes(x = CRISPRs_near_Cas)) +
+  mapping = aes(x = `CRISPRs near Cas`)) +
   geom_density(fill = "grey20") +
   theme_pubr() +
   theme(axis.title.x = element_blank())
 
 orphan_crispr_density = ggplot(
   data = annotated_crispr_number_df,
-  mapping = aes(y = Orphan_CRISPRs)) +
+  mapping = aes(y = `Orphan CRISPRs`)) +
   geom_density(fill = "grey20") +
   theme_pubr()
 
@@ -331,33 +351,36 @@ design <- "
 22223
 "
 
-spacers_per_genome_figure <- crispr_near_cas_density +
+crisprs_per_genome_figure <- crispr_near_cas_density +
   number_of_crisprs_scatterplot +
   orphan_crispr_density +
   plot_layout(design = design,
               axes = "collect")
 
-spacers_per_genome_figure
+crisprs_per_genome_figure
 ```
 
 From this figure, it appears that by far the most genomes have no CRISPR
-spacers at all, and otherwise they mostly have one CRISPR spacer near
-*Cas* genes. At most, CCTyper has found 3 CRISPRs near *Cas* genes and
-up to 4 orphan CRISPR spacers. Let's see this distribution in numbers
-and separate them between *C. jejuni* and *coli*.
+arrays at all, and otherwise they mostly have one CRISPR array near
+*Cas* genes (one contig containing CRISPRs). At most, CCTyper has found
+3 CRISPRs near *Cas* genes and up to 4 orphan CRISPRs Let's see this
+distribution separately between *C. jejuni* and *coli*, and look at the
+number of spacers per genome.
+
+## Arrays per genome and per species
 
 ```{r spacers_per_genome_stats}
 total_genomes = nrow(annotated_crispr_number_df)
 
 annotated_crispr_number_df %>%
-  count(CRISPRs_near_Cas, name = "Genomes") %>%
+  count(`CRISPRs near Cas`, name = "Genomes") %>%
   mutate(Percentage = round(Genomes / total_genomes * 100, 2))
 
 print("CRISPRs in Campylobacter jejuni")
 annotated_crispr_number_df %>%
   filter(grepl(pattern = "Campylobacter_D jejuni", Species)) %>%
-  group_by(CRISPRs_near_Cas) %>%
-  summarise(Genomes = length(CRISPRs_near_Cas)) %>%
+  group_by(`CRISPRs near Cas`) %>%
+  summarise(Genomes = length(`CRISPRs near Cas`)) %>%
   mutate(total_genomes = sum(Genomes),
          Percentage = round(Genomes / total_genomes * 100, 2)) %>%
   select(-total_genomes)
@@ -367,8 +390,8 @@ annotated_crispr_number_df %>%
 print("Orphan CRISPRs in C. jejuni")
 annotated_crispr_number_df %>%
   filter(grepl(pattern = "Campylobacter_D jejuni", Species)) %>%
-  group_by(Orphan_CRISPRs) %>%
-  summarise(Genomes = length(Orphan_CRISPRs)) %>%
+  group_by(`Orphan CRISPRs`) %>%
+  summarise(Genomes = length(`Orphan CRISPRs`)) %>%
   mutate(total_genomes = sum(Genomes),
          Percentage = round(Genomes / total_genomes * 100, 2)) %>%
   select(-total_genomes)
@@ -376,8 +399,8 @@ annotated_crispr_number_df %>%
 print("CRISPRs in Campylobacter coli")
 annotated_crispr_number_df %>%
   filter(grepl(pattern = "Campylobacter_D coli", Species)) %>%
-  group_by(CRISPRs_near_Cas) %>%
-  summarise(Genomes = length(CRISPRs_near_Cas)) %>%
+  group_by(`CRISPRs near Cas`) %>%
+  summarise(Genomes = length(`CRISPRs near Cas`)) %>%
   mutate(total_genomes = sum(Genomes),
          Percentage = round(Genomes / total_genomes * 100, 2)) %>%
   select(-total_genomes)
@@ -385,8 +408,8 @@ annotated_crispr_number_df %>%
 print("Orphan CRISPRs in C. coli")
 annotated_crispr_number_df %>%
   filter(grepl(pattern = "Campylobacter_D coli", Species)) %>%
-  group_by(Orphan_CRISPRs) %>%
-  summarise(Genomes = length(Orphan_CRISPRs)) %>%
+  group_by(`Orphan CRISPRs`) %>%
+  summarise(Genomes = length(`Orphan CRISPRs`)) %>%
   mutate(total_genomes = sum(Genomes),
          Percentage = round(Genomes / total_genomes * 100, 2)) %>%
   select(-total_genomes)
