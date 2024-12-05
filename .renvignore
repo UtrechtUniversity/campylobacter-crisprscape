@@ -1,4 +1,5 @@
 bin/
+containers/
 data/
 log/
 results/

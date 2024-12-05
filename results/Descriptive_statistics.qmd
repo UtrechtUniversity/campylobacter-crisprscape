@@ -103,7 +103,7 @@ to import the results from CCTyper:
 #| message: false
 
 # Files were originally processed in batches
-batches <- Sys.glob("../data/tmp/cctyper/batch_*")
+batches <- Sys.glob(here("data/tmp/cctyper/batch_*"))
 
 # Read the tab-separated files for each batch and concatenate them
 read_multiple_tables <- function(input_files) {
@@ -138,18 +138,26 @@ read_or_create <- function(table_file) {
 }
 
 
-CRISPR_Cas_df <- read_or_create("../data/processed/CRISPR_Cas-concatenated.tab")
+CRISPR_Cas_df <- read_or_create(
+  here("data/processed/CRISPR_Cas-concatenated.tab")
+)
 
-crisprs_all_df <- read_or_create("../data/processed/crisprs_all-concatenated.tab")
+crisprs_all_df <- read_or_create(
+  here("data/processed/crisprs_all-concatenated.tab")
+)
 
-crisprs_near_cas_df <- read_or_create("../data/processed/crisprs_near_cas-concatenated.tab") %>%
+crisprs_near_cas_df <- read_or_create(
+  here("data/processed/crisprs_near_cas-concatenated.tab")
+  ) %>%
   select(-Contig) %>%
   separate_wider_delim(cols = CRISPR, delim = ".",
                        names = c("sample_accession", "Contig")) %>%
   separate_wider_delim(cols = Contig, delim = "_",
                        names = c("Contig", "CRISPR_number"))
 
-crisprs_orphan_df <- read_or_create("../data/processed/crisprs_orphan-concatenated.tab") %>%
+crisprs_orphan_df <- read_or_create(
+  here("data/processed/crisprs_orphan-concatenated.tab")
+  ) %>%
   select(-Contig) %>%
   separate_wider_delim(cols = CRISPR, delim = ".",
                        names = c("sample_accession", "Contig")) %>%
@@ -168,7 +176,7 @@ species identifications by Sylph:
 #| fig-cap: "Number of species present in dataset"
 #| message: false
 
-campylobacter_metadata_file <- "../data/processed/Campylobacter_ATB_metadata.tsv"
+campylobacter_metadata_file <- here("data/processed/Campylobacter_ATB_metadata.tsv")
 
 if(file.exists(campylobacter_metadata_file)) {
   message("Reading Campylobacter metadata file!")
@@ -179,13 +187,13 @@ if(file.exists(campylobacter_metadata_file)) {
 } else {
   message("Creating Campylobacter metadata file...")
   total_campylobacter_metadata <- read_delim(
-    "../data/ATB/ena_metadata.20240801.selection-only_Campylobacter.tsv.gz",
+    here("data/ATB/ena_metadata.20240801.selection-only_Campylobacter.tsv.gz"),
     delim = "\t",
     col_names = F,
     show_col_types = F)
 
   older_campylobacter_metadata <- read_delim(
-    "../data/ATB/ena_metadata.0.2.20240606.selection-only_Campylobacter.tsv.gz",
+    here("data/ATB/ena_metadata.0.2.20240606.selection-only_Campylobacter.tsv.gz"),
     delim = "\t",
     col_names = F,
     show_col_types = F)
@@ -197,7 +205,7 @@ if(file.exists(campylobacter_metadata_file)) {
 
   # Take the column names from the table before grepping
   colnames(campylobacter_metadata) <- read_delim(
-    file = "../data/ATB/ena_metadata.20240801.selection.tsv.gz",
+    file = here("data/ATB/ena_metadata.20240801.selection.tsv.gz"),
     n_max = 1,
     delim = "\t",
     show_col_types = F
@@ -208,7 +216,7 @@ if(file.exists(campylobacter_metadata_file)) {
     select_if(~sum(!is.na(.)) > 0)
 
   simplified_species <- read_delim(
-    file = "../data/ATB/sylph.tsv.gz",
+    file = here("data/ATB/sylph.tsv.gz"),
     delim = "\t",
     show_col_types = F) %>%
     select(Sample, Species)
