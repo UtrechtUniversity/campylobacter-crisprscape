@@ -96,7 +96,7 @@ view:
 5.  [Length of the CRISPR](#length-of-spacers-and-repeats) spacers and
     repeat sequences (@fig-repeat_and_spacer_length)
 
-6.  Repeat consensus sequence diversity
+6.  [Repeat consensus sequence diversity](#repeat-sequence-summary)
 
 7.  Extra: estimated genome assembly quality (CheckM completeness and
     contamination)
@@ -702,3 +702,31 @@ the canonical lengths and deviations - especially those where the
 combined length is still 66 - may be the results of technical
 inaccuracies. Some combinations have different combined lengths and are
 more likely to be biologically different.
+
+# Repeat sequence summary
+
+Look at the consensus repeat sequences to get an idea of the diversity
+and possible errors in calling.
+
+```{r count_consensus_repeat_sequences}
+annotated_crispr_df %>%
+  count(Consensus_repeat, Repeat_len) %>%
+  arrange(desc(n))
+```
+
+The top two consensus sequences occur evenly frequently and are each
+others' reverse complement. The next two are variants that lack either
+the first or last nucleotide (both from the same strand, 'AT-start'), at
+roughly equal frequencies. The fifth and sixth are one nucleotide longer
+(from either strand, with an A appended or T prepended = identical). The
+next sequence is actually different
+(`ATTTTAGTCCCTTTTTAAATTTCTTTATGGTAAAAT`), still at 36 bp long. Then
+follow one with a single point mutation and some length variants. Some
+clustering (with `CDHIT-EST`) should probably be able to help find the
+actually different repeat sequences.
+
+Most common repeat (in 'AT-start' orientation):
+`ATTTTACCATAAAGAAATTTAAAAAGGGACTAAAAC`
+
+For comparison, the 'GT-start' orientation (reverse complement):
+`GTTTTAGTCCCTTTTTAAATTTCTTTATGGTAAAAT`
