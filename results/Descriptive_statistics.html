@@ -120,8 +120,9 @@ window.Quarto = {
   </ul></li>
   <li><a href="#crispr-spacers-per-genome" id="toc-crispr-spacers-per-genome" class="nav-link" data-scroll-target="#crispr-spacers-per-genome">CRISPR spacers per genome</a>
   <ul class="collapse">
-  <li><a href="#crispr-spacers-per-species" id="toc-crispr-spacers-per-species" class="nav-link" data-scroll-target="#crispr-spacers-per-species">CRISPR spacers per species</a></li>
+  <li><a href="#spacers-per-species" id="toc-spacers-per-species" class="nav-link" data-scroll-target="#spacers-per-species">Spacers per species</a></li>
   </ul></li>
+  <li><a href="#length-of-spacers-and-repeats" id="toc-length-of-spacers-and-repeats" class="nav-link" data-scroll-target="#length-of-spacers-and-repeats">Length of spacers and repeats</a></li>
   </ul>
 <div class="quarto-alternate-formats"><h2>Other Formats</h2><ul><li><a href="Descriptive_statistics.pdf"><i class="bi bi-file-pdf"></i>PDF</a></li></ul></div></nav>
 </div>
@@ -170,15 +171,12 @@ window.Quarto = {
 <p><strong>Descriptive statistics of CRISPR arrays in <em>Campylobacter</em> genomes from <a href="https://allthebacteria.readthedocs.io/" title="AllTheBacteria documentation">AllTheBacteria</a></strong></p>
 <p>We have downloaded all the <em>Campylobacter</em> <em>jejuni</em> and <em>C. coli</em> genomes from AllTheBacteria (ATB) to screen for CRISPR spacers. The current experiment includes all genomes that have been classified as ‘Campylobacter_D jejuni*’ or ‘Campylobacter_D coli*’ using <a href="https://www.nature.com/articles/s41587-024-02412-y" title="Shaw &amp; Yu, 2024. Nature Biotechnology">Sylph</a> (which the creators of ATB ran on all genomes), that have been added to ATB in the incremental update of August 2024 (<a href="#fig-number_of_species" class="quarto-xref">Figure&nbsp;1</a>). (∗: any species designation matching these name prefixes were included.) These genomes have been screened for CRISPR (<a href="https://en.wikipedia.org/wiki/CRISPR" title="CRISPR wiki">Clustered Regularly Interspaced Short Palindromic Repeats</a>) spacers and <em>Cas</em> (CRISPR-associated) genes using <a href="https://www.biorxiv.org/content/10.1101/2020.05.15.097824v1" title="Russel et al., 2020. bioRxiv">CCTyper</a> (version 1.8.0). CCTyper produces tab-separated tables that summarise the CRISPRs, including number of contigs containing CRISPR arrays, number of spacers per array, number of repeat sequences, consensus repeat sequence, and presence of Cas genes. From these results, we can view:</p>
 <ol type="1">
-<li><p>The <a href="#crispr-arrays-per-genome">number of CRISPR arrays</a> detected per genome<br>
-(Taking into account the presence of <em>Cas</em> genes;</p>
-<ol class="example" type="1">
-<li></li>
-</ol></li>
+<li><p>The <a href="#crispr-arrays-per-genome">number of CRISPR arrays</a> detected per genome (<a href="#fig-crisprs_per_genome" class="quarto-xref">Figure&nbsp;2</a>)<br>
+(Taking into account the presence of <em>Cas</em> genes)</p></li>
 <li><p><a href="#arrays-per-genome-and-per-species">Prevalence of CRISPR arrays</a> overall and per species (<a href="#fig-crisprs_per_genome_donut" class="quarto-xref">Figure&nbsp;3</a>)</p></li>
 <li><p><a href="#type-of-crispr-arrays">Type of CRISPR arrays</a> (and prevalence)</p></li>
 <li><p>Number of CRISPR <a href="#0">spacers per genome</a> (<a href="#fig-spacers_per_genome" class="quarto-xref">Figure&nbsp;4</a>) and <a href="#0">per species</a> (<a href="#fig-total_spacers_per_species" class="quarto-xref">Figure&nbsp;5</a>)</p></li>
-<li><p>Length of the CRISPR spacers and repeat sequences</p></li>
+<li><p><a href="#length-of-spacers-and-repeats">Length of the CRISPR</a> spacers and repeat sequences (<a href="#fig-repeat_and_spacer_length" class="quarto-xref">Figure&nbsp;6</a>)</p></li>
 <li><p>Repeat consensus sequence diversity</p></li>
 <li><p>Extra: estimated genome assembly quality (CheckM completeness and contamination)</p></li>
 </ol>
@@ -358,7 +356,7 @@ Figure&nbsp;1: Number of species present in dataset
 </section>
 <section id="crispr-arrays-per-genome" class="level1">
 <h1>CRISPR arrays per genome</h1>
-<p>We have identified CRISPRs in all <em>Campylobacter jejuni</em> and <em>C. coli</em> genomes using <a href="https://github.com/Russel88/CRISPRCasTyper" title="GitHub repository for CRISPRCasTyper">CCTyper</a>. CCTyper separately annotates CRISPRs near <em>Cas</em> genes and separate CRISPR arrays, called ‘orphans’. To inventory the prevalence and size of both types of CRISPR arrays, show for each genome the number of CRISPR arrays as a scatterplot (1). (Derived from the <code>CRISPR</code> field in CCTyper’s output.)</p>
+<p>We have identified CRISPRs in all <em>Campylobacter jejuni</em> and <em>C. coli</em> genomes using <a href="https://github.com/Russel88/CRISPRCasTyper" title="GitHub repository for CRISPRCasTyper">CCTyper</a>. CCTyper separately annotates CRISPRs near <em>Cas</em> genes and separate CRISPR arrays, called ‘orphans’. To inventory the prevalence and size of both types of CRISPR arrays, show for each genome the number of CRISPR arrays as a scatterplot (<a href="#fig-crisprs_per_genome" class="quarto-xref">Figure&nbsp;2</a>). (Derived from the <code>CRISPR</code> field in CCTyper’s output.)</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
@@ -770,8 +768,8 @@ Figure&nbsp;4: Total number of CRISPR spacers
 </div>
 </div>
 <p>This figure shows (again) that orphan CRISPRs are relatively rare, but when they occur they may contain up to 23 spacers. The most commonly occurring number of spacers is 3. As for the CRISPRs with <em>Cas</em> genes nearby, most CRISPR arrays contain up to 13 spacers (each at least 100 times) with higher numbers being observed less often. The minimum number of spacers is 2, and the max 45. (Note that these numbers sum all spacers if there are multiple arrays!)</p>
-<section id="crispr-spacers-per-species" class="level2">
-<h2 class="anchored" data-anchor-id="crispr-spacers-per-species">CRISPR spacers per species</h2>
+<section id="spacers-per-species" class="level2">
+<h2 class="anchored" data-anchor-id="spacers-per-species">Spacers per species</h2>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
@@ -805,6 +803,61 @@ Figure&nbsp;5: Total spacers per species
 </div>
 <p>There appears to be a difference in distribution of the number of CRISPR spacers between <em>C. jejuni</em> (bottom) and <em>C. coli</em> (top). In <em>C. jejuni</em> there is a clear anticorrelation between number of spacers and frequency: most arrays harbour 2 spacers and for each added spacer the frequency decreases. This pattern does not apply to <em>C. coli</em>: the most common <em>Cas</em>-containing array has 5 spacers and frequencies of arrays with 11 and 13 spacers are higher than those for 10, 12, 14 or more spacers. This might be correlated with other underlying biological data, such as the origin of the genomes (different environments, or lineages?).</p>
 </section>
+</section>
+<section id="length-of-spacers-and-repeats" class="level1">
+<h1>Length of spacers and repeats</h1>
+<p>CCTyper reports for each array the length of the repeats and the mean length of the CRISPR spacers with standard error of the mean (SEM; as <code>Repeat_len</code>, <code>Spacer_len_avg</code>, and <code>Spacer_len_sem</code>). From previous tests and discussions it appears that these may shift slightly between genomes, while the total length remains the same, meaning that for instance a repeat may be 3bp longer and the spacer 3bp shorter compared to a similar array in another genome. Let’s make a correlation dot plot to show this.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>repeat_and_spacer_length_figure <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(</span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> annotated_crispr_df,</span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">mapping =</span> <span class="fu">aes</span>(<span class="at">x =</span> Spacer_len_avg,</span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>                <span class="at">y =</span> Repeat_len)</span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>) <span class="sc">+</span></span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">size =</span> <span class="fl">0.8</span>, <span class="at">alpha =</span> <span class="fl">0.8</span>) <span class="sc">+</span></span>
+<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_pubr</span>() <span class="sc">+</span></span>
+<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stat_cor</span>(<span class="at">method =</span> <span class="st">"pearson"</span>, <span class="at">label.x.npc =</span> <span class="fl">0.6</span>) <span class="sc">+</span></span>
+<span id="cb25-9"><a href="#cb25-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Spacer length (bp)"</span>,</span>
+<span id="cb25-10"><a href="#cb25-10" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"Repeat length (bp)"</span>)</span>
+<span id="cb25-11"><a href="#cb25-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-12"><a href="#cb25-12" aria-hidden="true" tabindex="-1"></a>repeat_length_histogram <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(</span>
+<span id="cb25-13"><a href="#cb25-13" aria-hidden="true" tabindex="-1"></a>  annotated_crispr_df,</span>
+<span id="cb25-14"><a href="#cb25-14" aria-hidden="true" tabindex="-1"></a>  <span class="at">mapping =</span> <span class="fu">aes</span>(<span class="at">y =</span> Repeat_len)) <span class="sc">+</span></span>
+<span id="cb25-15"><a href="#cb25-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="at">binwidth =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb25-16"><a href="#cb25-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_pubr</span>() <span class="sc">+</span></span>
+<span id="cb25-17"><a href="#cb25-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">y =</span> <span class="cn">NULL</span>,</span>
+<span id="cb25-18"><a href="#cb25-18" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Count"</span>)</span>
+<span id="cb25-19"><a href="#cb25-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-20"><a href="#cb25-20" aria-hidden="true" tabindex="-1"></a>spacer_length_histogram <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(</span>
+<span id="cb25-21"><a href="#cb25-21" aria-hidden="true" tabindex="-1"></a>  annotated_crispr_df,</span>
+<span id="cb25-22"><a href="#cb25-22" aria-hidden="true" tabindex="-1"></a>  <span class="at">mapping =</span> <span class="fu">aes</span>(<span class="at">x =</span> Spacer_len_avg)) <span class="sc">+</span></span>
+<span id="cb25-23"><a href="#cb25-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="at">binwidth =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb25-24"><a href="#cb25-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_pubr</span>() <span class="sc">+</span></span>
+<span id="cb25-25"><a href="#cb25-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="cn">NULL</span>,</span>
+<span id="cb25-26"><a href="#cb25-26" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"Count"</span>)</span>
+<span id="cb25-27"><a href="#cb25-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-28"><a href="#cb25-28" aria-hidden="true" tabindex="-1"></a>spacer_length_histogram <span class="sc">+</span></span>
+<span id="cb25-29"><a href="#cb25-29" aria-hidden="true" tabindex="-1"></a>  <span class="fu">plot_spacer</span>() <span class="sc">+</span></span>
+<span id="cb25-30"><a href="#cb25-30" aria-hidden="true" tabindex="-1"></a>  repeat_and_spacer_length_figure <span class="sc">+</span></span>
+<span id="cb25-31"><a href="#cb25-31" aria-hidden="true" tabindex="-1"></a>  repeat_length_histogram <span class="sc">+</span></span>
+<span id="cb25-32"><a href="#cb25-32" aria-hidden="true" tabindex="-1"></a>  <span class="fu">plot_layout</span>(<span class="at">widths =</span> <span class="fu">c</span>(<span class="dv">3</span>, <span class="dv">1</span>),</span>
+<span id="cb25-33"><a href="#cb25-33" aria-hidden="true" tabindex="-1"></a>              <span class="at">heights =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">3</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div id="fig-repeat_and_spacer_length" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-repeat_and_spacer_length-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="Descriptive_statistics_files/figure-html/fig-repeat_and_spacer_length-1.png" class="img-fluid figure-img" width="768">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-repeat_and_spacer_length-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;6: CRISPR repeat and spacer length
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>Indeed, lengths of repeats and spacers are highly correlated (Pearson’s R = -0.99, p &lt; 0.0001).The most commonly found combination is spacers of 30 bp long with repeats of 36 bp. It is likely that those are then the canonical lengths and deviations - especially those where the combined length is still 66 - may be the results of technical inaccuracies. Some combinations have different combined lengths and are more likely to be biologically different.</p>
 </section>
 
 </main>

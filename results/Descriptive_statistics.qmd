@@ -53,6 +53,7 @@ knitr:
 editor:
   markdown:
     wrap: 72
+  canonical: true
 ---
 
 # CRISPR spacers in *Campylobacter*
@@ -81,9 +82,8 @@ repeat sequence, and presence of Cas genes. From these results, we can
 view:
 
 1.  The [number of CRISPR arrays](#crispr-arrays-per-genome) detected
-    per genome\
-    (Taking into account the presence of *Cas* genes;
-    @fig-crisprs_per_genome)
+    per genome (@fig-crisprs_per_genome)\
+    (Taking into account the presence of *Cas* genes)
 
 2.  [Prevalence of CRISPR arrays](#arrays-per-genome-and-per-species)
     overall and per species (@fig-crisprs_per_genome_donut)
@@ -93,7 +93,8 @@ view:
 4.  Number of CRISPR [spacers per genome](#0) (@fig-spacers_per_genome)
     and [per species](#0) (@fig-total_spacers_per_species)
 
-5.  Length of the CRISPR spacers and repeat sequences
+5.  [Length of the CRISPR](#length-of-spacers-and-repeats) spacers and
+    repeat sequences (@fig-repeat_and_spacer_length)
 
 6.  Repeat consensus sequence diversity
 
@@ -609,7 +610,7 @@ times) with higher numbers being observed less often. The minimum number
 of spacers is 2, and the max 45. (Note that these numbers sum all
 spacers if there are multiple arrays!)
 
-## CRISPR spacers per species
+## Spacers per species {#spacers-per-species}
 
 ```{r total_spacers_per_species}
 #| fig-cap: "Total spacers per species"
@@ -641,3 +642,63 @@ with 11 and 13 spacers are higher than those for 10, 12, 14 or more
 spacers. This might be correlated with other underlying biological data,
 such as the origin of the genomes (different environments, or
 lineages?).
+
+# Length of spacers and repeats {#length-of-spacers-and-repeats}
+
+CCTyper reports for each array the length of the repeats and the mean
+length of the CRISPR spacers with standard error of the mean (SEM; as
+`Repeat_len`, `Spacer_len_avg`, and `Spacer_len_sem`). From previous
+tests and discussions it appears that these may shift slightly between
+genomes, while the total length remains the same, meaning that for
+instance a repeat may be 3bp longer and the spacer 3bp shorter compared
+to a similar array in another genome. Let's make a correlation dot plot
+to show this.
+
+```{r repeat_and_spacer_length}
+#| fig-height: 5
+#| fig-width: 8
+#| label: fig-repeat_and_spacer_length
+#| fig-cap: "CRISPR repeat and spacer length"
+
+repeat_and_spacer_length_figure <- ggplot(
+  data = annotated_crispr_df,
+  mapping = aes(x = Spacer_len_avg,
+                y = Repeat_len)
+) +
+  geom_point(size = 0.8, alpha = 0.8) +
+  theme_pubr() +
+  stat_cor(method = "pearson", label.x.npc = 0.6) +
+  labs(x = "Spacer length (bp)",
+       y = "Repeat length (bp)")
+
+repeat_length_histogram <- ggplot(
+  annotated_crispr_df,
+  mapping = aes(y = Repeat_len)) +
+  geom_histogram(binwidth = 1) +
+  theme_pubr() +
+  labs(y = NULL,
+       x = "Count")
+
+spacer_length_histogram <- ggplot(
+  annotated_crispr_df,
+  mapping = aes(x = Spacer_len_avg)) +
+  geom_histogram(binwidth = 1) +
+  theme_pubr() +
+  labs(x = NULL,
+       y = "Count")
+
+spacer_length_histogram +
+  plot_spacer() +
+  repeat_and_spacer_length_figure +
+  repeat_length_histogram +
+  plot_layout(widths = c(3, 1),
+              heights = c(1, 3))
+```
+
+Indeed, lengths of repeats and spacers are highly correlated (Pearson's
+R = -0.99, p \< 0.0001).The most commonly found combination is spacers
+of 30 bp long with repeats of 36 bp. It is likely that those are then
+the canonical lengths and deviations - especially those where the
+combined length is still 66 - may be the results of technical
+inaccuracies. Some combinations have different combined lengths and are
+more likely to be biologically different.
