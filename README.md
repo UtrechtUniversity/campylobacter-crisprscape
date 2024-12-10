@@ -60,6 +60,16 @@ _This includes:_
      (/mnt/DGK_KLIF/data/rfplasmidweb/pip_package/package_files/RFPlasmid/rfplasmid.py)
      but it seems not to work when only one genome is present in the input directory.
 
+2024-12-10:
+  - CCTyper returns different output when running single genomes as
+    compared to running one concatenated fasta file with contigs of
+    many genomes. (See `data/tmp/cctyper/batch_22/CRISPR_Cas-batch_22.tab`
+    vs `data/tmp/cctyper/test/batch_22/CRISPR_Cas.tab` - difference is 1KB.)
+    The separate method returns 7 contigs that the concatenated did not find,
+    and the concatenated method found 1 contig that the separate did not find.
+    These may be false positives (how do you check?), but for now I'm sticking
+    with the separate method.
+
 ### Files I want to collect and process
 
 1. Complete CRISPR-Cas locus sequences as fasta
