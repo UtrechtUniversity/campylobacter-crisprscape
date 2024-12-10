@@ -124,6 +124,7 @@ window.Quarto = {
   </ul></li>
   <li><a href="#length-of-spacers-and-repeats" id="toc-length-of-spacers-and-repeats" class="nav-link" data-scroll-target="#length-of-spacers-and-repeats">Length of spacers and repeats</a></li>
   <li><a href="#repeat-sequence-summary" id="toc-repeat-sequence-summary" class="nav-link" data-scroll-target="#repeat-sequence-summary">Repeat sequence summary</a></li>
+  <li><a href="#estimated-assembly-quality" id="toc-estimated-assembly-quality" class="nav-link" data-scroll-target="#estimated-assembly-quality">Estimated assembly quality</a></li>
   </ul>
 <div class="quarto-alternate-formats"><h2>Other Formats</h2><ul><li><a href="Descriptive_statistics.pdf"><i class="bi bi-file-pdf"></i>PDF</a></li></ul></div></nav>
 </div>
@@ -179,7 +180,7 @@ window.Quarto = {
 <li><p>Number of CRISPR <a href="#0">spacers per genome</a> (<a href="#fig-spacers_per_genome" class="quarto-xref">Figure&nbsp;4</a>) and <a href="#0">per species</a> (<a href="#fig-total_spacers_per_species" class="quarto-xref">Figure&nbsp;5</a>)</p></li>
 <li><p><a href="#length-of-spacers-and-repeats">Length of the CRISPR</a> spacers and repeat sequences (<a href="#fig-repeat_and_spacer_length" class="quarto-xref">Figure&nbsp;6</a>)</p></li>
 <li><p><a href="#repeat-sequence-summary">Repeat consensus sequence diversity</a></p></li>
-<li><p>Extra: estimated genome assembly quality (CheckM completeness and contamination)</p></li>
+<li><p>Extra: estimated genome <a href="#estimated-assembly-quality">assembly quality</a> (CheckM completeness and contamination; <a href="#fig-assembly_quality" class="quarto-xref">Figure&nbsp;7</a>)</p></li>
 </ol>
 <p><em>Note: see the relevant <a href="https://github.com/Russel88/CRISPRCasTyper?tab=readme-ov-file#output-" title="CCTyper output files documentation">CCTyper documentation</a> of output files.</em></p>
 <p>In this analysis report, we summarise the prevalence and other general descriptive statistics of the CRISPR spacers. Therefore, we first need to import the results from CCTyper:</p>
@@ -881,6 +882,58 @@ Figure&nbsp;6: CRISPR repeat and spacer length
 <p>The top two consensus sequences occur evenly frequently and are each others’ reverse complement. The next two are variants that lack either the first or last nucleotide (both from the same strand, ‘AT-start’), at roughly equal frequencies. The fifth and sixth are one nucleotide longer (from either strand, with an A appended or T prepended = identical). The next sequence is actually different (<code>ATTTTAGTCCCTTTTTAAATTTCTTTATGGTAAAAT</code>), still at 36 bp long. Then follow one with a single point mutation and some length variants. Some clustering (with <code>CDHIT-EST</code>) should probably be able to help find the actually different repeat sequences.</p>
 <p>Most common repeat (in ‘AT-start’ orientation): <code>ATTTTACCATAAAGAAATTTAAAAAGGGACTAAAAC</code></p>
 <p>For comparison, the ‘GT-start’ orientation (reverse complement): <code>GTTTTAGTCCCTTTTTAAATTTCTTTATGGTAAAAT</code></p>
+</section>
+<section id="estimated-assembly-quality" class="level1">
+<h1>Estimated assembly quality</h1>
+<p>The genomes collected by AllTheBacteria have all gone through their quality control, including <a href="#0">CheckM2</a>. (Also see the <a href="https://allthebacteria.readthedocs.io/en/latest/sample_metadata.html#checkm2">documentation</a>.) The results are available as separate tab-separated text file and should allow for a simple visualisation of the estimated completeness and contamination scores.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Read the CheckM2 results file and filter out the Campylobacters</span></span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>checkm2_results <span class="ot">&lt;-</span> <span class="fu">read_delim</span>(<span class="fu">here</span>(<span class="st">"data/ATB/checkm2.tsv.gz"</span>),</span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>                              <span class="at">show_col_types =</span> F) <span class="sc">%&gt;%</span></span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(Sample <span class="sc">%in%</span> campylobacter_metadata<span class="sc">$</span>sample_accession)</span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a>checkm2_figure <span class="ot">&lt;-</span> checkm2_results <span class="sc">%&gt;%</span></span>
+<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="at">mapping =</span> <span class="fu">aes</span>(<span class="at">x =</span> Completeness_General,</span>
+<span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a>                       <span class="at">y =</span> Contamination)) <span class="sc">+</span></span>
+<span id="cb27-9"><a href="#cb27-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">size =</span> <span class="fl">0.6</span>, <span class="at">alpha =</span> <span class="fl">0.5</span>) <span class="sc">+</span></span>
+<span id="cb27-10"><a href="#cb27-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Completeness (%)"</span>,</span>
+<span id="cb27-11"><a href="#cb27-11" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"Contamination (%)"</span>) <span class="sc">+</span></span>
+<span id="cb27-12"><a href="#cb27-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_pubr</span>()</span>
+<span id="cb27-13"><a href="#cb27-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-14"><a href="#cb27-14" aria-hidden="true" tabindex="-1"></a>quality_df <span class="ot">&lt;-</span> checkm2_results <span class="sc">%&gt;%</span></span>
+<span id="cb27-15"><a href="#cb27-15" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Drop unnecessary columns:</span></span>
+<span id="cb27-16"><a href="#cb27-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span><span class="fu">c</span>(Completeness_General, Contamination, Completeness_Specific,</span>
+<span id="cb27-17"><a href="#cb27-17" aria-hidden="true" tabindex="-1"></a>            Completeness_Model_Used, Translation_Table_Used, Additional_Notes)) <span class="sc">%&gt;%</span></span>
+<span id="cb27-18"><a href="#cb27-18" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Pivot columns of interest into one long column to enable facetting</span></span>
+<span id="cb27-19"><a href="#cb27-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(<span class="at">cols =</span> <span class="fu">c</span>(Coding_Density, Contig_N50, Average_Gene_Length, Genome_Size,</span>
+<span id="cb27-20"><a href="#cb27-20" aria-hidden="true" tabindex="-1"></a>                        GC_Content, Total_Coding_Sequences))</span>
+<span id="cb27-21"><a href="#cb27-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-22"><a href="#cb27-22" aria-hidden="true" tabindex="-1"></a>other_quality_boxplots <span class="ot">&lt;-</span> quality_df <span class="sc">%&gt;%</span></span>
+<span id="cb27-23"><a href="#cb27-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="at">mapping =</span> <span class="fu">aes</span>(<span class="at">x =</span> name, <span class="at">y =</span> value)) <span class="sc">+</span></span>
+<span id="cb27-24"><a href="#cb27-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_boxplot</span>() <span class="sc">+</span></span>
+<span id="cb27-25"><a href="#cb27-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span>name, <span class="at">scales =</span> <span class="st">"free"</span>) <span class="sc">+</span></span>
+<span id="cb27-26"><a href="#cb27-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_pubr</span>() <span class="sc">+</span></span>
+<span id="cb27-27"><a href="#cb27-27" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">axis.title =</span> <span class="fu">element_blank</span>(),</span>
+<span id="cb27-28"><a href="#cb27-28" aria-hidden="true" tabindex="-1"></a>        <span class="at">axis.text.x =</span> <span class="fu">element_blank</span>())</span>
+<span id="cb27-29"><a href="#cb27-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-30"><a href="#cb27-30" aria-hidden="true" tabindex="-1"></a>checkm2_figure <span class="sc">/</span> other_quality_boxplots</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div id="fig-assembly_quality" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-assembly_quality-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="Descriptive_statistics_files/figure-html/fig-assembly_quality-1.png" class="img-fluid figure-img" width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-assembly_quality-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;7: CheckM2 and other assembly quality scores
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>As expected, all CheckM2 quality scores are &gt;95% completeness and &lt;5% contamination, also known as ‘high-quality’. The other assembly statistics reveal that genomes are around 1.7Mb long (median: 1,702,242 bp), have an average (and median) GC-content of around 30%. The genomes harbour around 1,800 genes (median: 1,786) of 300 amino acids? long (median: 299.45), which bring the coding density to 94% (median: 93.8%).</p>
 </section>
 
 </main>

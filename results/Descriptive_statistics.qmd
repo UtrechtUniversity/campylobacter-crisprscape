@@ -98,8 +98,9 @@ view:
 
 6.  [Repeat consensus sequence diversity](#repeat-sequence-summary)
 
-7.  Extra: estimated genome assembly quality (CheckM completeness and
-    contamination)
+7.  Extra: estimated genome [assembly
+    quality](#estimated-assembly-quality) (CheckM completeness and
+    contamination; @fig-assembly_quality)
 
 *Note: see the relevant [CCTyper
 documentation](https://github.com/Russel88/CRISPRCasTyper?tab=readme-ov-file#output- "CCTyper output files documentation")
@@ -703,7 +704,7 @@ combined length is still 66 - may be the results of technical
 inaccuracies. Some combinations have different combined lengths and are
 more likely to be biologically different.
 
-# Repeat sequence summary
+# Repeat sequence summary {#repeat-sequence-summary}
 
 Look at the consensus repeat sequences to get an idea of the diversity
 and possible errors in calling.
@@ -730,3 +731,57 @@ Most common repeat (in 'AT-start' orientation):
 
 For comparison, the 'GT-start' orientation (reverse complement):
 `GTTTTAGTCCCTTTTTAAATTTCTTTATGGTAAAAT`
+
+# Estimated assembly quality
+
+The genomes collected by AllTheBacteria have all gone through their
+quality control, including [CheckM2](#0). (Also see the
+[documentation](https://allthebacteria.readthedocs.io/en/latest/sample_metadata.html#checkm2).)
+The results are available as separate tab-separated text file and should
+allow for a simple visualisation of the estimated completeness and
+contamination scores.
+
+```{r}
+#| label: fig-assembly_quality
+#| fig-cap: "CheckM2 and other assembly quality scores"
+#| fig-height: 6
+#| fig-width: 7
+
+# Read the CheckM2 results file and filter out the Campylobacters
+checkm2_results <- read_delim(here("data/ATB/checkm2.tsv.gz"),
+                              show_col_types = F) %>%
+  filter(Sample %in% campylobacter_metadata$sample_accession)
+
+checkm2_figure <- checkm2_results %>%
+  ggplot(mapping = aes(x = Completeness_General,
+                       y = Contamination)) +
+  geom_point(size = 0.6, alpha = 0.5) +
+  labs(x = "Completeness (%)",
+       y = "Contamination (%)") +
+  theme_pubr()
+
+quality_df <- checkm2_results %>%
+  # Drop unnecessary columns:
+  select(-c(Completeness_General, Contamination, Completeness_Specific,
+            Completeness_Model_Used, Translation_Table_Used, Additional_Notes)) %>%
+  # Pivot columns of interest into one long column to enable facetting
+  pivot_longer(cols = c(Coding_Density, Contig_N50, Average_Gene_Length, Genome_Size,
+                        GC_Content, Total_Coding_Sequences))
+
+other_quality_boxplots <- quality_df %>%
+  ggplot(mapping = aes(x = name, y = value)) +
+  geom_boxplot() +
+  facet_wrap(~name, scales = "free") +
+  theme_pubr() +
+  theme(axis.title = element_blank(),
+        axis.text.x = element_blank())
+
+checkm2_figure / other_quality_boxplots
+```
+
+As expected, all CheckM2 quality scores are \>95% completeness and \<5%
+contamination, also known as 'high-quality'. The other assembly
+statistics reveal that genomes are around 1.7Mb long (median: 1,702,242
+bp), have an average (and median) GC-content of around 30%. The genomes
+harbour around 1,800 genes (median: 1,786) of 300 amino acids? long
+(median: 299.45), which bring the coding density to 94% (median: 93.8%).
