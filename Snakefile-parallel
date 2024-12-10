@@ -54,6 +54,8 @@ rule all:
                batch = BATCHES,
                filename = [ "CRISPR_Cas", "crisprs_all", "crisprs_near_cas", "crisprs_orphan" ]
         ),
+        expand(OUTPUT_DIR + "cctyper/{batch}/all_spacers-{batch}.fa",
+               batch = BATCHES),
 
         # geNomad output
         expand(
@@ -104,6 +106,7 @@ rule collect_cctyper:
         crisprs_all=OUTPUT_DIR + "cctyper/{batch}/crisprs_all-{batch}.tab",
         crisprs_near_cas=OUTPUT_DIR + "cctyper/{batch}/crisprs_near_cas-{batch}.tab",
         crisprs_orphan=OUTPUT_DIR + "cctyper/{batch}/crisprs_orphan-{batch}.tab",
+        spacers=OUTPUT_DIR + "cctyper/{batch}/all_spacers-{batch}.fa",
     threads: 1
     log:
         "log/cctyper/collect_{batch}.txt"
@@ -112,6 +115,8 @@ rule collect_cctyper:
     shell:
         """
 bash bin/concatenate_cctyper_output.sh $(dirname {input}) > {log} 2>&1
+
+find $(dirname {input}) -mindepth 3 -maxdepth 3 -name "*.fa" -exec cat {{}} + > {output.spacers} 2>> {log}
         """
 
 
