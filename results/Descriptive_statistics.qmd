@@ -785,3 +785,11 @@ statistics reveal that genomes are around 1.7Mb long (median: 1,702,242
 bp), have an average (and median) GC-content of around 30%. The genomes
 harbour around 1,800 genes (median: 1,786) of 300 amino acids? long
 (median: 299.45), which bring the coding density to 94% (median: 93.8%).
+
+------------------------------------------------------------------------
+
+# Used software
+
+```{r session_info}
+sessionInfo()
+```
