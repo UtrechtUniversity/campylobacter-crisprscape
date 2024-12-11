@@ -41,7 +41,7 @@ do
     # If the batch directory has not been made yet
     if [ ! -d ${batchdir} ]
     then
-        echo "Extracting ${outputfile} and gzipping each fasta file!"
+        echo "Extracting ${outputfile}!"
 
         mkdir -p ${batchdir}
 
@@ -49,10 +49,7 @@ do
         # and strip the leading directory from within the XZ archive.
         tar -Jxf ${outputfile} -C ${batchdir} --strip-components 1
 
-        # Now compress the fasta files with Gzip to at least save
-        # some disk space, while still allowing working with the files.
-        pigz --fast -p 12 ${batchdir}/*.fa
     else
-        echo "Fasta files have been extracted and separately compressed previously!"
+        echo "Fasta files have been extracted previously!"
     fi
 done
