@@ -333,8 +333,20 @@ annotated_crispr_number_df <- left_join(
     across(`CRISPRs near Cas`:`Orphan CRISPRs`,
            ~replace_na(., 0)),
     simple_species = if_else(grepl(pattern = "jejuni", x = Species),
-                             "jejuni", "coli")
+                             "jejuni", "coli"),
+    contains_crisprs = case_when(
+      `CRISPRs near Cas` == 0 & `Orphan CRISPRs` == 0 ~ "no_crisprs",
+      `CRISPRs near Cas` == 0 & `Orphan CRISPRs` > 0 ~ "only_orphans",
+      `CRISPRs near Cas` > 0 & `Orphan CRISPRs` == 0 ~ "only_near_cas",
+      TRUE ~ "both"
+    )
   )
+
+write_delim(
+  x = annotated_crispr_number_df,
+  file = here("data/processed/CRISPR_numbers_annotated.tsv"),
+  delim = "\t"
+)
 
 number_of_crisprs_scatterplot <- ggplot(
   data = annotated_crispr_number_df,
@@ -456,7 +468,32 @@ orphan_crisprs_coli <- prepare_stats_df(
 orphan_crisprs_coli[,1:3]
 ```
 
-```{r}
+Or, shown in a different way:
+
+```{r crispr_prevalence_numbers}
+annotated_crispr_number_df %>%
+  count(contains_crisprs) %>%
+  mutate(Percentage = round(n / total_genomes * 100, 2))
+
+annotated_crispr_number_df %>%
+  count(contains_crisprs, simple_species) %>%
+  mutate(Percentage = case_when(
+    simple_species == "jejuni" ~ round(n / annotated_crispr_number_df %>%
+                                         filter(simple_species == "jejuni") %>%
+                                         nrow() * 100, 2),
+    simple_species == "coli" ~ round(n / annotated_crispr_number_df %>%
+                                       filter(simple_species == "coli") %>%
+                                       nrow() * 100, 2),
+    TRUE ~ 0)
+    )%>%
+  arrange(desc(simple_species))
+```
+
+These tables again show the prevalence of CRISPR arrays among
+*Campylobacter* genomes. 31% of *C. jenuni* and 70% of *C. coli* genomes
+have no CRISPR arrays as detected in our analyses.
+
+```{r crispr_prevalence_donuts}
 #| fig-cap: "Prevalence of CRISPR arrays"
 #| label: fig-crisprs_per_genome_donut
 #| fig-height: 3
@@ -710,17 +747,18 @@ more likely to be biologically different.
 
 # Number of unique spacers {#number-of-unique-spacers}
 
-In this dataset of 19,445 genomes we have seen that there are genomes
-with up to 23 CRISPR spacers near *Cas* genes and 13 orphan spacers.
-Also, most of these spacers are 30 bp long, with exceptions from 26-51
-bp. Now if we collect all these spacers and cluster them, we can try and
-identify unique spacers that may represent the biological spacer
-(filtering sequencing and detection artifacts). Furthermore, using this
-approach we may infer whether this dataset is saturated, meaning we have
-likely sampled all exiting spacers in *C. jejuni* and *C. coli*. To do
-that, we first have to establish a proper clustering cut-off.
+In this dataset of 19,445 genomes there are 11,301 genomes (58%) that
+contain CRISPR arrays. We have seen that there are genomes with up to 23
+CRISPR spacers near *Cas* genes and 13 orphan spacers. Also, most of
+these spacers are 30 bp long, with exceptions from 26-51 bp. Now if we
+collect all these spacers and cluster them, we can try and identify
+unique spacers that may represent the biological spacer (filtering
+sequencing and detection artifacts). Furthermore, using this approach we
+may infer whether this dataset is saturated, meaning we have likely
+sampled all exiting spacers in *C. jejuni* and *C. coli*. To do that, we
+first have to establish a proper clustering cut-off.
 
-```{r}
+```{r all_spacers_clustered}
 #| label: fig-all_spacers_clustered
 #| fig-cap: "CRISPR spacer clusters"
 
@@ -803,7 +841,7 @@ The results are available as separate tab-separated text file and should
 allow for a simple visualisation of the estimated completeness and
 contamination scores.
 
-```{r}
+```{r assembly_quality}
 #| label: fig-assembly_quality
 #| fig-cap: "CheckM2 and other assembly quality scores"
 #| fig-height: 6
