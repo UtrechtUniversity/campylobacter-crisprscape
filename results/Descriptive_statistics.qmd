@@ -90,15 +90,19 @@ view:
 
 3.  [Type of CRISPR arrays] (and prevalence)
 
-4.  Number of CRISPR [spacers per genome](#0) (@fig-spacers_per_genome)
-    and [per species](#0) (@fig-total_spacers_per_species)
+4.  Number of CRISPR [spacers per genome](#crispr-spacers-per-genome)
+    (see @fig-spacers_per_genome) and [per
+    species](#spacers-per-species) (see @fig-total_spacers_per_species)
 
 5.  [Length of the CRISPR](#length-of-spacers-and-repeats) spacers and
     repeat sequences (@fig-repeat_and_spacer_length)
 
-6.  [Repeat consensus sequence diversity](#repeat-sequence-summary)
+6.  [Number of unique spacer sequences](#number-of-unique-spacers)
+    (figure: @fig-all_spacers_clustered)
 
-7.  Extra: estimated genome [assembly
+7.  [Repeat consensus sequence diversity](#repeat-sequence-summary)
+
+8.  Extra: estimated genome [assembly
     quality](#estimated-assembly-quality) (CheckM completeness and
     contamination; @fig-assembly_quality)
 
@@ -704,6 +708,64 @@ combined length is still 66 - may be the results of technical
 inaccuracies. Some combinations have different combined lengths and are
 more likely to be biologically different.
 
+# Number of unique spacers {#number-of-unique-spacers}
+
+In this dataset of 19,445 genomes we have seen that there are genomes
+with up to 23 CRISPR spacers near *Cas* genes and 13 orphan spacers.
+Also, most of these spacers are 30 bp long, with exceptions from 26-51
+bp. Now if we collect all these spacers and cluster them, we can try and
+identify unique spacers that may represent the biological spacer
+(filtering sequencing and detection artifacts). Furthermore, using this
+approach we may infer whether this dataset is saturated, meaning we have
+likely sampled all exiting spacers in *C. jejuni* and *C. coli*. To do
+that, we first have to establish a proper clustering cut-off.
+
+```{r}
+#| label: fig-all_spacers_clustered
+#| fig-cap: "CRISPR spacer clusters"
+
+all_spacer_clusters <- read_delim(here("data/tmp/cctyper/spacer_cluster_summary.tsv"),
+                                  show_col_types = F)
+
+cluster_analysis_figure <- ggplot(
+  data = all_spacer_clusters,
+  mapping = aes(x = Cutoff,
+                y = Clusters)
+) +
+  geom_bar(stat = "identity") +
+  theme_pubr() +
+  labs(title = paste("CRISPR spacer clusters, total spacers:", 
+                     format(all_spacer_clusters$Total_sequences[1],
+                            big.mark = ",")),
+       x = "Cut-off (%)",
+       y = "Number of clusters") +
+  scale_y_continuous(expand = expansion(mult = c(0, 0.05))) +
+  geom_text(aes(y = Clusters - 250,
+                label = paste("Cut-off:\n", Cutoff, "\n---\n",
+                              format(Clusters,
+                                     big.mark = ","),
+                              "\nclusters"),
+                hjust = "center",
+                vjust = 1),
+            angle = 0,
+            size = 4,
+            color = "grey75")
+
+cluster_analysis_figure
+```
+
+From a total of almost 72k spacers, there appear to be roughly 12-14k
+unique spacers, based on clustering by CD-HIT-EST. A cut-off of 1 means
+spacers are only clustered if they are identical: among the 72k spacers
+are 14,335 unique sequences. Allowing any mismatch (compared to the
+shorter sequence) can cluster spacers further to just over 12k clusters.
+Each bar represents allowing one more mismatch/mutation, i.e., the
+figure shows clusters with 0-6 mismatches.\
+*Note: CD-HIT-EST does not work with lower cut-offs than 80% (=0.8).*
+
+In these results, I can see no clear breakpoint that may inform the
+decision on a particular cut-off.
+
 # Repeat sequence summary {#repeat-sequence-summary}
 
 Look at the consensus repeat sequences to get an idea of the diversity
@@ -732,7 +794,7 @@ Most common repeat (in 'AT-start' orientation):
 For comparison, the 'GT-start' orientation (reverse complement):
 `GTTTTAGTCCCTTTTTAAATTTCTTTATGGTAAAAT`
 
-# Estimated assembly quality
+# Estimated assembly quality {#estimated-assembly-quality}
 
 The genomes collected by AllTheBacteria have all gone through their
 quality control, including [CheckM2](#0). (Also see the

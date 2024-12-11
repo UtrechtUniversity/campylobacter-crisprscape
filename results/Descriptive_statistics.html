@@ -123,6 +123,7 @@ window.Quarto = {
   <li><a href="#spacers-per-species" id="toc-spacers-per-species" class="nav-link" data-scroll-target="#spacers-per-species">Spacers per species</a></li>
   </ul></li>
   <li><a href="#length-of-spacers-and-repeats" id="toc-length-of-spacers-and-repeats" class="nav-link" data-scroll-target="#length-of-spacers-and-repeats">Length of spacers and repeats</a></li>
+  <li><a href="#number-of-unique-spacers" id="toc-number-of-unique-spacers" class="nav-link" data-scroll-target="#number-of-unique-spacers">Number of unique spacers</a></li>
   <li><a href="#repeat-sequence-summary" id="toc-repeat-sequence-summary" class="nav-link" data-scroll-target="#repeat-sequence-summary">Repeat sequence summary</a></li>
   <li><a href="#estimated-assembly-quality" id="toc-estimated-assembly-quality" class="nav-link" data-scroll-target="#estimated-assembly-quality">Estimated assembly quality</a></li>
   <li><a href="#used-software" id="toc-used-software" class="nav-link" data-scroll-target="#used-software">Used software</a></li>
@@ -178,10 +179,11 @@ window.Quarto = {
 (Taking into account the presence of <em>Cas</em> genes)</p></li>
 <li><p><a href="#arrays-per-genome-and-per-species">Prevalence of CRISPR arrays</a> overall and per species (<a href="#fig-crisprs_per_genome_donut" class="quarto-xref">Figure&nbsp;3</a>)</p></li>
 <li><p><a href="#type-of-crispr-arrays">Type of CRISPR arrays</a> (and prevalence)</p></li>
-<li><p>Number of CRISPR <a href="#0">spacers per genome</a> (<a href="#fig-spacers_per_genome" class="quarto-xref">Figure&nbsp;4</a>) and <a href="#0">per species</a> (<a href="#fig-total_spacers_per_species" class="quarto-xref">Figure&nbsp;5</a>)</p></li>
+<li><p>Number of CRISPR <a href="#crispr-spacers-per-genome">spacers per genome</a> (see <a href="#fig-spacers_per_genome" class="quarto-xref">Figure&nbsp;4</a>) and <a href="#spacers-per-species">per species</a> (see <a href="#fig-total_spacers_per_species" class="quarto-xref">Figure&nbsp;5</a>)</p></li>
 <li><p><a href="#length-of-spacers-and-repeats">Length of the CRISPR</a> spacers and repeat sequences (<a href="#fig-repeat_and_spacer_length" class="quarto-xref">Figure&nbsp;6</a>)</p></li>
+<li><p><a href="#number-of-unique-spacers">Number of unique spacer sequences</a> (figure: <a href="#fig-all_spacers_clustered" class="quarto-xref">Figure&nbsp;7</a>)</p></li>
 <li><p><a href="#repeat-sequence-summary">Repeat consensus sequence diversity</a></p></li>
-<li><p>Extra: estimated genome <a href="#estimated-assembly-quality">assembly quality</a> (CheckM completeness and contamination; <a href="#fig-assembly_quality" class="quarto-xref">Figure&nbsp;7</a>)</p></li>
+<li><p>Extra: estimated genome <a href="#estimated-assembly-quality">assembly quality</a> (CheckM completeness and contamination; <a href="#fig-assembly_quality" class="quarto-xref">Figure&nbsp;8</a>)</p></li>
 </ol>
 <p><em>Note: see the relevant <a href="https://github.com/Russel88/CRISPRCasTyper?tab=readme-ov-file#output-" title="CCTyper output files documentation">CCTyper documentation</a> of output files.</em></p>
 <p>In this analysis report, we summarise the prevalence and other general descriptive statistics of the CRISPR spacers. Therefore, we first need to import the results from CCTyper:</p>
@@ -862,15 +864,67 @@ Figure&nbsp;6: CRISPR repeat and spacer length
 </div>
 <p>Indeed, lengths of repeats and spacers are highly correlated (Pearson’s R = -0.99, p &lt; 0.0001).The most commonly found combination is spacers of 30 bp long with repeats of 36 bp. It is likely that those are then the canonical lengths and deviations - especially those where the combined length is still 66 - may be the results of technical inaccuracies. Some combinations have different combined lengths and are more likely to be biologically different.</p>
 </section>
+<section id="number-of-unique-spacers" class="level1">
+<h1>Number of unique spacers</h1>
+<p>In this dataset of 19,445 genomes we have seen that there are genomes with up to 23 CRISPR spacers near <em>Cas</em> genes and 13 orphan spacers. Also, most of these spacers are 30 bp long, with exceptions from 26-51 bp. Now if we collect all these spacers and cluster them, we can try and identify unique spacers that may represent the biological spacer (filtering sequencing and detection artifacts). Furthermore, using this approach we may infer whether this dataset is saturated, meaning we have likely sampled all exiting spacers in <em>C. jejuni</em> and <em>C. coli</em>. To do that, we first have to establish a proper clustering cut-off.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>all_spacer_clusters <span class="ot">&lt;-</span> <span class="fu">read_delim</span>(<span class="fu">here</span>(<span class="st">"data/tmp/cctyper/spacer_cluster_summary.tsv"</span>),</span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>                                  <span class="at">show_col_types =</span> F)</span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>cluster_analysis_figure <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(</span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> all_spacer_clusters,</span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">mapping =</span> <span class="fu">aes</span>(<span class="at">x =</span> Cutoff,</span>
+<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a>                <span class="at">y =</span> Clusters)</span>
+<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a>) <span class="sc">+</span></span>
+<span id="cb26-9"><a href="#cb26-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_bar</span>(<span class="at">stat =</span> <span class="st">"identity"</span>) <span class="sc">+</span></span>
+<span id="cb26-10"><a href="#cb26-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_pubr</span>() <span class="sc">+</span></span>
+<span id="cb26-11"><a href="#cb26-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="fu">paste</span>(<span class="st">"CRISPR spacer clusters, total spacers:"</span>, </span>
+<span id="cb26-12"><a href="#cb26-12" aria-hidden="true" tabindex="-1"></a>                     <span class="fu">format</span>(all_spacer_clusters<span class="sc">$</span>Total_sequences[<span class="dv">1</span>],</span>
+<span id="cb26-13"><a href="#cb26-13" aria-hidden="true" tabindex="-1"></a>                            <span class="at">big.mark =</span> <span class="st">","</span>)),</span>
+<span id="cb26-14"><a href="#cb26-14" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Cut-off (%)"</span>,</span>
+<span id="cb26-15"><a href="#cb26-15" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"Number of clusters"</span>) <span class="sc">+</span></span>
+<span id="cb26-16"><a href="#cb26-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_continuous</span>(<span class="at">expand =</span> <span class="fu">expansion</span>(<span class="at">mult =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="fl">0.05</span>))) <span class="sc">+</span></span>
+<span id="cb26-17"><a href="#cb26-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_text</span>(<span class="fu">aes</span>(<span class="at">y =</span> Clusters <span class="sc">-</span> <span class="dv">250</span>,</span>
+<span id="cb26-18"><a href="#cb26-18" aria-hidden="true" tabindex="-1"></a>                <span class="at">label =</span> <span class="fu">paste</span>(<span class="st">"Cut-off:</span><span class="sc">\n</span><span class="st">"</span>, Cutoff, <span class="st">"</span><span class="sc">\n</span><span class="st">---</span><span class="sc">\n</span><span class="st">"</span>,</span>
+<span id="cb26-19"><a href="#cb26-19" aria-hidden="true" tabindex="-1"></a>                              <span class="fu">format</span>(Clusters,</span>
+<span id="cb26-20"><a href="#cb26-20" aria-hidden="true" tabindex="-1"></a>                                     <span class="at">big.mark =</span> <span class="st">","</span>),</span>
+<span id="cb26-21"><a href="#cb26-21" aria-hidden="true" tabindex="-1"></a>                              <span class="st">"</span><span class="sc">\n</span><span class="st">clusters"</span>),</span>
+<span id="cb26-22"><a href="#cb26-22" aria-hidden="true" tabindex="-1"></a>                <span class="at">hjust =</span> <span class="st">"center"</span>,</span>
+<span id="cb26-23"><a href="#cb26-23" aria-hidden="true" tabindex="-1"></a>                <span class="at">vjust =</span> <span class="dv">1</span>),</span>
+<span id="cb26-24"><a href="#cb26-24" aria-hidden="true" tabindex="-1"></a>            <span class="at">angle =</span> <span class="dv">0</span>,</span>
+<span id="cb26-25"><a href="#cb26-25" aria-hidden="true" tabindex="-1"></a>            <span class="at">size =</span> <span class="dv">4</span>,</span>
+<span id="cb26-26"><a href="#cb26-26" aria-hidden="true" tabindex="-1"></a>            <span class="at">color =</span> <span class="st">"grey75"</span>)</span>
+<span id="cb26-27"><a href="#cb26-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-28"><a href="#cb26-28" aria-hidden="true" tabindex="-1"></a>cluster_analysis_figure</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div id="fig-all_spacers_clustered" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-all_spacers_clustered-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="Descriptive_statistics_files/figure-html/fig-all_spacers_clustered-1.png" class="img-fluid figure-img" width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-all_spacers_clustered-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;7: CRISPR spacer clusters
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>From a total of almost 72k spacers, there appear to be roughly 12-14k unique spacers, based on clustering by CD-HIT-EST. A cut-off of 1 means spacers are only clustered if they are identical: among the 72k spacers are 14,335 unique sequences. Allowing any mismatch (compared to the shorter sequence) can cluster spacers further to just over 12k clusters. Each bar represents allowing one more mismatch/mutation, i.e., the figure shows clusters with 0-6 mismatches.<br>
+<em>Note: CD-HIT-EST does not work with lower cut-offs than 80% (=0.8).</em></p>
+<p>In these results, I can see no clear breakpoint that may inform the decision on a particular cut-off.</p>
+</section>
 <section id="repeat-sequence-summary" class="level1">
 <h1>Repeat sequence summary</h1>
 <p>Look at the consensus repeat sequences to get an idea of the diversity and possible errors in calling.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>annotated_crispr_df <span class="sc">%&gt;%</span></span>
-<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(Consensus_repeat, Repeat_len) <span class="sc">%&gt;%</span></span>
-<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(n))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>annotated_crispr_df <span class="sc">%&gt;%</span></span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(Consensus_repeat, Repeat_len) <span class="sc">%&gt;%</span></span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(n))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
 <div data-pagedtable="false">
@@ -890,36 +944,36 @@ Figure&nbsp;6: CRISPR repeat and spacer length
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Read the CheckM2 results file and filter out the Campylobacters</span></span>
-<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>checkm2_results <span class="ot">&lt;-</span> <span class="fu">read_delim</span>(<span class="fu">here</span>(<span class="st">"data/ATB/checkm2.tsv.gz"</span>),</span>
-<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>                              <span class="at">show_col_types =</span> F) <span class="sc">%&gt;%</span></span>
-<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(Sample <span class="sc">%in%</span> campylobacter_metadata<span class="sc">$</span>sample_accession)</span>
-<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a>checkm2_figure <span class="ot">&lt;-</span> checkm2_results <span class="sc">%&gt;%</span></span>
-<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="at">mapping =</span> <span class="fu">aes</span>(<span class="at">x =</span> Completeness_General,</span>
-<span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a>                       <span class="at">y =</span> Contamination)) <span class="sc">+</span></span>
-<span id="cb27-9"><a href="#cb27-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">size =</span> <span class="fl">0.6</span>, <span class="at">alpha =</span> <span class="fl">0.5</span>) <span class="sc">+</span></span>
-<span id="cb27-10"><a href="#cb27-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Completeness (%)"</span>,</span>
-<span id="cb27-11"><a href="#cb27-11" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"Contamination (%)"</span>) <span class="sc">+</span></span>
-<span id="cb27-12"><a href="#cb27-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_pubr</span>()</span>
-<span id="cb27-13"><a href="#cb27-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb27-14"><a href="#cb27-14" aria-hidden="true" tabindex="-1"></a>quality_df <span class="ot">&lt;-</span> checkm2_results <span class="sc">%&gt;%</span></span>
-<span id="cb27-15"><a href="#cb27-15" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Drop unnecessary columns:</span></span>
-<span id="cb27-16"><a href="#cb27-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span><span class="fu">c</span>(Completeness_General, Contamination, Completeness_Specific,</span>
-<span id="cb27-17"><a href="#cb27-17" aria-hidden="true" tabindex="-1"></a>            Completeness_Model_Used, Translation_Table_Used, Additional_Notes)) <span class="sc">%&gt;%</span></span>
-<span id="cb27-18"><a href="#cb27-18" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Pivot columns of interest into one long column to enable facetting</span></span>
-<span id="cb27-19"><a href="#cb27-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(<span class="at">cols =</span> <span class="fu">c</span>(Coding_Density, Contig_N50, Average_Gene_Length, Genome_Size,</span>
-<span id="cb27-20"><a href="#cb27-20" aria-hidden="true" tabindex="-1"></a>                        GC_Content, Total_Coding_Sequences))</span>
-<span id="cb27-21"><a href="#cb27-21" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb27-22"><a href="#cb27-22" aria-hidden="true" tabindex="-1"></a>other_quality_boxplots <span class="ot">&lt;-</span> quality_df <span class="sc">%&gt;%</span></span>
-<span id="cb27-23"><a href="#cb27-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="at">mapping =</span> <span class="fu">aes</span>(<span class="at">x =</span> name, <span class="at">y =</span> value)) <span class="sc">+</span></span>
-<span id="cb27-24"><a href="#cb27-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_boxplot</span>() <span class="sc">+</span></span>
-<span id="cb27-25"><a href="#cb27-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span>name, <span class="at">scales =</span> <span class="st">"free"</span>) <span class="sc">+</span></span>
-<span id="cb27-26"><a href="#cb27-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_pubr</span>() <span class="sc">+</span></span>
-<span id="cb27-27"><a href="#cb27-27" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">axis.title =</span> <span class="fu">element_blank</span>(),</span>
-<span id="cb27-28"><a href="#cb27-28" aria-hidden="true" tabindex="-1"></a>        <span class="at">axis.text.x =</span> <span class="fu">element_blank</span>())</span>
-<span id="cb27-29"><a href="#cb27-29" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb27-30"><a href="#cb27-30" aria-hidden="true" tabindex="-1"></a>checkm2_figure <span class="sc">/</span> other_quality_boxplots</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Read the CheckM2 results file and filter out the Campylobacters</span></span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>checkm2_results <span class="ot">&lt;-</span> <span class="fu">read_delim</span>(<span class="fu">here</span>(<span class="st">"data/ATB/checkm2.tsv.gz"</span>),</span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>                              <span class="at">show_col_types =</span> F) <span class="sc">%&gt;%</span></span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(Sample <span class="sc">%in%</span> campylobacter_metadata<span class="sc">$</span>sample_accession)</span>
+<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a>checkm2_figure <span class="ot">&lt;-</span> checkm2_results <span class="sc">%&gt;%</span></span>
+<span id="cb28-7"><a href="#cb28-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="at">mapping =</span> <span class="fu">aes</span>(<span class="at">x =</span> Completeness_General,</span>
+<span id="cb28-8"><a href="#cb28-8" aria-hidden="true" tabindex="-1"></a>                       <span class="at">y =</span> Contamination)) <span class="sc">+</span></span>
+<span id="cb28-9"><a href="#cb28-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">size =</span> <span class="fl">0.6</span>, <span class="at">alpha =</span> <span class="fl">0.5</span>) <span class="sc">+</span></span>
+<span id="cb28-10"><a href="#cb28-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Completeness (%)"</span>,</span>
+<span id="cb28-11"><a href="#cb28-11" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"Contamination (%)"</span>) <span class="sc">+</span></span>
+<span id="cb28-12"><a href="#cb28-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_pubr</span>()</span>
+<span id="cb28-13"><a href="#cb28-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-14"><a href="#cb28-14" aria-hidden="true" tabindex="-1"></a>quality_df <span class="ot">&lt;-</span> checkm2_results <span class="sc">%&gt;%</span></span>
+<span id="cb28-15"><a href="#cb28-15" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Drop unnecessary columns:</span></span>
+<span id="cb28-16"><a href="#cb28-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span><span class="fu">c</span>(Completeness_General, Contamination, Completeness_Specific,</span>
+<span id="cb28-17"><a href="#cb28-17" aria-hidden="true" tabindex="-1"></a>            Completeness_Model_Used, Translation_Table_Used, Additional_Notes)) <span class="sc">%&gt;%</span></span>
+<span id="cb28-18"><a href="#cb28-18" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Pivot columns of interest into one long column to enable facetting</span></span>
+<span id="cb28-19"><a href="#cb28-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(<span class="at">cols =</span> <span class="fu">c</span>(Coding_Density, Contig_N50, Average_Gene_Length, Genome_Size,</span>
+<span id="cb28-20"><a href="#cb28-20" aria-hidden="true" tabindex="-1"></a>                        GC_Content, Total_Coding_Sequences))</span>
+<span id="cb28-21"><a href="#cb28-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-22"><a href="#cb28-22" aria-hidden="true" tabindex="-1"></a>other_quality_boxplots <span class="ot">&lt;-</span> quality_df <span class="sc">%&gt;%</span></span>
+<span id="cb28-23"><a href="#cb28-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="at">mapping =</span> <span class="fu">aes</span>(<span class="at">x =</span> name, <span class="at">y =</span> value)) <span class="sc">+</span></span>
+<span id="cb28-24"><a href="#cb28-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_boxplot</span>() <span class="sc">+</span></span>
+<span id="cb28-25"><a href="#cb28-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span>name, <span class="at">scales =</span> <span class="st">"free"</span>) <span class="sc">+</span></span>
+<span id="cb28-26"><a href="#cb28-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_pubr</span>() <span class="sc">+</span></span>
+<span id="cb28-27"><a href="#cb28-27" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">axis.title =</span> <span class="fu">element_blank</span>(),</span>
+<span id="cb28-28"><a href="#cb28-28" aria-hidden="true" tabindex="-1"></a>        <span class="at">axis.text.x =</span> <span class="fu">element_blank</span>())</span>
+<span id="cb28-29"><a href="#cb28-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-30"><a href="#cb28-30" aria-hidden="true" tabindex="-1"></a>checkm2_figure <span class="sc">/</span> other_quality_boxplots</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
 <div id="fig-assembly_quality" class="quarto-float quarto-figure quarto-figure-center anchored">
@@ -928,7 +982,7 @@ Figure&nbsp;6: CRISPR repeat and spacer length
 <img src="Descriptive_statistics_files/figure-html/fig-assembly_quality-1.png" class="img-fluid figure-img" width="672">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-assembly_quality-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;7: CheckM2 and other assembly quality scores
+Figure&nbsp;8: CheckM2 and other assembly quality scores
 </figcaption>
 </figure>
 </div>
@@ -942,7 +996,7 @@ Figure&nbsp;7: CheckM2 and other assembly quality scores
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sessionInfo</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sessionInfo</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>R version 4.4.2 (2024-10-31)
