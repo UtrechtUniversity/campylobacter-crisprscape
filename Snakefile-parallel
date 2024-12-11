@@ -32,10 +32,10 @@ configfile: Path("config/parameters.yaml")
 
 
 # Use Python functions to automatically detect batches of genomes fasta files
-# in the input directory as 'BATCHES' and 'SAMPLES'
+# in the input directory as 'BATCHES'
 INPUT_DIR = config["input_directory"]
 
-BATCH_PATHS = list(Path(INPUT_DIR).glob("*"))
+BATCH_PATHS = list(Path(INPUT_DIR).glob("batch_*"))
 for batch in BATCH_PATHS:
     assert Path(batch).is_dir(), f"Batches must be directories, got {batch}"
 
