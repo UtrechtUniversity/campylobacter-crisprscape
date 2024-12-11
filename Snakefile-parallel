@@ -57,6 +57,9 @@ rule all:
         expand(OUTPUT_DIR + "cctyper/{batch}/all_spacers-{batch}.fa",
                batch = BATCHES),
 
+        # CCTyper CRISPR spacer cluster analysis report
+        OUTPUT_DIR + "cctyper/spacer_cluster_summary.tsv",
+
         # geNomad output
         expand(
             OUTPUT_DIR + "genomad/{batch}/{batch}_aggregated_classification/{batch}_aggregated_classification.tsv",
@@ -117,6 +120,51 @@ rule collect_cctyper:
 bash bin/concatenate_cctyper_output.sh $(dirname {input}) > {log} 2>&1
 
 find $(dirname {input}) -mindepth 3 -maxdepth 3 -name "*.fa" -exec cat {{}} + > {output.spacers} 2>> {log}
+        """
+
+
+rule concatenate_all_spacers:
+    input:
+        expand(OUTPUT_DIR + "cctyper/{batch}/all_spacers-{batch}.fa",
+               batch = BATCHES)
+    output:
+        OUTPUT_DIR + "cctyper/all_spacers.fa"
+    threads: 1
+    log:
+        "log/concatenate_all_spacers.txt"
+    benchmark:
+        "log/benchmark/concatenate_all_spacers.txt"
+    shell:
+        """
+cat {input} > {output} 2> {log}
+        """
+
+
+rule cluster_all_spacers:
+    input:
+        OUTPUT_DIR + "cctyper/all_spacers.fa"
+    output:
+        clusters=expand(OUTPUT_DIR + "cctyper/all_spacers-clustered-{cutoff}.clstr",
+                       cutoff = [ 1, 0.96, 0.93, 0.9, 0.87, 0.84, 0.81 ]),
+        spacers=expand(OUTPUT_DIR + "cctyper/all_spacers-clustered-{cutoff}",
+                       cutoff = [ 1, 0.96, 0.93, 0.9, 0.87, 0.84, 0.81 ]),
+        summary=OUTPUT_DIR + "cctyper/spacer_cluster_summary.tsv",
+    params:
+        output_dir=OUTPUT_DIR + "cctyper/",
+        log_dir="log/spacer_clustering/"
+    conda:
+        "envs/cdhit.yaml"
+    threads: 1
+    log:
+        "log/cluster_all_spacers.txt"
+    benchmark:
+        "log/benchmark/cluster_all_spacers.txt"
+    shell:
+        """
+bash bin/cluster_all_spacers.sh\
+    {input}\
+    {params.output_dir}\
+    {params.log_dir} > {log} 2>&1
         """
 
 
