@@ -1,0 +1,8 @@
+name: jaeger
+
+dependencies:
+ - jaeger-bio=1.1.26
+
+channels:
+ - conda-forge
+ - bioconda
