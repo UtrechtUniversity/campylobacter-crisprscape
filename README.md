@@ -26,6 +26,20 @@ _This includes:_
  - \<= 2,000 contigs
  - \>= N50 2,000
 
+This repository includes scripts to automatically download genome files and metadata from ATB.
+These can be run as follows:
+
+```bash
+git clone https://github.com/UtrechtUniversity/campylobacter-crisprscape.git
+cd campylobacter-crisprscape
+bash bin/prepare_genomes.sh
+```
+
+By default this downloads high-quality _Campylobacter jejuni_ and _C. coli_ genomes from the incremental update.
+This `prepare_genomes.sh` script links to other scripts and has to be run from the 'base' folder as shown above.
+
+_Note to self: write user manual with instructions how to edit the configuration!_
+
 ## List of programs/analyses to test
 
 1. CCTyper on _Campylobacter_ genomes
