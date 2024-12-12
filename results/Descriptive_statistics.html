@@ -173,10 +173,10 @@ window.Quarto = {
 <section id="crispr-spacers-in-campylobacter" class="level1">
 <h1>CRISPR spacers in <em>Campylobacter</em></h1>
 <p><strong>Descriptive statistics of CRISPR arrays in <em>Campylobacter</em> genomes from <a href="https://allthebacteria.readthedocs.io/" title="AllTheBacteria documentation">AllTheBacteria</a></strong></p>
-<p>We have downloaded all the <em>Campylobacter</em> <em>jejuni</em> and <em>C. coli</em> genomes from AllTheBacteria (ATB) to screen for CRISPR spacers. The current experiment includes all genomes that have been classified as ‘Campylobacter_D jejuni*’ or ‘Campylobacter_D coli*’ using <a href="https://www.nature.com/articles/s41587-024-02412-y" title="Shaw &amp; Yu, 2024. Nature Biotechnology">Sylph</a> (which the creators of ATB ran on all genomes), that have been added to ATB in the incremental update of August 2024 (<a href="#fig-number_of_species" class="quarto-xref">Figure&nbsp;1</a>). (∗: any species designation matching these name prefixes were included.) These genomes have been screened for CRISPR (<a href="https://en.wikipedia.org/wiki/CRISPR" title="CRISPR wiki">Clustered Regularly Interspaced Short Palindromic Repeats</a>) spacers and <em>Cas</em> (CRISPR-associated) genes using <a href="https://www.biorxiv.org/content/10.1101/2020.05.15.097824v1" title="Russel et al., 2020. bioRxiv">CCTyper</a> (version 1.8.0). CCTyper produces tab-separated tables that summarise the CRISPRs, including number of contigs containing CRISPR arrays, number of spacers per array, number of repeat sequences, consensus repeat sequence, and presence of Cas genes. From these results, we can view:</p>
+<p>We have downloaded all the <em>Campylobacter</em> <em>jejuni</em> and <em>C. coli</em> genomes from AllTheBacteria (ATB) to screen for CRISPR spacers. The current experiment includes all genomes that have been classified as ‘Campylobacter_D jejuni*’ or ‘Campylobacter_D coli*’ using <a href="https://www.nature.com/articles/s41587-024-02412-y" title="Shaw &amp; Yu, 2024. Nature Biotechnology">Sylph</a> (which the creators of ATB ran on all genomes), that have been added to ATB in the incremental update of August 2024 (<a href="#fig-number_of_species" class="quarto-xref">Figure&nbsp;1</a>). (∗: any species designation matching these name prefixes were included.) These genomes have been screened for CRISPR (<a href="https://en.wikipedia.org/wiki/CRISPR" title="CRISPR wiki">Clustered Regularly Interspaced Short Palindromic Repeats</a>) spacers and <em>cas</em> (CRISPR-associated) genes using <a href="https://www.biorxiv.org/content/10.1101/2020.05.15.097824v1" title="Russel et al., 2020. bioRxiv">CCTyper</a> (version 1.8.0). CCTyper produces tab-separated tables that summarise the CRISPRs, including number of contigs containing CRISPR arrays, number of spacers per array, number of repeat sequences, consensus repeat sequence, and presence of <em>cas</em> genes. From these results, we can view:</p>
 <ol type="1">
 <li><p>The <a href="#crispr-arrays-per-genome">number of CRISPR arrays</a> detected per genome (<a href="#fig-crisprs_per_genome" class="quarto-xref">Figure&nbsp;2</a>)<br>
-(Taking into account the presence of <em>Cas</em> genes)</p></li>
+(Taking into account the presence of <em>cas</em> genes)</p></li>
 <li><p><a href="#arrays-per-genome-and-per-species">Prevalence of CRISPR arrays</a> overall and per species (<a href="#fig-crisprs_per_genome_donut" class="quarto-xref">Figure&nbsp;3</a>)</p></li>
 <li><p><a href="#type-of-crispr-arrays">Type of CRISPR arrays</a> (and prevalence)</p></li>
 <li><p>Number of CRISPR <a href="#crispr-spacers-per-genome">spacers per genome</a> (see <a href="#fig-spacers_per_genome" class="quarto-xref">Figure&nbsp;4</a>) and <a href="#spacers-per-species">per species</a> (see <a href="#fig-total_spacers_per_species" class="quarto-xref">Figure&nbsp;5</a>)</p></li>
@@ -361,7 +361,7 @@ Figure&nbsp;1: Number of species present in dataset
 </section>
 <section id="crispr-arrays-per-genome" class="level1">
 <h1>CRISPR arrays per genome</h1>
-<p>We have identified CRISPRs in all <em>Campylobacter jejuni</em> and <em>C. coli</em> genomes using <a href="https://github.com/Russel88/CRISPRCasTyper" title="GitHub repository for CRISPRCasTyper">CCTyper</a>. CCTyper separately annotates CRISPRs near <em>Cas</em> genes and separate CRISPR arrays, called ‘orphans’. To inventory the prevalence and size of both types of CRISPR arrays, show for each genome the number of CRISPR arrays as a scatterplot (<a href="#fig-crisprs_per_genome" class="quarto-xref">Figure&nbsp;2</a>). (Derived from the <code>CRISPR</code> field in CCTyper’s output.)</p>
+<p>We have identified CRISPRs in all <em>Campylobacter jejuni</em> and <em>C. coli</em> genomes using <a href="https://github.com/Russel88/CRISPRCasTyper" title="GitHub repository for CRISPRCasTyper">CCTyper</a>. CCTyper separately annotates CRISPRs near <em>cas</em> genes and separate CRISPR arrays, called ‘orphans’. To inventory the prevalence and size of both types of CRISPR arrays, show for each genome the number of CRISPR arrays as a scatterplot (<a href="#fig-crisprs_per_genome" class="quarto-xref">Figure&nbsp;2</a>). (Derived from the <code>CRISPR</code> field in CCTyper’s output.)</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
@@ -373,7 +373,7 @@ Figure&nbsp;1: Number of species present in dataset
 <span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> crisprs_near_cas_df <span class="sc">%&gt;%</span></span>
 <span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>      <span class="fu">group_by</span>(sample_accession) <span class="sc">%&gt;%</span></span>
 <span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>      <span class="fu">count</span>() <span class="sc">%&gt;%</span></span>
-<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>      <span class="fu">rename</span>(<span class="st">"CRISPRs near Cas"</span> <span class="ot">=</span> <span class="st">"n"</span>),</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>      <span class="fu">rename</span>(<span class="st">"CRISPRs near cas"</span> <span class="ot">=</span> <span class="st">"n"</span>),</span>
 <span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> crisprs_orphan_df <span class="sc">%&gt;%</span></span>
 <span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>      <span class="fu">group_by</span>(sample_accession) <span class="sc">%&gt;%</span></span>
 <span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>      <span class="fu">count</span>() <span class="sc">%&gt;%</span></span>
@@ -382,14 +382,14 @@ Figure&nbsp;1: Number of species present in dataset
 <span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>  )</span>
 <span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>) <span class="sc">%&gt;%</span></span>
 <span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>    <span class="fu">across</span>(<span class="st">`</span><span class="at">CRISPRs near Cas</span><span class="st">`</span><span class="sc">:</span><span class="st">`</span><span class="at">Orphan CRISPRs</span><span class="st">`</span>,</span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>    <span class="fu">across</span>(<span class="st">`</span><span class="at">CRISPRs near cas</span><span class="st">`</span><span class="sc">:</span><span class="st">`</span><span class="at">Orphan CRISPRs</span><span class="st">`</span>,</span>
 <span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>           <span class="sc">~</span><span class="fu">replace_na</span>(., <span class="dv">0</span>)),</span>
 <span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">simple_species =</span> <span class="fu">if_else</span>(<span class="fu">grepl</span>(<span class="at">pattern =</span> <span class="st">"jejuni"</span>, <span class="at">x =</span> Species),</span>
 <span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>                             <span class="st">"jejuni"</span>, <span class="st">"coli"</span>),</span>
 <span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>    <span class="at">contains_crisprs =</span> <span class="fu">case_when</span>(</span>
-<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>      <span class="st">`</span><span class="at">CRISPRs near Cas</span><span class="st">`</span> <span class="sc">==</span> <span class="dv">0</span> <span class="sc">&amp;</span> <span class="st">`</span><span class="at">Orphan CRISPRs</span><span class="st">`</span> <span class="sc">==</span> <span class="dv">0</span> <span class="sc">~</span> <span class="st">"no_crisprs"</span>,</span>
-<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>      <span class="st">`</span><span class="at">CRISPRs near Cas</span><span class="st">`</span> <span class="sc">==</span> <span class="dv">0</span> <span class="sc">&amp;</span> <span class="st">`</span><span class="at">Orphan CRISPRs</span><span class="st">`</span> <span class="sc">&gt;</span> <span class="dv">0</span> <span class="sc">~</span> <span class="st">"only_orphans"</span>,</span>
-<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>      <span class="st">`</span><span class="at">CRISPRs near Cas</span><span class="st">`</span> <span class="sc">&gt;</span> <span class="dv">0</span> <span class="sc">&amp;</span> <span class="st">`</span><span class="at">Orphan CRISPRs</span><span class="st">`</span> <span class="sc">==</span> <span class="dv">0</span> <span class="sc">~</span> <span class="st">"only_near_cas"</span>,</span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>      <span class="st">`</span><span class="at">CRISPRs near cas</span><span class="st">`</span> <span class="sc">==</span> <span class="dv">0</span> <span class="sc">&amp;</span> <span class="st">`</span><span class="at">Orphan CRISPRs</span><span class="st">`</span> <span class="sc">==</span> <span class="dv">0</span> <span class="sc">~</span> <span class="st">"no_crisprs"</span>,</span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>      <span class="st">`</span><span class="at">CRISPRs near cas</span><span class="st">`</span> <span class="sc">==</span> <span class="dv">0</span> <span class="sc">&amp;</span> <span class="st">`</span><span class="at">Orphan CRISPRs</span><span class="st">`</span> <span class="sc">&gt;</span> <span class="dv">0</span> <span class="sc">~</span> <span class="st">"only_orphans"</span>,</span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>      <span class="st">`</span><span class="at">CRISPRs near cas</span><span class="st">`</span> <span class="sc">&gt;</span> <span class="dv">0</span> <span class="sc">&amp;</span> <span class="st">`</span><span class="at">Orphan CRISPRs</span><span class="st">`</span> <span class="sc">==</span> <span class="dv">0</span> <span class="sc">~</span> <span class="st">"only_near_cas"</span>,</span>
 <span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>      <span class="cn">TRUE</span> <span class="sc">~</span> <span class="st">"both"</span></span>
 <span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a>    )</span>
 <span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a>  )</span>
@@ -402,7 +402,7 @@ Figure&nbsp;1: Number of species present in dataset
 <span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-36"><a href="#cb3-36" aria-hidden="true" tabindex="-1"></a>number_of_crisprs_scatterplot <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(</span>
 <span id="cb3-37"><a href="#cb3-37" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> annotated_crispr_number_df,</span>
-<span id="cb3-38"><a href="#cb3-38" aria-hidden="true" tabindex="-1"></a>  <span class="at">mapping =</span> <span class="fu">aes</span>(<span class="at">x =</span> <span class="st">`</span><span class="at">CRISPRs near Cas</span><span class="st">`</span>,</span>
+<span id="cb3-38"><a href="#cb3-38" aria-hidden="true" tabindex="-1"></a>  <span class="at">mapping =</span> <span class="fu">aes</span>(<span class="at">x =</span> <span class="st">`</span><span class="at">CRISPRs near cas</span><span class="st">`</span>,</span>
 <span id="cb3-39"><a href="#cb3-39" aria-hidden="true" tabindex="-1"></a>                <span class="at">y =</span> <span class="st">`</span><span class="at">Orphan CRISPRs</span><span class="st">`</span>)</span>
 <span id="cb3-40"><a href="#cb3-40" aria-hidden="true" tabindex="-1"></a>) <span class="sc">+</span></span>
 <span id="cb3-41"><a href="#cb3-41" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">position =</span> <span class="fu">position_jitter</span>(),</span>
@@ -411,7 +411,7 @@ Figure&nbsp;1: Number of species present in dataset
 <span id="cb3-44"><a href="#cb3-44" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-45"><a href="#cb3-45" aria-hidden="true" tabindex="-1"></a>crispr_near_cas_density <span class="ot">=</span> <span class="fu">ggplot</span>(</span>
 <span id="cb3-46"><a href="#cb3-46" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> annotated_crispr_number_df,</span>
-<span id="cb3-47"><a href="#cb3-47" aria-hidden="true" tabindex="-1"></a>  <span class="at">mapping =</span> <span class="fu">aes</span>(<span class="at">x =</span> <span class="st">`</span><span class="at">CRISPRs near Cas</span><span class="st">`</span>)) <span class="sc">+</span></span>
+<span id="cb3-47"><a href="#cb3-47" aria-hidden="true" tabindex="-1"></a>  <span class="at">mapping =</span> <span class="fu">aes</span>(<span class="at">x =</span> <span class="st">`</span><span class="at">CRISPRs near cas</span><span class="st">`</span>)) <span class="sc">+</span></span>
 <span id="cb3-48"><a href="#cb3-48" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_density</span>(<span class="at">fill =</span> <span class="st">"grey20"</span>) <span class="sc">+</span></span>
 <span id="cb3-49"><a href="#cb3-49" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_pubr</span>() <span class="sc">+</span></span>
 <span id="cb3-50"><a href="#cb3-50" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">axis.title.x =</span> <span class="fu">element_blank</span>())</span>
@@ -449,7 +449,7 @@ Figure&nbsp;2: Number of CRISPR arrays per genome
 </div>
 </div>
 </div>
-<p>From this figure, it appears that by far the most genomes have no CRISPR arrays at all, and otherwise they mostly have one CRISPR array near <em>Cas</em> genes (one contig containing CRISPRs). At most, CCTyper has found 3 CRISPRs near <em>Cas</em> genes and up to 4 orphan CRISPRs Let’s see this distribution separately between <em>C. jejuni</em> and <em>coli</em>, and look at the number of spacers per genome.</p>
+<p>From this figure, it appears that by far the most genomes have no CRISPR arrays at all, and otherwise they mostly have one CRISPR array near <em>cas</em> genes (one contig containing CRISPRs). At most, CCTyper has found 3 CRISPRs near <em>cas</em> genes and up to 4 orphan CRISPRs Let’s see this distribution separately between <em>C. jejuni</em> and <em>coli</em>, and look at the number of spacers per genome.</p>
 <section id="arrays-per-genome-and-per-species" class="level2">
 <h2 class="anchored" data-anchor-id="arrays-per-genome-and-per-species">Arrays per genome and per species</h2>
 <div class="cell">
@@ -458,13 +458,13 @@ Figure&nbsp;2: Number of CRISPR arrays per genome
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>total_genomes <span class="ot">=</span> <span class="fu">nrow</span>(annotated_crispr_number_df)</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>annotated_crispr_number_df <span class="sc">%&gt;%</span></span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(<span class="st">`</span><span class="at">CRISPRs near Cas</span><span class="st">`</span>, <span class="at">name =</span> <span class="st">"Genomes"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(<span class="st">`</span><span class="at">CRISPRs near cas</span><span class="st">`</span>, <span class="at">name =</span> <span class="st">"Genomes"</span>) <span class="sc">%&gt;%</span></span>
 <span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Percentage =</span> <span class="fu">round</span>(Genomes <span class="sc">/</span> total_genomes <span class="sc">*</span> <span class="dv">100</span>, <span class="dv">2</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
 <div data-pagedtable="false">
   <script data-pagedtable-source="" type="application/json">
-{"columns":[{"label":["CRISPRs near Cas"],"name":[1],"type":["int"],"align":["right"]},{"label":["Genomes"],"name":[2],"type":["int"],"align":["right"]},{"label":["Percentage"],"name":[3],"type":["dbl"],"align":["right"]}],"data":[{"1":"0","2":"8443","3":"43.42"},{"1":"1","2":"10744","3":"55.25"},{"1":"2","2":"256","3":"1.32"},{"1":"3","2":"2","3":"0.01"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+{"columns":[{"label":["CRISPRs near cas"],"name":[1],"type":["int"],"align":["right"]},{"label":["Genomes"],"name":[2],"type":["int"],"align":["right"]},{"label":["Percentage"],"name":[3],"type":["dbl"],"align":["right"]}],"data":[{"1":"0","2":"8443","3":"43.42"},{"1":"1","2":"10744","3":"55.25"},{"1":"2","2":"256","3":"1.32"},{"1":"3","2":"2","3":"0.01"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 </div>
@@ -511,7 +511,7 @@ Figure&nbsp;2: Number of CRISPR arrays per genome
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>crisprs_jejuni_df <span class="ot">&lt;-</span> <span class="fu">prepare_stats_df</span>(</span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">numbers_df =</span> annotated_crispr_number_df,</span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">stat =</span> <span class="st">`</span><span class="at">CRISPRs near Cas</span><span class="st">`</span>,</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">stat =</span> <span class="st">`</span><span class="at">CRISPRs near cas</span><span class="st">`</span>,</span>
 <span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">species =</span> <span class="st">"Campylobacter_D jejuni"</span>)</span>
 <span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>crisprs_jejuni_df[,<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -519,7 +519,7 @@ Figure&nbsp;2: Number of CRISPR arrays per genome
 <div class="cell-output-display">
 <div data-pagedtable="false">
   <script data-pagedtable-source="" type="application/json">
-{"columns":[{"label":["CRISPRs near Cas"],"name":[1],"type":["int"],"align":["right"]},{"label":["Genomes"],"name":[2],"type":["int"],"align":["right"]},{"label":["Percentage"],"name":[3],"type":["dbl"],"align":["right"]}],"data":[{"1":"0","2":"4493","3":"32.39"},{"1":"1","2":"9149","3":"65.95"},{"1":"2","2":"231","3":"1.67"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+{"columns":[{"label":["CRISPRs near cas"],"name":[1],"type":["int"],"align":["right"]},{"label":["Genomes"],"name":[2],"type":["int"],"align":["right"]},{"label":["Percentage"],"name":[3],"type":["dbl"],"align":["right"]}],"data":[{"1":"0","2":"4493","3":"32.39"},{"1":"1","2":"9149","3":"65.95"},{"1":"2","2":"231","3":"1.67"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 </div>
@@ -560,7 +560,7 @@ Figure&nbsp;2: Number of CRISPR arrays per genome
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>crisprs_coli <span class="ot">&lt;-</span> <span class="fu">prepare_stats_df</span>(</span>
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">numbers_df =</span> annotated_crispr_number_df,</span>
-<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">stat =</span> <span class="st">`</span><span class="at">CRISPRs near Cas</span><span class="st">`</span>,</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">stat =</span> <span class="st">`</span><span class="at">CRISPRs near cas</span><span class="st">`</span>,</span>
 <span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">species =</span> <span class="st">"Campylobacter_D coli"</span>)</span>
 <span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>crisprs_coli[,<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -568,7 +568,7 @@ Figure&nbsp;2: Number of CRISPR arrays per genome
 <div class="cell-output-display">
 <div data-pagedtable="false">
   <script data-pagedtable-source="" type="application/json">
-{"columns":[{"label":["CRISPRs near Cas"],"name":[1],"type":["int"],"align":["right"]},{"label":["Genomes"],"name":[2],"type":["int"],"align":["right"]},{"label":["Percentage"],"name":[3],"type":["dbl"],"align":["right"]}],"data":[{"1":"0","2":"3950","3":"70.89"},{"1":"1","2":"1595","3":"28.63"},{"1":"2","2":"25","3":"0.45"},{"1":"3","2":"2","3":"0.04"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+{"columns":[{"label":["CRISPRs near cas"],"name":[1],"type":["int"],"align":["right"]},{"label":["Genomes"],"name":[2],"type":["int"],"align":["right"]},{"label":["Percentage"],"name":[3],"type":["dbl"],"align":["right"]}],"data":[{"1":"0","2":"3950","3":"70.89"},{"1":"1","2":"1595","3":"28.63"},{"1":"2","2":"25","3":"0.45"},{"1":"3","2":"2","3":"0.04"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 </div>
@@ -640,7 +640,7 @@ Figure&nbsp;2: Number of CRISPR arrays per genome
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>crisprs_near_cas_figure <span class="ot">&lt;-</span> <span class="fu">make_donut_chart</span>(</span>
 <span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">prepare_stats_df</span>(<span class="at">numbers_df =</span> annotated_crispr_number_df,</span>
-<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>                   <span class="at">stat =</span> <span class="st">`</span><span class="at">CRISPRs near Cas</span><span class="st">`</span>)</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>                   <span class="at">stat =</span> <span class="st">`</span><span class="at">CRISPRs near cas</span><span class="st">`</span>)</span>
 <span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>) <span class="sc">+</span></span>
 <span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggtitle</span>(<span class="st">"Overall"</span>) <span class="sc">+</span></span>
 <span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">make_donut_chart</span>(crisprs_jejuni_df) <span class="sc">+</span></span>
@@ -668,16 +668,16 @@ Figure&nbsp;3: Prevalence of CRISPR arrays
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>crisprs_per_species_table <span class="ot">&lt;-</span> annotated_crispr_number_df <span class="sc">%&gt;%</span></span>
-<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(<span class="st">`</span><span class="at">CRISPRs near Cas</span><span class="st">`</span>, simple_species) <span class="sc">%&gt;%</span></span>
-<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">genomes =</span> <span class="fu">length</span>(<span class="st">`</span><span class="at">CRISPRs near Cas</span><span class="st">`</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(<span class="st">`</span><span class="at">CRISPRs near cas</span><span class="st">`</span>, simple_species) <span class="sc">%&gt;%</span></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">genomes =</span> <span class="fu">length</span>(<span class="st">`</span><span class="at">CRISPRs near cas</span><span class="st">`</span>)) <span class="sc">%&gt;%</span></span>
 <span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>() <span class="sc">%&gt;%</span></span>
-<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">xtabs</span>(<span class="at">formula =</span> genomes <span class="sc">~</span> <span class="st">`</span><span class="at">CRISPRs near Cas</span><span class="st">`</span> <span class="sc">+</span> simple_species, <span class="at">data =</span> .)</span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">xtabs</span>(<span class="at">formula =</span> genomes <span class="sc">~</span> <span class="st">`</span><span class="at">CRISPRs near cas</span><span class="st">`</span> <span class="sc">+</span> simple_species, <span class="at">data =</span> .)</span>
 <span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>crisprs_per_species_table</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>                simple_species
-CRISPRs near Cas coli jejuni
+CRISPRs near cas coli jejuni
                0 3950   4493
                1 1595   9149
                2   25    231
@@ -716,7 +716,7 @@ CRISPRs near Cas coli jejuni
 <span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> crisprs_near_cas_df,</span>
 <span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">by =</span> <span class="st">"sample_accession"</span></span>
 <span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
-<span id="cb23-11"><a href="#cb23-11" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">orientation =</span> <span class="st">"near_Cas"</span>),</span>
+<span id="cb23-11"><a href="#cb23-11" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">orientation =</span> <span class="st">"near_cas"</span>),</span>
 <span id="cb23-12"><a href="#cb23-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(</span>
 <span id="cb23-13"><a href="#cb23-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> selected_metadata,</span>
 <span id="cb23-14"><a href="#cb23-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> crisprs_orphan_df,</span>
@@ -743,7 +743,7 @@ CRISPRs near Cas coli jejuni
 <div class="cell-output-display">
 <div data-pagedtable="false">
   <script data-pagedtable-source="" type="application/json">
-{"columns":[{"label":["orientation"],"name":[1],"type":["chr"],"align":["left"]},{"label":["Prediction"],"name":[2],"type":["chr"],"align":["left"]},{"label":["n"],"name":[3],"type":["int"],"align":["right"]}],"data":[{"1":"near_Cas","2":"II-C","3":"10846"},{"1":"near_Cas","2":"NA","3":"8443"},{"1":"near_Cas","2":"Unknown","3":"392"},{"1":"near_Cas","2":"I-B","3":"18"},{"1":"near_Cas","2":"II-A","3":"4"},{"1":"near_Cas","2":"V-F1","3":"2"},{"1":"orphan","2":"NA","3":"18709"},{"1":"orphan","2":"II-C","3":"538"},{"1":"orphan","2":"Unknown","3":"218"},{"1":"orphan","2":"I-B","3":"7"},{"1":"orphan","2":"II-A","3":"3"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+{"columns":[{"label":["orientation"],"name":[1],"type":["chr"],"align":["left"]},{"label":["Prediction"],"name":[2],"type":["chr"],"align":["left"]},{"label":["n"],"name":[3],"type":["int"],"align":["right"]}],"data":[{"1":"near_cas","2":"II-C","3":"10846"},{"1":"near_cas","2":"NA","3":"8443"},{"1":"near_cas","2":"Unknown","3":"392"},{"1":"near_cas","2":"I-B","3":"18"},{"1":"near_cas","2":"II-A","3":"4"},{"1":"near_cas","2":"V-F1","3":"2"},{"1":"orphan","2":"NA","3":"18709"},{"1":"orphan","2":"II-C","3":"538"},{"1":"orphan","2":"Unknown","3":"218"},{"1":"orphan","2":"I-B","3":"7"},{"1":"orphan","2":"II-A","3":"3"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 </div>
@@ -756,12 +756,12 @@ CRISPRs near Cas coli jejuni
 <div class="cell-output-display">
 <div data-pagedtable="false">
   <script data-pagedtable-source="" type="application/json">
-{"columns":[{"label":["simple_species"],"name":[1],"type":["chr"],"align":["left"]},{"label":["orientation"],"name":[2],"type":["chr"],"align":["left"]},{"label":["Prediction"],"name":[3],"type":["chr"],"align":["left"]},{"label":["n"],"name":[4],"type":["int"],"align":["right"]}],"data":[{"1":"jejuni","2":"near_Cas","3":"II-C","4":"9268"},{"1":"jejuni","2":"near_Cas","3":"NA","4":"4493"},{"1":"jejuni","2":"near_Cas","3":"Unknown","4":"327"},{"1":"jejuni","2":"near_Cas","3":"I-B","4":"15"},{"1":"jejuni","2":"near_Cas","3":"II-A","4":"1"},{"1":"jejuni","2":"orphan","3":"NA","4":"13319"},{"1":"jejuni","2":"orphan","3":"II-C","4":"396"},{"1":"jejuni","2":"orphan","3":"Unknown","4":"169"},{"1":"jejuni","2":"orphan","3":"I-B","4":"4"},{"1":"coli","2":"near_Cas","3":"NA","4":"3950"},{"1":"coli","2":"near_Cas","3":"II-C","4":"1578"},{"1":"coli","2":"near_Cas","3":"Unknown","4":"65"},{"1":"coli","2":"near_Cas","3":"I-B","4":"3"},{"1":"coli","2":"near_Cas","3":"II-A","4":"3"},{"1":"coli","2":"near_Cas","3":"V-F1","4":"2"},{"1":"coli","2":"orphan","3":"NA","4":"5390"},{"1":"coli","2":"orphan","3":"II-C","4":"142"},{"1":"coli","2":"orphan","3":"Unknown","4":"49"},{"1":"coli","2":"orphan","3":"I-B","4":"3"},{"1":"coli","2":"orphan","3":"II-A","4":"3"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+{"columns":[{"label":["simple_species"],"name":[1],"type":["chr"],"align":["left"]},{"label":["orientation"],"name":[2],"type":["chr"],"align":["left"]},{"label":["Prediction"],"name":[3],"type":["chr"],"align":["left"]},{"label":["n"],"name":[4],"type":["int"],"align":["right"]}],"data":[{"1":"jejuni","2":"near_cas","3":"II-C","4":"9268"},{"1":"jejuni","2":"near_cas","3":"NA","4":"4493"},{"1":"jejuni","2":"near_cas","3":"Unknown","4":"327"},{"1":"jejuni","2":"near_cas","3":"I-B","4":"15"},{"1":"jejuni","2":"near_cas","3":"II-A","4":"1"},{"1":"jejuni","2":"orphan","3":"NA","4":"13319"},{"1":"jejuni","2":"orphan","3":"II-C","4":"396"},{"1":"jejuni","2":"orphan","3":"Unknown","4":"169"},{"1":"jejuni","2":"orphan","3":"I-B","4":"4"},{"1":"coli","2":"near_cas","3":"NA","4":"3950"},{"1":"coli","2":"near_cas","3":"II-C","4":"1578"},{"1":"coli","2":"near_cas","3":"Unknown","4":"65"},{"1":"coli","2":"near_cas","3":"I-B","4":"3"},{"1":"coli","2":"near_cas","3":"II-A","4":"3"},{"1":"coli","2":"near_cas","3":"V-F1","4":"2"},{"1":"coli","2":"orphan","3":"NA","4":"5390"},{"1":"coli","2":"orphan","3":"II-C","4":"142"},{"1":"coli","2":"orphan","3":"Unknown","4":"49"},{"1":"coli","2":"orphan","3":"I-B","4":"3"},{"1":"coli","2":"orphan","3":"II-A","4":"3"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 </div>
 </div>
-<p>Among the both the CRISPR arrays with <em>Cas</em> genes nearby and the orphan CRISPRs the most prevalent type predicted is II-C. The second most prevalent type is ‘unknown’, which might be II-C with low certainty. This pattern occurs in both <em>C. jejuni</em> and <em>C. coli</em>. (Note: ‘Prediction = NA’ refers to absence of CRISPRs, genomes with no CRISPRs ‘near_Cas’ or ‘orphan’.)</p>
+<p>Among the both the CRISPR arrays with <em>cas</em> genes nearby and the orphan CRISPRs the most prevalent type predicted is II-C. The second most prevalent type is ‘unknown’, which might be II-C with low certainty. This pattern occurs in both <em>C. jejuni</em> and <em>C. coli</em>. (Note: ‘Prediction = NA’ refers to absence of CRISPRs, genomes with no CRISPRs ‘near_cas’ or ‘orphan’.)</p>
 <p>Now that we have seen the prevalence of CRISPR arrays and their type, let’s have a closer look at the number of CRISPR spacers and repeats within each array.</p>
 </section>
 </section>
@@ -779,18 +779,18 @@ CRISPRs near Cas coli jejuni
 <span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a>number_of_spacers_scatterplot <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(</span>
 <span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> total_spacer_scatter_data,</span>
-<span id="cb25-9"><a href="#cb25-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">mapping =</span> <span class="fu">aes</span>(<span class="at">x =</span> near_Cas,</span>
+<span id="cb25-9"><a href="#cb25-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">mapping =</span> <span class="fu">aes</span>(<span class="at">x =</span> near_cas,</span>
 <span id="cb25-10"><a href="#cb25-10" aria-hidden="true" tabindex="-1"></a>                <span class="at">y =</span> orphan)</span>
 <span id="cb25-11"><a href="#cb25-11" aria-hidden="true" tabindex="-1"></a>) <span class="sc">+</span></span>
 <span id="cb25-12"><a href="#cb25-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">position =</span> <span class="fu">position_jitter</span>(),</span>
 <span id="cb25-13"><a href="#cb25-13" aria-hidden="true" tabindex="-1"></a>             <span class="at">size =</span> <span class="dv">1</span>, <span class="at">alpha =</span> <span class="fl">0.3</span>) <span class="sc">+</span></span>
 <span id="cb25-14"><a href="#cb25-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_pubr</span>() <span class="sc">+</span></span>
-<span id="cb25-15"><a href="#cb25-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"CRISPR spacers near Cas"</span>,</span>
+<span id="cb25-15"><a href="#cb25-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"CRISPR spacers near cas"</span>,</span>
 <span id="cb25-16"><a href="#cb25-16" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"Orphan CRISPR spacers"</span>)</span>
 <span id="cb25-17"><a href="#cb25-17" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb25-18"><a href="#cb25-18" aria-hidden="true" tabindex="-1"></a>spacers_near_cas_density <span class="ot">=</span> <span class="fu">ggplot</span>(</span>
 <span id="cb25-19"><a href="#cb25-19" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> total_spacer_scatter_data,</span>
-<span id="cb25-20"><a href="#cb25-20" aria-hidden="true" tabindex="-1"></a>  <span class="at">mapping =</span> <span class="fu">aes</span>(<span class="at">x =</span> near_Cas)) <span class="sc">+</span></span>
+<span id="cb25-20"><a href="#cb25-20" aria-hidden="true" tabindex="-1"></a>  <span class="at">mapping =</span> <span class="fu">aes</span>(<span class="at">x =</span> near_cas)) <span class="sc">+</span></span>
 <span id="cb25-21"><a href="#cb25-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_density</span>(<span class="at">fill =</span> <span class="st">"grey20"</span>) <span class="sc">+</span></span>
 <span id="cb25-22"><a href="#cb25-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_pubr</span>() <span class="sc">+</span></span>
 <span id="cb25-23"><a href="#cb25-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">axis.title.x =</span> <span class="fu">element_blank</span>())</span>
@@ -823,7 +823,7 @@ Figure&nbsp;4: Total number of CRISPR spacers
 </div>
 </div>
 </div>
-<p>This figure shows (again) that orphan CRISPRs are relatively rare, but when they occur they may contain up to 23 spacers. The most commonly occurring number of spacers is 3. As for the CRISPRs with <em>Cas</em> genes nearby, most CRISPR arrays contain up to 13 spacers (each at least 100 times) with higher numbers being observed less often. The minimum number of spacers is 2, and the max 45. (Note that these numbers sum all spacers if there are multiple arrays!)</p>
+<p>This figure shows (again) that orphan CRISPRs are relatively rare, but when they occur they may contain up to 23 spacers. The most commonly occurring number of spacers is 3. As for the CRISPRs with <em>cas</em> genes nearby, most CRISPR arrays contain up to 13 spacers (each at least 100 times) with higher numbers being observed less often. The minimum number of spacers is 2, and the max 45. (Note that these numbers sum all spacers if there are multiple arrays!)</p>
 <section id="spacers-per-species" class="level2">
 <h2 class="anchored" data-anchor-id="spacers-per-species">Spacers per species</h2>
 <div class="cell">
@@ -836,7 +836,7 @@ Figure&nbsp;4: Total number of CRISPR spacers
 <span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>             <span class="at">scales =</span> <span class="st">"free_y"</span>,</span>
 <span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a>             <span class="at">labeller =</span> <span class="fu">labeller</span>(</span>
 <span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a>               <span class="at">simple_species =</span> <span class="fu">c</span>(<span class="at">coli =</span> <span class="st">"C. coli"</span>, <span class="at">jejuni =</span> <span class="st">"C. jejuni"</span>),</span>
-<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a>               <span class="at">orientation =</span> <span class="fu">c</span>(<span class="at">near_Cas =</span> <span class="st">"Near Cas"</span>, <span class="at">orphan =</span> <span class="st">"Orphan"</span>)),</span>
+<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a>               <span class="at">orientation =</span> <span class="fu">c</span>(<span class="at">near_cas =</span> <span class="st">"Near cas"</span>, <span class="at">orphan =</span> <span class="st">"Orphan"</span>)),</span>
 <span id="cb26-9"><a href="#cb26-9" aria-hidden="true" tabindex="-1"></a>             <span class="at">axes =</span> <span class="st">"all_x"</span></span>
 <span id="cb26-10"><a href="#cb26-10" aria-hidden="true" tabindex="-1"></a>             )<span class="sc">+</span></span>
 <span id="cb26-11"><a href="#cb26-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_continuous</span>(<span class="at">expand =</span> <span class="fu">expansion</span>(<span class="at">mult =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="fl">0.05</span>))) <span class="sc">+</span></span>
@@ -857,7 +857,7 @@ Figure&nbsp;5: Total spacers per species
 </div>
 </div>
 </div>
-<p>There appears to be a difference in distribution of the number of CRISPR spacers between <em>C. jejuni</em> (bottom) and <em>C. coli</em> (top). In <em>C. jejuni</em> there is a clear anticorrelation between number of spacers and frequency: most arrays harbour 2 spacers and for each added spacer the frequency decreases. This pattern does not apply to <em>C. coli</em>: the most common <em>Cas</em>-containing array has 5 spacers and frequencies of arrays with 11 and 13 spacers are higher than those for 10, 12, 14 or more spacers. This might be correlated with other underlying biological data, such as the origin of the genomes (different environments, or lineages?).</p>
+<p>There appears to be a difference in distribution of the number of CRISPR spacers between <em>C. jejuni</em> (bottom) and <em>C. coli</em> (top). In <em>C. jejuni</em> there is a clear anticorrelation between number of spacers and frequency: most arrays harbour 2 spacers and for each added spacer the frequency decreases. This pattern does not apply to <em>C. coli</em>: the most common <em>cas</em>-containing array has 5 spacers and frequencies of arrays with 11 and 13 spacers are higher than those for 10, 12, 14 or more spacers. This might be correlated with other underlying biological data, such as the origin of the genomes (different environments, or lineages?).</p>
 </section>
 </section>
 <section id="length-of-spacers-and-repeats" class="level1">
@@ -917,7 +917,7 @@ Figure&nbsp;6: CRISPR repeat and spacer length
 </section>
 <section id="number-of-unique-spacers" class="level1">
 <h1>Number of unique spacers</h1>
-<p>In this dataset of 19,445 genomes there are 11,301 genomes (58%) that contain CRISPR arrays. We have seen that there are genomes with up to 23 CRISPR spacers near <em>Cas</em> genes and 13 orphan spacers. Also, most of these spacers are 30 bp long, with exceptions from 26-51 bp. Now if we collect all these spacers and cluster them, we can try and identify unique spacers that may represent the biological spacer (filtering sequencing and detection artifacts). Furthermore, using this approach we may infer whether this dataset is saturated, meaning we have likely sampled all exiting spacers in <em>C. jejuni</em> and <em>C. coli</em>. To do that, we first have to establish a proper clustering cut-off.</p>
+<p>In this dataset of 19,445 genomes there are 11,301 genomes (58%) that contain CRISPR arrays. We have seen that there are genomes with up to 23 CRISPR spacers near <em>cas</em> genes and 13 orphan spacers. Also, most of these spacers are 30 bp long, with exceptions from 26-51 bp. Now if we collect all these spacers and cluster them, we can try and identify unique spacers that may represent the biological spacer (filtering sequencing and detection artifacts). Furthermore, using this approach we may infer whether this dataset is saturated, meaning we have likely sampled all exiting spacers in <em>C. jejuni</em> and <em>C. coli</em>. To do that, we first have to establish a proper clustering cut-off.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>

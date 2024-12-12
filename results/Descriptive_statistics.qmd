@@ -73,17 +73,17 @@ ATB in the incremental update of August 2024 (@fig-number_of_species).
 These genomes have been screened for CRISPR ([Clustered Regularly
 Interspaced Short Palindromic
 Repeats](https://en.wikipedia.org/wiki/CRISPR "CRISPR wiki")) spacers
-and *Cas* (CRISPR-associated) genes using
+and *cas* (CRISPR-associated) genes using
 [CCTyper](https://www.biorxiv.org/content/10.1101/2020.05.15.097824v1 "Russel et al., 2020. bioRxiv")
 (version 1.8.0). CCTyper produces tab-separated tables that summarise
 the CRISPRs, including number of contigs containing CRISPR arrays,
 number of spacers per array, number of repeat sequences, consensus
-repeat sequence, and presence of Cas genes. From these results, we can
+repeat sequence, and presence of *cas* genes. From these results, we can
 view:
 
 1.  The [number of CRISPR arrays](#crispr-arrays-per-genome) detected
     per genome (@fig-crisprs_per_genome)\
-    (Taking into account the presence of *Cas* genes)
+    (Taking into account the presence of *cas* genes)
 
 2.  [Prevalence of CRISPR arrays](#arrays-per-genome-and-per-species)
     overall and per species (@fig-crisprs_per_genome_donut)
@@ -301,7 +301,7 @@ stacked_species_plot
 We have identified CRISPRs in all *Campylobacter jejuni* and *C. coli*
 genomes using
 [CCTyper](https://github.com/Russel88/CRISPRCasTyper "GitHub repository for CRISPRCasTyper").
-CCTyper separately annotates CRISPRs near *Cas* genes and separate
+CCTyper separately annotates CRISPRs near *cas* genes and separate
 CRISPR arrays, called 'orphans'. To inventory the prevalence and size of
 both types of CRISPR arrays, show for each genome the number of CRISPR
 arrays as a scatterplot (@fig-crisprs_per_genome). (Derived from the
@@ -321,7 +321,7 @@ annotated_crispr_number_df <- left_join(
     x = crisprs_near_cas_df %>%
       group_by(sample_accession) %>%
       count() %>%
-      rename("CRISPRs near Cas" = "n"),
+      rename("CRISPRs near cas" = "n"),
     y = crisprs_orphan_df %>%
       group_by(sample_accession) %>%
       count() %>%
@@ -330,14 +330,14 @@ annotated_crispr_number_df <- left_join(
   )
 ) %>%
   mutate(
-    across(`CRISPRs near Cas`:`Orphan CRISPRs`,
+    across(`CRISPRs near cas`:`Orphan CRISPRs`,
            ~replace_na(., 0)),
     simple_species = if_else(grepl(pattern = "jejuni", x = Species),
                              "jejuni", "coli"),
     contains_crisprs = case_when(
-      `CRISPRs near Cas` == 0 & `Orphan CRISPRs` == 0 ~ "no_crisprs",
-      `CRISPRs near Cas` == 0 & `Orphan CRISPRs` > 0 ~ "only_orphans",
-      `CRISPRs near Cas` > 0 & `Orphan CRISPRs` == 0 ~ "only_near_cas",
+      `CRISPRs near cas` == 0 & `Orphan CRISPRs` == 0 ~ "no_crisprs",
+      `CRISPRs near cas` == 0 & `Orphan CRISPRs` > 0 ~ "only_orphans",
+      `CRISPRs near cas` > 0 & `Orphan CRISPRs` == 0 ~ "only_near_cas",
       TRUE ~ "both"
     )
   )
@@ -350,7 +350,7 @@ write_delim(
 
 number_of_crisprs_scatterplot <- ggplot(
   data = annotated_crispr_number_df,
-  mapping = aes(x = `CRISPRs near Cas`,
+  mapping = aes(x = `CRISPRs near cas`,
                 y = `Orphan CRISPRs`)
 ) +
   geom_point(position = position_jitter(),
@@ -359,7 +359,7 @@ number_of_crisprs_scatterplot <- ggplot(
 
 crispr_near_cas_density = ggplot(
   data = annotated_crispr_number_df,
-  mapping = aes(x = `CRISPRs near Cas`)) +
+  mapping = aes(x = `CRISPRs near cas`)) +
   geom_density(fill = "grey20") +
   theme_pubr() +
   theme(axis.title.x = element_blank())
@@ -387,8 +387,8 @@ crisprs_per_genome_figure
 
 From this figure, it appears that by far the most genomes have no CRISPR
 arrays at all, and otherwise they mostly have one CRISPR array near
-*Cas* genes (one contig containing CRISPRs). At most, CCTyper has found
-3 CRISPRs near *Cas* genes and up to 4 orphan CRISPRs Let's see this
+*cas* genes (one contig containing CRISPRs). At most, CCTyper has found
+3 CRISPRs near *cas* genes and up to 4 orphan CRISPRs Let's see this
 distribution separately between *C. jejuni* and *coli*, and look at the
 number of spacers per genome.
 
@@ -398,7 +398,7 @@ number of spacers per genome.
 total_genomes = nrow(annotated_crispr_number_df)
 
 annotated_crispr_number_df %>%
-  count(`CRISPRs near Cas`, name = "Genomes") %>%
+  count(`CRISPRs near cas`, name = "Genomes") %>%
   mutate(Percentage = round(Genomes / total_genomes * 100, 2))
 
 prepare_stats_df <- function(numbers_df, stat, species = "*") {
@@ -436,7 +436,7 @@ make_donut_chart <- function(stats_df) {
 print("CRISPRs in Campylobacter jejuni")
 crisprs_jejuni_df <- prepare_stats_df(
   numbers_df = annotated_crispr_number_df,
-  stat = `CRISPRs near Cas`,
+  stat = `CRISPRs near cas`,
   species = "Campylobacter_D jejuni")
 
 crisprs_jejuni_df[,1:3]
@@ -454,7 +454,7 @@ orphan_crisprs_jejuni[,1:3]
 print("CRISPRs in Campylobacter coli")
 crisprs_coli <- prepare_stats_df(
   numbers_df = annotated_crispr_number_df,
-  stat = `CRISPRs near Cas`,
+  stat = `CRISPRs near cas`,
   species = "Campylobacter_D coli")
 
 crisprs_coli[,1:3]
@@ -501,7 +501,7 @@ have no CRISPR arrays as detected in our analyses.
 
 crisprs_near_cas_figure <- make_donut_chart(
   prepare_stats_df(numbers_df = annotated_crispr_number_df,
-                   stat = `CRISPRs near Cas`)
+                   stat = `CRISPRs near cas`)
 ) +
   ggtitle("Overall") +
   make_donut_chart(crisprs_jejuni_df) +
@@ -518,10 +518,10 @@ is quite different between species. Let's test that statistically.
 
 ```{r crisprs_per_species_test}
 crisprs_per_species_table <- annotated_crispr_number_df %>%
-  group_by(`CRISPRs near Cas`, simple_species) %>%
-  summarise(genomes = length(`CRISPRs near Cas`)) %>%
+  group_by(`CRISPRs near cas`, simple_species) %>%
+  summarise(genomes = length(`CRISPRs near cas`)) %>%
   ungroup() %>%
-  xtabs(formula = genomes ~ `CRISPRs near Cas` + simple_species, data = .)
+  xtabs(formula = genomes ~ `CRISPRs near cas` + simple_species, data = .)
 
 crisprs_per_species_table
 
@@ -553,7 +553,7 @@ annotated_crispr_df <- rbind(
     y = crisprs_near_cas_df,
     by = "sample_accession"
   ) %>%
-    mutate(orientation = "near_Cas"),
+    mutate(orientation = "near_cas"),
   left_join(
     x = selected_metadata,
     y = crisprs_orphan_df,
@@ -582,12 +582,12 @@ annotated_crispr_df %>%
   arrange(desc(simple_species), orientation, desc(n))
 ```
 
-Among the both the CRISPR arrays with *Cas* genes nearby and the orphan
+Among the both the CRISPR arrays with *cas* genes nearby and the orphan
 CRISPRs the most prevalent type predicted is II-C. The second most
 prevalent type is 'unknown', which might be II-C with low certainty.
 This pattern occurs in both *C. jejuni* and *C. coli*. (Note:
 'Prediction = NA' refers to absence of CRISPRs, genomes with no CRISPRs
-'near_Cas' or 'orphan'.)
+'near_cas' or 'orphan'.)
 
 Now that we have seen the prevalence of CRISPR arrays and their type,
 let's have a closer look at the number of CRISPR spacers and repeats
@@ -612,18 +612,18 @@ total_spacer_scatter_data <- annotated_crispr_df %>%
 
 number_of_spacers_scatterplot <- ggplot(
   data = total_spacer_scatter_data,
-  mapping = aes(x = near_Cas,
+  mapping = aes(x = near_cas,
                 y = orphan)
 ) +
   geom_point(position = position_jitter(),
              size = 1, alpha = 0.3) +
   theme_pubr() +
-  labs(x = "CRISPR spacers near Cas",
+  labs(x = "CRISPR spacers near cas",
        y = "Orphan CRISPR spacers")
 
 spacers_near_cas_density = ggplot(
   data = total_spacer_scatter_data,
-  mapping = aes(x = near_Cas)) +
+  mapping = aes(x = near_cas)) +
   geom_density(fill = "grey20") +
   theme_pubr() +
   theme(axis.title.x = element_blank())
@@ -646,7 +646,7 @@ spacers_per_genome_figure
 
 This figure shows (again) that orphan CRISPRs are relatively rare, but
 when they occur they may contain up to 23 spacers. The most commonly
-occurring number of spacers is 3. As for the CRISPRs with *Cas* genes
+occurring number of spacers is 3. As for the CRISPRs with *cas* genes
 nearby, most CRISPR arrays contain up to 13 spacers (each at least 100
 times) with higher numbers being observed less often. The minimum number
 of spacers is 2, and the max 45. (Note that these numbers sum all
@@ -665,7 +665,7 @@ annotated_crispr_df %>%
              scales = "free_y",
              labeller = labeller(
                simple_species = c(coli = "C. coli", jejuni = "C. jejuni"),
-               orientation = c(near_Cas = "Near Cas", orphan = "Orphan")),
+               orientation = c(near_cas = "Near cas", orphan = "Orphan")),
              axes = "all_x"
              )+
   scale_y_continuous(expand = expansion(mult = c(0, 0.05))) +
@@ -679,7 +679,7 @@ spacers between *C. jejuni* (bottom) and *C. coli* (top). In *C. jejuni*
 there is a clear anticorrelation between number of spacers and
 frequency: most arrays harbour 2 spacers and for each added spacer the
 frequency decreases. This pattern does not apply to *C. coli*: the most
-common *Cas*-containing array has 5 spacers and frequencies of arrays
+common *cas*-containing array has 5 spacers and frequencies of arrays
 with 11 and 13 spacers are higher than those for 10, 12, 14 or more
 spacers. This might be correlated with other underlying biological data,
 such as the origin of the genomes (different environments, or
@@ -749,7 +749,7 @@ more likely to be biologically different.
 
 In this dataset of 19,445 genomes there are 11,301 genomes (58%) that
 contain CRISPR arrays. We have seen that there are genomes with up to 23
-CRISPR spacers near *Cas* genes and 13 orphan spacers. Also, most of
+CRISPR spacers near *cas* genes and 13 orphan spacers. Also, most of
 these spacers are 30 bp long, with exceptions from 26-51 bp. Now if we
 collect all these spacers and cluster them, we can try and identify
 unique spacers that may represent the biological spacer (filtering
