@@ -1,0 +1,345 @@
+---
+title: "Metadata and spacer summary"
+author: 
+  - name: Gijswillem van Walt Meijer
+    email: g.s.a.vanwaltmeijer [at] uu.nl
+affiliations:
+  - id: UU-KLIF
+    name: Utrecht University
+    department: Faculty of Veterinary Medicine, Department of Clinical Infectiology
+    address: Yalelaan 1
+    city: Utrecht
+    country: The Netherlands
+    postal-code: 3584CL
+
+execute: 
+  echo: true
+  warning: false
+  message: false
+  cache: true 
+format: 
+  html:
+    code-fold: true
+editor: visual
+---
+
+# CRISPR spacers in *Campylobacter*
+
+### Summary of metadata and spacers of CRISPR arrays in Campylobacter genomes from [AllTheBacteria](https://allthebacteria.readthedocs.io/ "AllTheBacteria documentation")
+
+As described in *Descriptive_statistics.html,* a large amount of bacteria of *Campylobacter jejuni* and *coli* have been downloaded from AllTheBacteria (ATB) including their metadata. These genomes have then been screened for CRISPR-cas operons using [CCTyper](https://www.biorxiv.org/content/10.1101/2020.05.15.097824v1 "Russel et al., 2020. bioRxiv") (version 1.8.0). This has identified a large amount of spacers (figure 1) which has been further explored in *Descriptive_statistics.html* on its own. However, for the intended research, the origin of the Bacteria will need to be known so that it can potentially be linked to specific spacers or patterns. For this the metadata of ATB is vital. But with cursory inspection (figure 2), many of the origins are missing, unclear and without standardization.
+
+In this report, we summarize the spacers data and metadata and discuss certain problems that remain within the data.
+
+First relevant data will be imported.
+
+```{r setup, include=FALSE}
+library(knitr)
+library(here)
+library(tidyverse)
+library(Biostrings)
+library(naniar) #simplify creating na values from more than one nonsense value
+library(ggplot2)
+library(treemap)
+library(pwalign)
+
+knitr::opts_knit$set(base.dir = here(""))
+```
+
+```{r}
+#all spacers from CCtyper were combined into a tsv file as FASTA format
+all_spacers <- read_tsv(here("joining CCtyper/all_spacers.tsv"), show_col_types=FALSE)
+names(all_spacers) <- c("Sample_accession", "Spacer_sequence")
+
+#contig index are extracted from sample accession and put into their own column for pattern analysis
+all_spacers[3] <- str_extract(all_spacers$Sample_accession, "\\d*:\\d*")
+all_spacers <- separate(all_spacers, 3, into = c("Array_index", "Spacer_index"))
+all_spacers["Contig_accession"] <- str_extract(all_spacers$Sample_accession, "contig\\d*")
+
+#clean up sample accession
+all_spacers$Sample_accession <- str_extract(all_spacers$Sample_accession, "(?<=>)\\w*")
+
+#these spacers also include repeats and can be orphans or connected to a cas operon, this is added to the all spacer frame.
+orphan_crispr <- read_tsv(here("joining CCtyper/crisprs_orphan-concatenated.tab"), show_col_types = F)[,c(3, 6)] %>% mutate("orphan?" = TRUE) %>% separate(col = 1, sep = "\\.|\\_", into = c("Sample_accession", "Contig_accession", "Array_index"))
+orphan_crispr$Contig_accession <- str_extract(orphan_crispr$Contig_accession, "^\\w*")
+
+
+crispr_cas <- read_tsv(here("joining CCtyper/crisprs_near_cas-concatenated.tab"), show_col_types = F)[,c(3, 6)] %>% mutate("orphan?" = FALSE) %>% separate(col = 1, sep = "\\.|\\_", into = c("Sample_accession", "Contig_accession", "Array_index"))
+crispr_cas$Contig_accession <- str_extract(crispr_cas$Contig_accession, "^\\w*")
+
+all_spacers <- left_join(all_spacers, bind_rows(orphan_crispr, crispr_cas))
+
+#ENA metadata is downloaded from ATB and was filtered for original analysis in descriptive_statistics
+colnames <- read_table(here("metadata project/colnames_metadata_filtered.txt"), col_names = F, show_col_types = F)
+metadata_source <-
+  read_tsv(here("metadata project/ena_metadata.20240801.selection-only_Campylobacter.tsv"),
+           col_names = colnames$X2, show_col_types = FALSE)
+
+#further filtering metadata as not all are needed for this analysis
+metadata <- select(metadata_source, c(sample_accession, scientific_name, isolation_source, host))
+
+#in the metadata there is a distinction between unclear data and data that is simply missing/unspecified. missing data is turned into NA and data that is present in isolation source but not in host is copied to host.
+missingno <- metadata %>%
+  mutate(across(c(isolation_source, host), ~str_to_lower(.x)))%>%
+  replace_with_na(replace = list(isolation_source = c(
+    "missing", "other", "not collected", "no source specified", "mising"
+  ), host = c(
+    "missing", "other", "not collected", "no source specified", "mising"
+  ))) %>% mutate(host = ifelse(is.na(host), isolation_source, host))
+
+#There are also bacteria that are incorrectly noted in the ENA metadata compared to the ATB designation of species
+simplified_species <- read_delim(
+    file = here("metadata project/sylph.tsv.gz"),
+    delim = "\t",
+    show_col_types = F) %>%
+    select(Sample, Species)
+
+simplified_species <- simplified_species %>% filter(str_detect(Species,"Campylobacter_D (jejuni|coli)")) %>% mutate(Species = str_replace_all(Species, "_(A|B|C|D)", ""))
+
+merged_metadata <- left_join(missingno, simplified_species, by = c("sample_accession" = "Sample")) %>% distinct(sample_accession, .keep_all = TRUE)
+```
+
+\
+
+\
+
+## Metadata analysis
+
+### Highlighting the importance of FAIR metadata handling
+
+```{r}
+cat("10 examples of 'host' metadata")
+```
+
+```{r metadata 1}
+as.data.frame(list(Hosts = unique(missingno$host)[2:11]))
+```
+
+```{r}
+cat("10 examples of 'isolation source' metadata")
+
+```
+
+```{r}
+as.data.frame(list(isolation_source = unique(missingno$isolation_source)[2:11]))
+```
+
+This shows some examples of how this metadata has inconsistent notation of origins. Many problems occur when trying to parse this data as is, for example 'raw intact chicken' and 'chicken carcass' describe the same host species. This additional information is not useful for 'host' metadata but is for 'isolation source', yet information in isolation source is also lacking as the distinction between broiler and meat producing chickens is sometimes difficult to discern. Unfortunately this alongside spelling errors ('boivine') and unclear designations ('food'), makes the metadata require a significant amount of processing. Not to mention the amount of data that potentially could have information regarding origin, but was never noted. This in turn highlights the importance of the FAIR principles for research.
+
+### Consolidating origins
+
+```{r}
+#TODO: keep discussing and updating categories, data crawl through original studies to find actual hosts and investigate why about a 1000 samples are lost from left_join.
+
+#consolidates the many differing inputs of host into more managable categories: Meat producing poultry, Adult cattle, layers, veal calves, pets, small ruminants, pigs, surface water and water birds, wild birds, non-water environment and human. 
+
+#this last category consists of all species not part of these initial categories, or unclear enough to not be useful.
+definedmeta <- merged_metadata %>%
+  mutate(category = host) %>%
+  mutate(
+    category = str_replace(
+      category,
+      ".*(field|environment|pasture|sediment|soil|surfaces|crates).*",
+      "dry environment"
+    )
+  ) %>%
+  mutate(
+    category = str_replace(
+      category,
+      ".*(calf|veal).*",
+      "calves"
+    )
+  ) %>%
+  mutate(
+    category = str_replace(
+      category,
+      ".*(taurus|cattle|milk|boi?vine|cow|heifer|steer|beef|dairy|indicus).*",
+      "adult cattle"
+    )
+  ) %>% 
+  mutate(
+    category = ifelse(str_detect(
+      isolation_source,
+      ".*((?<!v)egg|layer).*"), yes = "broiler", no = host)
+    ) %>%
+  mutate(category = str_replace(category, ".*(water|lagoon|sewage|river|wetland|fulica\\satra|platyrhynchos|duck).*", "surface water and water birds")) %>%
+  mutate(
+    category = str_replace(
+      category,
+      ".*(pheasant|phasianus|gallopavo|hen|chi[ec]ken|turkey|broiler|gallus|cb-|drumsticks|poultry).*",
+      "meat producing poultry"
+    )
+  ) %>%
+  mutate(category = str_replace(
+    category,
+    ".*(sus\\sscrofa|porcine|pig|swine|sow|pork).*",
+    "swine/pig"
+  )) %>%
+  mutate(
+    category = str_replace(
+      category,
+      ".*(puppy|canii?ne|cat|feline|dog|kitten|pet|familiaris)(?!tle).*",
+      "pet animals"
+    )
+  ) %>%
+  mutate(category = str_replace(category, ".*(human|clinical|guillain|sapiens).*", "human")) %>%
+  mutate(
+    category = str_replace(
+      category,
+      ".*(avian|cloaca|(?<!water\\s)bird|columba livia|crow|corvus|dove).*",
+      "wild avian"
+    )
+  ) %>%
+  mutate(category = str_replace(category, ".*(sheep|aries|ovine|goat|hircus).*", "small ruminants")) %>%
+  mutate(category = str_replace(category, ".*(human|sapiens).*", "human")) %>%
+  mutate(
+    category = str_replace(
+      category,
+      "^(?!(dry environment|calves|adult cattle|broiler|meat producing poultry|swine/pig|pet animals|wild avian|small ruminants|food|feces|human|surface water and water birds)).*",
+      "other/undetermined"
+    ))
+#calculate frequency of categories 
+origincounts <- definedmeta %>% group_by(category) %>% summarise(total_n = n()) %>% arrange(desc(total_n))
+
+#calculate percentages and create labels
+processedcount <-
+  origincounts %>% mutate(percentage = round(total_n / sum(total_n) * 100, 3))
+processedcount$labels <- paste(processedcount$category, "\n", processedcount$total_n, "(", processedcount$percentage, "%)") 
+processedcount <- processedcount %>% arrange(desc(total_n))
+summed_N <- as.character(sum(processedcount$total_n))
+
+
+treemap(
+  processedcount,
+  index = c("labels"),
+  vSize = "total_n",  
+  vColor = "total_n",  
+  draw = TRUE,
+  border.col = "black",
+  title = paste("Treemap of Categories with total N:", sum(processedcount$total_n)),
+  fontsize.title = 16)
+
+#same calculations but without NA
+processedcount <-
+  origincounts[-1,] %>% mutate(percentage = round(total_n / sum(total_n) * 100, 3))
+processedcount$labels <- paste(processedcount$category, "\n", processedcount$total_n, "(", processedcount$percentage, "%)") 
+processedcount <- processedcount %>% arrange(desc(total_n))
+
+
+treemap(
+  processedcount,
+  index = c("labels"),
+  vSize = "total_n",  
+  vColor = "total_n",  
+  draw = TRUE,
+  border.col = "black",
+  title = paste("Treemap of Categories (without NA) with total N:", sum(processedcount$total_n)),
+  fontsize.title = 16)
+
+
+
+```
+
+```{r}
+processedcount[,1:3]
+```
+
+This is a visualization of the categories that this document will work with going forward. As can be noticed, poultry is abundant with other species quickly falling off. Additionally a large amount of the host and isolation_source data is NA, considered to be mostly unusable for source attribution. Though this is still a large amount of data still to use, lets see how this is divided between *jejuni* and *coli*
+
+### Campylobacter species
+
+```{r}
+#same calculations as above, but now also additionally grouped on species.
+
+origincounts_jejuni <- definedmeta %>% group_by(category, Species) %>% filter(as.character(Species) == "Campylobacter jejuni") %>% summarise(total_n = n()) %>% arrange(desc(total_n))
+
+summed_N <- sum(origincounts_jejuni[-1,]$total_n)
+processedcount_jejuni <-
+  origincounts_jejuni[-1,] %>% mutate(percentage = round(total_n / summed_N * 100, 3))
+processedcount_jejuni$labels <- paste(processedcount_jejuni$category, "\n", processedcount_jejuni$total_n, "(", processedcount_jejuni$percentage, "%)") 
+processedcount_jejuni <- processedcount_jejuni %>% arrange(desc(total_n))
+
+
+
+
+treemap(
+  processedcount_jejuni,
+  index = c("labels"),
+  vSize = "total_n",  
+  vColor = "total_n",  
+  draw = TRUE,
+  border.col = "black",
+  title = paste("Treemap of C. jejuni Categories (without NA) with total N:", sum(processedcount_jejuni$total_n)),
+  fontsize.title = 16)
+
+```
+
+```{r}
+origincounts_coli <- definedmeta %>% group_by(category, Species) %>% filter(as.character(Species) == "Campylobacter coli") %>% summarise(total_n = n()) %>% arrange(desc(total_n))
+
+
+summed_N <- sum(origincounts_coli[-2,]$total_n)
+processedcount_coli <-
+  origincounts_coli[-2,] %>% mutate(percentage = round(total_n / summed_N * 100, 3))
+processedcount_coli$labels <- paste(processedcount_coli$category, "\n", processedcount_coli$total_n, "(", processedcount_coli$percentage, "%)") 
+processedcount_coli <- processedcount_coli %>% arrange(desc(total_n))
+
+treemap(
+  processedcount_coli,
+  index = c("labels"),
+  vSize = "total_n",  
+  vColor = "total_n",  
+  draw = TRUE,
+  border.col = "black",
+  title = paste("Treemap of C. Coli Categories (without NA) with total N:", sum(processedcount_coli$total_n)),
+  fontsize.title = 16)
+
+```
+
+As can be seen, meat producing poultry is most frequent in both species. Though interestingly, swine are much more frequent within *Campylobacter coli* than in *C.* *jejuni*. Next lets look at the spacers found
+
+## Spacer analysis with metadata
+
+```{r}
+#join the two files
+merged_data <- inner_join(all_spacers, definedmeta, by = c("Sample_accession" = "sample_accession"))
+merged_data <- unique(merged_data)
+
+
+#condensing spacer sequences into unique sequences for faster calculation and performing an initial count of spacers
+counts_spacer <- merged_data %>% group_by(Spacer_sequence, category) %>% count()
+
+#some spacer sequences are directly complementary to each other and so the same spacer
+dna <- DNAStringSet(counts_spacer$Spacer_sequence)
+reverse_complements <- reverseComplement(dna)
+
+
+processed <- logical(length(dna))
+for (i in seq_along(dna)) {
+  if (processed[i]) next
+  match <- which(as.character(dna) == as.character(reverse_complements[i]))
+  if (length(match) > 0) {
+    processed[match] <- TRUE
+    dna[match] <- reverse_complements[match]
+  }
+}
+
+dna_list <- as.character(dna)
+counts_spacer$Spacer_sequence <- dna_list
+
+counts_spacer_host <- counts_spacer %>% group_by(Spacer_sequence, category) %>% summarise(n = sum(n)) %>% arrange(desc(n))
+counts_spacer_hostless <- counts_spacer %>% group_by(Spacer_sequence) %>% summarise(n = sum(n)) %>% arrange(desc(n))
+
+merged_data <- rename(merged_data, c("scientific_name" = "ENA_species", "Species" = "ATB_species"))
+
+merged_data_NAless <- merged_data %>% filter(!is.na(category))
+counts_spacer_NAless <- counts_spacer_host %>% filter(!is.na(category)) %>% arrange(desc(n))
+
+
+head(counts_spacer_NAless)
+```
+
+As described in *Descriptive_statistics*, many spacers detected by CCtyper were similar to each other. Some were reverse complements of each other or were identical except for additional nucleotides in one. Additionally some spacers have high similarity to each other with minor mutations. This table above has accounted for reverse complements and merged them into the count, however finding a solution for the other similarities has not been successful so far.
+
+\
+\
