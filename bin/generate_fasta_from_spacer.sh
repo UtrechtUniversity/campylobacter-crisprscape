@@ -11,7 +11,7 @@
 
 #gather structure of the data
 columns=$(head -n 1 $1)
-samples=$(cut -f 1 $1 | sed 1d | sort -u | head)
+samples=$(cut -f 1 $1 | sed 1d | sort -u)
 filepath=${2:-fasta_files}
 #create fasta files folder for output
 mkdir -p $filepath
