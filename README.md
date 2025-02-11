@@ -84,6 +84,14 @@ _Note to self: write user manual with instructions how to edit the configuration
     These may be false positives (how do you check?), but for now I'm sticking
     with the separate method.
 
+2025-02-11:
+ - Spacepharer wants to run locally within the same folder that you designate the tmpfolder and where the created
+   databases are located. Following the easy-predict workflow is not recommended as created .fasta files are
+   inconsistently recognized as actual fasta files.
+ - Phagescope database says that it can filter genomes based on criteria, but actually downloading these fastas is
+   impossible through an error. Additionally wget and curl do not properly download the databases in a way that
+   spacepharer can identify, requiring a manual upload.
+
 ### Files I want to collect and process
 
 1. Complete CRISPR-Cas locus sequences as fasta
