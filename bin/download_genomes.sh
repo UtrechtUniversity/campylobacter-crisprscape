@@ -6,19 +6,20 @@ IFS=$'\n'
 
 part=${1:-"update"}
 
-if [ ${part} == "update" ]
+if [ "${part}" == "update" ]
 then
     download_list=$(grep "incr_release" data/ATB/batches_to_download.tsv)
-elif [ ${part} == "original" ]
+elif [ "${part}" == "original" ]
+then
     download_list=$(grep -v "incr_release" data/ATB/batches_to_download.tsv)
-elif [ ${part} == "all" ]
+elif [ "${part}" == "all" ]
+then
     download_list=$(cat data/ATB/batches_to_download.tsv)
 else
     download_list=""
     echo "Unknown argument provided! Please use 'all', 'original', or 'update'."
     echo "Or none to use the default (=update)."
 fi
-
 
 for line in ${download_list}
 do
