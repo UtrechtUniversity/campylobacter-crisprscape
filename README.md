@@ -92,6 +92,10 @@ _Note to self: write user manual with instructions how to edit the configuration
    impossible through an error. Additionally wget and curl do not properly download the databases in a way that
    spacepharer can identify, requiring a manual upload.
 
+2025-02-21:
+ - Spacepharer databases are best created using the example names "querysetDB" and "targetsetDB" as other names such as "spacersetDB" causes weird errors.
+
+
 ### Files I want to collect and process
 
 1. Complete CRISPR-Cas locus sequences as fasta
