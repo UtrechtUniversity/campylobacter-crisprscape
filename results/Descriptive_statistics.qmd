@@ -296,6 +296,29 @@ stacked_species_plot <- ggplot(data = campylobacter_species_numbers,
 stacked_species_plot
 ```
 
+```{r new_metadata_import}
+# Read metadata without column names
+test_metadata <- read_delim(here("data/ATB/ena_metadata.20240801-filtered.tsv.gz"),
+                            col_names = F)
+
+# Collect the column names from the original metadata file
+test_metadata_colames <- read.table(
+  here("data/ATB/ena_metadata.20240801.tsv.gz"),
+  nrows = 1
+)
+
+current_samples <- list.files(
+  here("data/tmp/ATB/"),
+  recursive = T, include.dirs = F
+)
+
+# Insert column names
+colnames(test_metadata) <- test_metadata_colames[1,]
+
+# Remove columns with only NA values
+test_metadata <- test_metadata[colSums(!is.na(test_metadata)) > 0]
+```
+
 # CRISPR arrays per genome {#crispr-arrays-per-genome}
 
 We have identified CRISPRs in all *Campylobacter jejuni* and *C. coli*
