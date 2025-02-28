@@ -5,12 +5,24 @@
 _Date: 2024-09-12_  
 _Author: Sam Nooij (s.nooij [at] uu.nl)_
 
-
 Test a CRISPR analysis workflow for the PINNACLE project
 
+## Index
+
+1. [Workflow description](#workflow-description)
+   - [download genomes](#download-genomes)
+   - [analysis workflow](#analysis-workflow)
+   - [future suggestions](#suggestions-of-programsanalyses-to-test)
+2. [Problems encountered](#problems-encountered)
+3. [Project (file) organisation](#project-organisation)
+4. [Licence](#licence)
+5. [Citation](#citation)
+ 
 ---
 
-## Input files to prepare:
+## Workflow description
+
+### Input files to prepare:
 
  - _Campylobacter jujuni_ and _coli_ genomes from [AllTheBacteria](https://allthebacteria.readthedocs.io/en/latest/)
 
@@ -114,7 +126,7 @@ and [Jaeger](https://github.com/Yasas1994/Jaeger) (version 1.1.26).
 
 Further steps are added to the workflow after testing!
 
-## Suggestions of programs/analyses to test
+### Suggestions of programs/analyses to test
 
 1. Mash with CRISPR loci, and whole genomes
 
@@ -122,7 +134,19 @@ Further steps are added to the workflow after testing!
 
 3. Annotate metagenome contig hits with CAT
 
-### Problems encountered:
+### Files I want to collect and process
+
+1. Complete CRISPR-Cas locus sequences as fasta
+ (make a script to extract from contigs using positions listed by CCTyper)
+    - also make one with only CRISPR spacers (concatenate from CCTyper(?))
+    - and make one with flanking regions to infer and compare genomic location
+    - collect all contigs with CRISPR hits to predict chromosome/plasmid/virus origin?
+2. CRISPR input file for SpacerPlacer as defined in https://github.com/fbaumdicker/SpacerPlacer?tab=readme-ov-file#spacer_fasta-input-format
+ (also requires an extra conversion script?)
+3. Separate CRISPR spacer sequences (provided by CCTyper)
+4. List of number of CRISPR arrays per genome
+
+## Problems encountered:
 
 2024-09-12:
   - CCTyper does not work from conda installation
@@ -159,20 +183,6 @@ Further steps are added to the workflow after testing!
 
 2025-02-21:
  - Spacepharer databases are best created using the example names "querysetDB" and "targetsetDB" as other names such as "spacersetDB" causes weird errors.
-
-
-### Files I want to collect and process
-
-1. Complete CRISPR-Cas locus sequences as fasta
- (make a script to extract from contigs using positions listed by CCTyper)
-    - also make one with only CRISPR spacers (concatenate from CCTyper(?))
-    - and make one with flanking regions to infer and compare genomic location
-    - collect all contigs with CRISPR hits to predict chromosome/plasmid/virus origin?
-2. CRISPR input file for SpacerPlacer as defined in https://github.com/fbaumdicker/SpacerPlacer?tab=readme-ov-file#spacer_fasta-input-format
- (also requires an extra conversion script?)
-3. Separate CRISPR spacer sequences (provided by CCTyper)
-4. List of number of CRISPR arrays per genome
-
 
 ## Project organisation
 
