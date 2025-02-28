@@ -124,7 +124,7 @@ _Note to self: write user manual with instructions how to edit the configuration
 │   ├── processed      <- Final data, used for visualisation (e.g. tables)
 │   ├── raw            <- Raw data, original, should not be modified (e.g. fastq files)
 │   └── tmp            <- Intermediate data, derived from the raw data, but not yet ready for visualisation
-├── doc                <- Project documentation for readthedocs.io
+├── doc                <- Project documentation, notes and experiment records
 ├── envs               <- Conda environments necessary to run the project/experiment
 ├── log                <- Log files from programs
 └── results            <- Figures or reports generated from processed data

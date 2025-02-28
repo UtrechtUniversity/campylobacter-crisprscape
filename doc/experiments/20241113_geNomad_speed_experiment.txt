@@ -1,0 +1,110 @@
+Date: 2024-11-13
+Author: Sam Nooij (s.nooij [at] uu [dot] nl
+
+geNomad takes quite long to complete on a large set of genomes.
+A batch of 4000 genomes took 4 days and 17 hours to complete using
+my initial parameter settings. (See `log/benchmark/genomad/batch_26.txt`)
+This means the total AllTheBacteria dataset with over 130k genomes would
+probably take almost half a year to complete... So if I want to use
+geNomad, I have to find a way to make it faster. For this, I can
+experiment with a few different settings and benchmark how they
+affect the performance.
+Ideas for speeding up can be found in the documentation:
+https://portal.nersc.gov/genomad/faq.html#how-can-i-speed-up-genomad
+
+And I can experiment with the number of threads and splits (batches
+in RAM).
+
+For this test I'm using ATB's batch_23, as it contains a lower number
+of genomes and processing should therefore take shorter.
+
+=======
+Test 1:
+ 'Conservative' filtering (= less flexible) and lower sensitivity (3 instead of 4.2, on a scale of 1-7; see
+https://github.com/soedinglab/MMseqs2/wiki#how-to-control-the-speed-of-the-search and
+https://github.com/soedinglab/mmseqs2/wiki#set-sensitivity--s-parameter
+for details)
+
+command:
+```bash
+snakemake --profile config -s Snakefile-parallel-con-sen data/tmp/genomad-parallel/batch_23-cls/complete
+```
+
+Results are written to:
+`log/benchmark/genomad/batch_23-conservative-less_sensitive.txt`
+
+ -- This took: 19:58:56 (h:m:s)
+
+=======
+Test 2:
+ Disable neural net classification
+
+command:
+```bash
+snakemake --profile config -s Snakefile-parallel-no_nn data/tmp/genomad-parallel/batch_23-nnn/complete
+```
+
+Results are written to:
+`log/benchmark/genomad/batch_23-no_neural_net.txt`
+
+ -- This took: 1 day, 7:39:07 (h:m:s)
+
+=======
+Test 3:
+ Adjust the number of threads per job and number of splits (batches)
+
+command:
+```bash
+snakemake --profile config -s Snakefile-parallel-fs data/tmp/genomad-parallel/batch_23-fs/complete
+```
+
+Results are written to:
+`log/benchmark/genomad/batch_23-fewer_splits.txt`
+
+ -- This took: 1 day, 11:32:38 (h:m:s)
+
+=============================
+Benchmark: settings as before
+
+command:
+```bash
+snakemake --profile config -s Snakefile-parallel data/tmp/genomad-parallel/batch_23/complete
+```
+Results are written to:
+`log/benchmark/genomad/batch_23.txt`
+
+ -- This took: 1 day, 10:47:51 (h:m:s)
+
+
+==========
+CONCLUSION
+
+Of the alternative options, the conservative filter with less sensitive settings for
+mmseqs2 seems to have the greatest effect on speed.
+Interestingly, lowering the splits did not affect total runtime. Also disabling the
+neural net classification hardly influenced the total runtime. I think mmseqs2 is
+the bottleneck here, and may need some startup time or something that slows down
+the total workflow because it has to start so many times. Perhaps it works faster
+if I concatenate all the genomes in one file and then run geNomad only once.
+Otherwise, the option with conservative filtering and less sensitive mapping
+appears to be the fastest alternative.
+
+
+==============================================
+Extra test: concatenate all fastas in one file
+
+Actually, it turns out geNomad can be quite a bit faster if you don't
+give it thousands of separte jobs, but just input a single concatenated
+fasta file.
+
+command:
+```bash
+snakemake --profile config -s Snakefile-one_file data/tmp/genomad/batch_23/batch_23_summary/batch_23_virus_summary.tsv
+```
+
+Results written to:
+`log/benchmark/genomad/batch_23-one_file.txt`
+
+ -- This took: 3:51:22 (h:m:s)
+
+Interestingly, this is roughly 30 hours faster than running on separate files...
