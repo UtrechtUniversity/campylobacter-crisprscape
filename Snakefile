@@ -3,9 +3,14 @@ Author: Sam Nooij
 Organisation: Utrecht University
 Department: Clinical Infectiology (KLIF), Infectious Diseases & Immunology,
   Biomolecular Health Sciences, Faculty of Veterinary Medicine
-Date: 2024-09-12
+Date: 2024-11-06
 
 Workflow for testing CRISPR analysis options
+In contrast to the 'regular' Snakefile workflow, which works
+per genome file, this workflow works per batch and runs GNU
+parallel to parallelise processing of the genomes within
+each batch.
+
 
 Input: Fasta files of Campylobacter whole-genomes
 Output: (various)
@@ -27,25 +32,14 @@ configfile: Path("config/parameters.yaml")
 
 
 # Use Python functions to automatically detect batches of genomes fasta files
-# in the input directory as 'BATCHES' and 'SAMPLES'
+# in the input directory as 'BATCHES'
 INPUT_DIR = config["input_directory"]
 
-BATCH_PATHS = list(Path(INPUT_DIR).glob("*"))
+BATCH_PATHS = list(Path(INPUT_DIR).glob("batch_*"))
 for batch in BATCH_PATHS:
     assert Path(batch).is_dir(), f"Batches must be directories, got {batch}"
 
 BATCHES = [batch.stem for batch in BATCH_PATHS]
-
-# Fast function to concatenate list of lists thanks to Nico Schlömer, 2017:
-# https://stackoverflow.com/a/45323085
-GENOME_FILES = functools.reduce(
-    operator.iconcat, [list(batch.glob("*.fa")) for batch in BATCH_PATHS], []
-)
-
-SAMPLES = [genome_file.stem for genome_file in GENOME_FILES]
-BATCHES_AND_SAMPLES = [
-    "/".join([genome_file.parent.stem, genome_file.stem]) for genome_file in GENOME_FILES
-]
 
 OUTPUT_DIR = config["output_directory"]
 
@@ -55,17 +49,31 @@ OUTPUT_DIR = config["output_directory"]
 
 rule all:
     input:
-        # CRISPRCasTyper output (generic file that is always created, as not all genomes have CRISPR spacers!)
-        expand(
-            OUTPUT_DIR + "cctyper/{batch_and_sample}/arguments.tab",
-            batch_and_sample=BATCHES_AND_SAMPLES,
+        # Concatenated CCTyper output
+        expand(OUTPUT_DIR + "cctyper/{batch}/{filename}-{batch}.tab",
+               batch = BATCHES,
+               filename = [ "CRISPR_Cas", "crisprs_all", "crisprs_near_cas", "crisprs_orphan" ]
         ),
-        
-        # geNomad output table with classification probabilities
+        expand(OUTPUT_DIR + "cctyper/{batch}/all_spacers-{batch}.fa",
+               batch = BATCHES),
+
+        # CCTyper CRISPR spacer cluster analysis report
+        OUTPUT_DIR + "cctyper/spacer_cluster_summary.tsv",
+
+        # Cluster unique CRISPR spacers
+        OUTPUT_DIR + "all_spacers-clustered.clstr",
+
+        # geNomad output
         expand(
-            OUTPUT_DIR + "genomad/{batch_and_sample}/{sample}_aggregated_classification/{sample}_aggregated_classification.tsv",
-            batch_and_sample=BATCHES_AND_SAMPLES, sample=SAMPLES,
+            OUTPUT_DIR + "genomad/{batch}/{batch}_aggregated_classification/{batch}_aggregated_classification.tsv",
+            batch=BATCHES,
         ),
+
+         # Jaeger output
+         expand(
+             OUTPUT_DIR + "jaeger/{batch}/complete",
+             batch=BATCHES,
+         ),
 
 
 ### Step 3: Define processing steps that generate the output ###
@@ -73,49 +81,205 @@ rule all:
 
 rule crisprcastyper:
     input:
-        INPUT_DIR + "{batch}/{sample}.fa",
+        batch=INPUT_DIR + "{batch}/",
     output:
-        arguments=OUTPUT_DIR + "cctyper/{batch}/{sample}/arguments.tab",
-        putative_operons=OUTPUT_DIR
-        + "cctyper/{batch}/{sample}/cas_operons_putative.tab",
-        genes=OUTPUT_DIR + "cctyper/{batch}/{sample}/genes.tab",
-        hmmer=OUTPUT_DIR + "cctyper/{batch}/{sample}/hmmer.tab",
+        OUTPUT_DIR + "cctyper/{batch}/complete"
     params:
-        out_dir=OUTPUT_DIR + "cctyper/{batch}/{sample}",
+        out_dir=OUTPUT_DIR + "cctyper/{batch}/",
     conda:
         "envs/cctyper.yaml"
     threads: config["cctyper"]["threads"]
     log:
-        "log/cctyper/{batch}/{sample}.txt",
+        "log/cctyper/{batch}.txt",
     benchmark:
-        "log/benchmark/cctyper/{batch}/{sample}.txt"
+        "log/benchmark/cctyper/{batch}.txt"
+    shell:
+        """
+parallel --jobs {threads} --retry-failed --halt='now,fail=1'\
+ rm -rf "{params.out_dir}{{/.}}" &&\
+ cctyper -t 1 {{}} "{params.out_dir}{{/.}}" > {log} 2>&1\
+ ::: {input.batch}/*.fa
+
+touch {output}
+        """
+
+
+rule collect_cctyper:
+    input:
+        OUTPUT_DIR + "cctyper/{batch}/complete"
+    output:
+        crispr_cas=OUTPUT_DIR + "cctyper/{batch}/CRISPR_Cas-{batch}.tab",
+        crisprs_all=OUTPUT_DIR + "cctyper/{batch}/crisprs_all-{batch}.tab",
+        crisprs_near_cas=OUTPUT_DIR + "cctyper/{batch}/crisprs_near_cas-{batch}.tab",
+        crisprs_orphan=OUTPUT_DIR + "cctyper/{batch}/crisprs_orphan-{batch}.tab",
+        spacers=OUTPUT_DIR + "cctyper/{batch}/all_spacers-{batch}.fa",
+    threads: 1
+    log:
+        "log/cctyper/collect_{batch}.txt"
+    benchmark:
+        "log/benchmark/cctyper/collect_{batch}.txt"
+    shell:
+        """
+bash bin/concatenate_cctyper_output.sh $(dirname {input}) > {log} 2>&1
+
+find $(dirname {input}) -mindepth 3 -maxdepth 3 -name "*.fa" -exec cat {{}} + > {output.spacers} 2>> {log}
+        """
+
+
+rule concatenate_all_spacers:
+    input:
+        expand(OUTPUT_DIR + "cctyper/{batch}/all_spacers-{batch}.fa",
+               batch = BATCHES)
+    output:
+        OUTPUT_DIR + "cctyper/all_spacers.fa"
+    threads: 1
+    log:
+        "log/concatenate_all_spacers.txt"
+    benchmark:
+        "log/benchmark/concatenate_all_spacers.txt"
+    shell:
+        """
+cat {input} > {output} 2> {log}
+        """
+
+
+rule cluster_all_spacers:
+    input:
+        OUTPUT_DIR + "cctyper/all_spacers.fa"
+    output:
+        clusters=expand(OUTPUT_DIR + "cctyper/all_spacers-clustered-{cutoff}.clstr",
+                       cutoff = [ 1, 0.96, 0.93, 0.9, 0.87, 0.84, 0.81 ]),
+        spacers=expand(OUTPUT_DIR + "cctyper/all_spacers-clustered-{cutoff}",
+                       cutoff = [ 1, 0.96, 0.93, 0.9, 0.87, 0.84, 0.81 ]),
+        summary=OUTPUT_DIR + "cctyper/spacer_cluster_summary.tsv",
+    params:
+        output_dir=OUTPUT_DIR + "cctyper/",
+        log_dir="log/spacer_clustering/"
+    conda:
+        "envs/cdhit.yaml"
+    threads: 1
+    log:
+        "log/cluster_all_spacers.txt"
+    benchmark:
+        "log/benchmark/cluster_all_spacers.txt"
+    shell:
+        """
+bash bin/cluster_all_spacers.sh\
+    {input}\
+    {params.output_dir}\
+    {params.log_dir} > {log} 2>&1
+        """
+
+
+rule cluster_unique_spacers:
+    input:
+        OUTPUT_DIR + "cctyper/all_spacers.fa"
+    output:
+        clusters=OUTPUT_DIR + "all_spacers-clustered.clstr",
+        spacers=OUTPUT_DIR + "all_spacers-clustered",
+        distribution=OUTPUT_DIR + "all_spacers-clustered-distribution.tsv",
+    conda:
+        "envs/cdhit.yaml"
+    threads: 1
+    log:
+        "log/cluster_unique_spacers.txt"
+    benchmark:
+        "log/benchmark/cluster_unique_spacers.txt"
+    shell:
+        """
+cd-hit-est -c 1 -n 8 -r 1 -g 1 -AS 0 -sf 1 -d 0 -T {threads}\
+ -i {input} -o {output.spacers}
+
+plot_len1.pl {output.clusters}\
+ 1,2-4,5-9,10-19,20-49,50-99,100-499,500-99999\
+ 1-10,11-20,21-25,26-30,31-35,36-40,41-50,51-60,61-70,71-999999\
+ > {output.distribution}
+        """
+
+
+rule concatenate_batches:
+    input:
+        INPUT_DIR + "{batch}"
+    output:
+        temp(OUTPUT_DIR + "{batch}.fasta")
+    threads: 1
+    log:
+        "log/concatenate_{batch}.txt"
+    benchmark:
+        "log/benchmark/concatenate_{batch}.txt"
+    shell:
+        """
+cat {input}/*.fa > {output} 2> {log}
+        """
+
+
+rule batched_cctyper:
+    input:
+        OUTPUT_DIR + "{batch}.fasta"
+    output:
+        arguments=OUTPUT_DIR + "cctyper/test/{batch}/arguments.tab",
+        putative_operons=OUTPUT_DIR + "cctyper/test/{batch}/cas_operons_putative.tab",
+        genes=OUTPUT_DIR + "cctyper/test/{batch}/genes.tab",
+        hmmer=OUTPUT_DIR + "cctyper/test/{batch}/hmmer.tab",
+    params:
+        out_dir=OUTPUT_DIR + "cctyper/test/{batch}",
+    conda:
+        "envs/cctyper.yaml"
+    threads: config["cctyper"]["threads"]
+    log:
+        "log/cctyper/{batch}.txt"
+    benchmark:
+        "log/benchmark/cctyper/{batch}.txt"
     shell:
         """
 rm -rf {params.out_dir}
 cctyper -t {threads} {input} {params.out_dir} > {log} 2>&1
         """
 
-rule prepare_genomad_database:
-    output:
 
 rule genomad:
     input:
-        genome=INPUT_DIR + "{batch}/{sample}.fa",
+        fasta=OUTPUT_DIR + "{batch}.fasta",
         db=config["genomad_database"],
     output:
-        aggregated_classification=OUTPUT_DIR + "genomad/{batch}/{sample}/{sample}_aggregated_classification/{sample}_aggregated_classification.tsv",
-        plasmid_summary=OUTPUT_DIR + "genomad/{batch}/{sample}/{sample}_summary/{sample}_plasmid_summary.tsv",
-        virus_summary=OUTPUT_DIR + "genomad/{batch}/{sample}/{sample}_summary/{sample}_virus_summary.tsv",
+        aggregated_classification=OUTPUT_DIR + "genomad/{batch}/{batch}_aggregated_classification/{batch}_aggregated_classification.tsv",
+        plasmid_summary=OUTPUT_DIR + "genomad/{batch}/{batch}_summary/{batch}_plasmid_summary.tsv",
+        virus_summary=OUTPUT_DIR + "genomad/{batch}/{batch}_summary/{batch}_virus_summary.tsv",
     params:
-        output_dir=OUTPUT_DIR + "genomad/{batch}/{sample}",
+        output_dir=OUTPUT_DIR + "genomad/{batch}/",
     conda:
         "envs/genomad.yaml"
     threads: config["genomad"]["threads"]
     log:
-        "log/genomad/{batch}/{sample}.txt",
+        "log/genomad/{batch}.txt",
     benchmark:
-        "log/benchmark/genomad/{batch}/{sample}.txt"
+        "log/benchmark/genomad/{batch}.txt"
     shell:
         """
-genomad end-to-end -t {threads} --cleanup --enable-score-calibration {input.genome} {params.output_dir} {input.db} > {log} 2>&1
+genomad end-to-end -t {threads} --cleanup --enable-score-calibration\
+ {input.fasta} {params.output_dir} {input.db} > {log} 2>&1
+        """
+
+
+rule jaeger:
+    input:
+        batch=INPUT_DIR + "{batch}/"
+    output:
+        OUTPUT_DIR + "jaeger/{batch}/complete"
+    params:
+        output_dir=OUTPUT_DIR + "jaeger/{batch}/"
+    conda:
+        "envs/jaeger.yaml"
+    threads: config["jaeger"]["threads"]
+    log:
+        "log/jaeger/{batch}.txt"
+    benchmark:
+        "log/benchmark/jaeger/{batch}.txt"
+    shell:
+        """
+parallel --jobs {threads} --retry-failed --halt='now,fail=1'\
+ Jaeger -p --workers 1 -i {{}} -o "{params.output_dir}{{/.}}" --overwrite\
+ > {log} 2>&1 ::: {input.batch}/*.fa
+
+touch {output}
         """
