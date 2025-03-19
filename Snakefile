@@ -50,30 +50,32 @@ OUTPUT_DIR = config["output_directory"]
 rule all:
     input:
         # Concatenated CCTyper output
-        expand(OUTPUT_DIR + "cctyper/{batch}/{filename}-{batch}.tab",
-               batch = BATCHES,
-               filename = [ "CRISPR_Cas", "crisprs_all", "crisprs_near_cas", "crisprs_orphan" ]
+        expand(
+            OUTPUT_DIR + "cctyper/{batch}/{filename}-{batch}.tab",
+            batch=BATCHES,
+            filename=[
+                "CRISPR_Cas",
+                "crisprs_all",
+                "crisprs_near_cas",
+                "crisprs_orphan",
+            ],
         ),
-        expand(OUTPUT_DIR + "cctyper/{batch}/all_spacers-{batch}.fa",
-               batch = BATCHES),
-
+        expand(OUTPUT_DIR + "cctyper/{batch}/all_spacers-{batch}.fa", batch=BATCHES),
         # CCTyper CRISPR spacer cluster analysis report
         OUTPUT_DIR + "cctyper/spacer_cluster_summary.tsv",
-
         # Cluster unique CRISPR spacers
         OUTPUT_DIR + "all_spacers-clustered.clstr",
-
         # geNomad output
         expand(
-            OUTPUT_DIR + "genomad/{batch}/{batch}_aggregated_classification/{batch}_aggregated_classification.tsv",
+            OUTPUT_DIR
+            + "genomad/{batch}/{batch}_aggregated_classification/{batch}_aggregated_classification.tsv",
             batch=BATCHES,
         ),
-
-         # Jaeger output
-         expand(
-             OUTPUT_DIR + "jaeger/{batch}/complete",
-             batch=BATCHES,
-         ),
+        # Jaeger output
+        expand(
+            OUTPUT_DIR + "jaeger/{batch}/complete",
+            batch=BATCHES,
+        ),
 
 
 ### Step 3: Define processing steps that generate the output ###
@@ -83,7 +85,7 @@ rule crisprcastyper:
     input:
         batch=INPUT_DIR + "{batch}/",
     output:
-        OUTPUT_DIR + "cctyper/{batch}/complete"
+        OUTPUT_DIR + "cctyper/{batch}/complete",
     params:
         out_dir=OUTPUT_DIR + "cctyper/{batch}/",
     conda:
@@ -106,7 +108,7 @@ touch {output}
 
 rule collect_cctyper:
     input:
-        OUTPUT_DIR + "cctyper/{batch}/complete"
+        OUTPUT_DIR + "cctyper/{batch}/complete",
     output:
         crispr_cas=OUTPUT_DIR + "cctyper/{batch}/CRISPR_Cas-{batch}.tab",
         crisprs_all=OUTPUT_DIR + "cctyper/{batch}/crisprs_all-{batch}.tab",
@@ -115,7 +117,7 @@ rule collect_cctyper:
         spacers=OUTPUT_DIR + "cctyper/{batch}/all_spacers-{batch}.fa",
     threads: 1
     log:
-        "log/cctyper/collect_{batch}.txt"
+        "log/cctyper/collect_{batch}.txt",
     benchmark:
         "log/benchmark/cctyper/collect_{batch}.txt"
     shell:
@@ -128,13 +130,12 @@ find $(dirname {input}) -mindepth 3 -maxdepth 3 -name "*.fa" -exec cat {{}} + > 
 
 rule concatenate_all_spacers:
     input:
-        expand(OUTPUT_DIR + "cctyper/{batch}/all_spacers-{batch}.fa",
-               batch = BATCHES)
+        expand(OUTPUT_DIR + "cctyper/{batch}/all_spacers-{batch}.fa", batch=BATCHES),
     output:
-        OUTPUT_DIR + "cctyper/all_spacers.fa"
+        OUTPUT_DIR + "cctyper/all_spacers.fa",
     threads: 1
     log:
-        "log/concatenate_all_spacers.txt"
+        "log/concatenate_all_spacers.txt",
     benchmark:
         "log/benchmark/concatenate_all_spacers.txt"
     shell:
@@ -145,21 +146,25 @@ cat {input} > {output} 2> {log}
 
 rule cluster_all_spacers:
     input:
-        OUTPUT_DIR + "cctyper/all_spacers.fa"
+        OUTPUT_DIR + "cctyper/all_spacers.fa",
     output:
-        clusters=expand(OUTPUT_DIR + "cctyper/all_spacers-clustered-{cutoff}.clstr",
-                       cutoff = [ 1, 0.96, 0.93, 0.9, 0.87, 0.84, 0.81 ]),
-        spacers=expand(OUTPUT_DIR + "cctyper/all_spacers-clustered-{cutoff}",
-                       cutoff = [ 1, 0.96, 0.93, 0.9, 0.87, 0.84, 0.81 ]),
+        clusters=expand(
+            OUTPUT_DIR + "cctyper/all_spacers-clustered-{cutoff}.clstr",
+            cutoff=[1, 0.96, 0.93, 0.9, 0.87, 0.84, 0.81],
+        ),
+        spacers=expand(
+            OUTPUT_DIR + "cctyper/all_spacers-clustered-{cutoff}",
+            cutoff=[1, 0.96, 0.93, 0.9, 0.87, 0.84, 0.81],
+        ),
         summary=OUTPUT_DIR + "cctyper/spacer_cluster_summary.tsv",
     params:
         output_dir=OUTPUT_DIR + "cctyper/",
-        log_dir="log/spacer_clustering/"
+        log_dir="log/spacer_clustering/",
     conda:
         "envs/cdhit.yaml"
     threads: 1
     log:
-        "log/cluster_all_spacers.txt"
+        "log/cluster_all_spacers.txt",
     benchmark:
         "log/benchmark/cluster_all_spacers.txt"
     shell:
@@ -173,7 +178,7 @@ bash bin/cluster_all_spacers.sh\
 
 rule cluster_unique_spacers:
     input:
-        OUTPUT_DIR + "cctyper/all_spacers.fa"
+        OUTPUT_DIR + "cctyper/all_spacers.fa",
     output:
         clusters=OUTPUT_DIR + "all_spacers-clustered.clstr",
         spacers=OUTPUT_DIR + "all_spacers-clustered",
@@ -182,7 +187,7 @@ rule cluster_unique_spacers:
         "envs/cdhit.yaml"
     threads: 1
     log:
-        "log/cluster_unique_spacers.txt"
+        "log/cluster_unique_spacers.txt",
     benchmark:
         "log/benchmark/cluster_unique_spacers.txt"
     shell:
@@ -197,14 +202,31 @@ plot_len1.pl {output.clusters}\
         """
 
 
-rule concatenate_batches:
+rule create_crispr_cluster_table:
     input:
-        INPUT_DIR + "{batch}"
+        clstr=OUTPUT_DIR + "all_spacers-clustered.clstr",
+        fasta=OUTPUT_DIR + "cctyper/all_spacers.fa",
     output:
-        temp(OUTPUT_DIR + "{batch}.fasta")
+        OUTPUT_DIR + "cctyper/all_spacers_table.tsv",
+    conda:
+        "envs/pyfaidx.yaml"
     threads: 1
     log:
-        "log/concatenate_{batch}.txt"
+        "log/create_crispr_cluster_table.txt",
+    benchmark:
+        "log/benchmark/create_crispr_cluster_table.txt"
+    script:
+        "bin/make_cluster_table.py"
+
+
+rule concatenate_batches:
+    input:
+        INPUT_DIR + "{batch}",
+    output:
+        temp(OUTPUT_DIR + "{batch}.fasta"),
+    threads: 1
+    log:
+        "log/concatenate_{batch}.txt",
     benchmark:
         "log/benchmark/concatenate_{batch}.txt"
     shell:
@@ -215,7 +237,7 @@ cat {input}/*.fa > {output} 2> {log}
 
 rule batched_cctyper:
     input:
-        OUTPUT_DIR + "{batch}.fasta"
+        OUTPUT_DIR + "{batch}.fasta",
     output:
         arguments=OUTPUT_DIR + "cctyper/test/{batch}/arguments.tab",
         putative_operons=OUTPUT_DIR + "cctyper/test/{batch}/cas_operons_putative.tab",
@@ -227,7 +249,7 @@ rule batched_cctyper:
         "envs/cctyper.yaml"
     threads: config["cctyper"]["threads"]
     log:
-        "log/cctyper/{batch}.txt"
+        "log/cctyper/{batch}.txt",
     benchmark:
         "log/benchmark/cctyper/{batch}.txt"
     shell:
@@ -242,9 +264,12 @@ rule genomad:
         fasta=OUTPUT_DIR + "{batch}.fasta",
         db=config["genomad_database"],
     output:
-        aggregated_classification=OUTPUT_DIR + "genomad/{batch}/{batch}_aggregated_classification/{batch}_aggregated_classification.tsv",
-        plasmid_summary=OUTPUT_DIR + "genomad/{batch}/{batch}_summary/{batch}_plasmid_summary.tsv",
-        virus_summary=OUTPUT_DIR + "genomad/{batch}/{batch}_summary/{batch}_virus_summary.tsv",
+        aggregated_classification=OUTPUT_DIR
+        + "genomad/{batch}/{batch}_aggregated_classification/{batch}_aggregated_classification.tsv",
+        plasmid_summary=OUTPUT_DIR
+        + "genomad/{batch}/{batch}_summary/{batch}_plasmid_summary.tsv",
+        virus_summary=OUTPUT_DIR
+        + "genomad/{batch}/{batch}_summary/{batch}_virus_summary.tsv",
     params:
         output_dir=OUTPUT_DIR + "genomad/{batch}/",
     conda:
@@ -263,16 +288,16 @@ genomad end-to-end -t {threads} --cleanup --enable-score-calibration\
 
 rule jaeger:
     input:
-        batch=INPUT_DIR + "{batch}/"
+        batch=INPUT_DIR + "{batch}/",
     output:
-        OUTPUT_DIR + "jaeger/{batch}/complete"
+        OUTPUT_DIR + "jaeger/{batch}/complete",
     params:
-        output_dir=OUTPUT_DIR + "jaeger/{batch}/"
+        output_dir=OUTPUT_DIR + "jaeger/{batch}/",
     conda:
         "envs/jaeger.yaml"
     threads: config["jaeger"]["threads"]
     log:
-        "log/jaeger/{batch}.txt"
+        "log/jaeger/{batch}.txt",
     benchmark:
         "log/benchmark/jaeger/{batch}.txt"
     shell:

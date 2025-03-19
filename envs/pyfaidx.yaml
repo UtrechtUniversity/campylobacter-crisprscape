@@ -1,0 +1,8 @@
+name: pyfaidx
+
+channels:
+ - conda-forge
+ - bioconda
+
+dependencies:
+ - pyfaidx=0.8.1.3
