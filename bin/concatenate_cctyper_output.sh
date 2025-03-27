@@ -2,12 +2,19 @@
 
 batch=$1
 batch_name=$(basename ${batch})
+output_dir=${2:-"none"}
 
 echo ${batch_name}
 
 concatenate_files () {
     file_basename=$1
-    output_file="${batch}/${file_basename/.tab/-${batch_name}.tab}"
+    if [ ${output_dir} == "none" ]
+    then
+        output_file="${batch}/${file_basename/.tab/-${batch_name}.tab}"
+    else
+        mkdir -p ${output_dir}
+        output_file="${output_dir}/${file_basename/.tab/-${batch_name}.tab}"
+    fi
 
     if [ ! -e ${output_file} ]
     then
