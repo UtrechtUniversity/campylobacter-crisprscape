@@ -128,6 +128,22 @@ find $(dirname {input}) -mindepth 3 -maxdepth 3 -name "*.fa" -exec cat {{}} + > 
         """
 
 
+rule extract_crispr_cas_locations:
+    input:
+        OUTPUT_DIR + "cctyper/{batch}/CRISPR_Cas-{batch}.tab",
+    output:
+        OUTPUT_DIR + "cctyper/{batch}/CRISPR_Cas-{batch}.bed",
+    threads: 1
+    log:
+        "log/extract_crispr_cas_location/{batch}.txt"
+    benchmark:
+        "log/benchmark/extract_crispr_cas_location/{batch}.txt"
+    shell:
+        """
+python bin/create_CCTyper_bedfile.py -i {input} -o {output} > {log} 2>&1
+        """
+
+
 rule concatenate_all_spacers:
     input:
         expand(OUTPUT_DIR + "cctyper/{batch}/all_spacers-{batch}.fa", batch=BATCHES),
