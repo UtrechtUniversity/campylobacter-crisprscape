@@ -65,6 +65,8 @@ rule all:
         OUTPUT_DIR + "cctyper/spacer_cluster_summary.tsv",
         # Cluster unique CRISPR spacers
         OUTPUT_DIR + "all_spacers-clustered.clstr",
+        # Extracted CRISPR arrays (as fasta)
+        expand(OUTPUT_DIR + "arrays/{batch}/complete", batch=BATCHES),
         # geNomad output
         expand(
             OUTPUT_DIR
@@ -141,6 +143,35 @@ rule extract_crispr_cas_locations:
     shell:
         """
 python bin/create_CCTyper_bedfile.py -i {input} -o {output} > {log} 2>&1
+        """
+
+
+rule extract_crispr_array:
+    input:
+        batch=INPUT_DIR + "{batch}/",
+        bed=OUTPUT_DIR + "cctyper/{batch}/CRISPR_Cas-{batch}.bed",
+    output:
+        OUTPUT_DIR + "arrays/{batch}/complete",
+    params:
+        out_dir=OUTPUT_DIR + "arrays/{batch}/"
+    conda:
+        "envs/seqkit.yaml"
+    threads: config["extract_arrays"]["threads"]
+    log:
+        "log/extract_crispr_array/{batch}.txt"
+    benchmark:
+        "log/benchmark/extract_crispr_array/{batch}.txt"
+        ""
+    shell:
+        """
+cut -f 1 -d '.' {input.bed} | parallel --jobs {threads} --retry-failed\
+ --halt='now,fail=1'\
+ 'if [ -e "{input.batch}/{{}}.fa" ];\
+ then seqkit subseq --bed {input.bed} "{input.batch}/{{}}.fa"\
+ -o "{params.out_dir}{{}}.fa";\
+ fi' > {log} 2>&1
+
+touch {output}
         """
 
 

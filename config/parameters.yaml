@@ -12,6 +12,9 @@ genomad_database: "data/genomad_db/"
 cctyper:
   threads: 20
 
+extract_arrays:
+  threads: 10
+
 genomad:
   threads: 20
 
