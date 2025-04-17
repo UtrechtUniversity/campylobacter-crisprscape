@@ -5,3 +5,8 @@ printshellcmds: true
 latency-wait: 60
 rerun-incomplete: true
 keep-going: true
+consider-ancient:
+  crisprcastyper: batch
+  genomad: fasta
+  jaeger: batch
+  concatenate_batches: 0
