@@ -1,0 +1,949 @@
+---
+title: "Assess clustered spacers"
+date: "2025-03-20"
+author:
+  - name: "Sam Nooij"
+    affiliations:
+      - ref: UU-KLIF
+    orcid: 0000-0001-5892-5637
+    email: s.nooij [at] uu.nl
+    corresponding: true
+affiliations:
+  - id: UU-KLIF
+    name: Utrecht University
+    department: Faculty of Veterinary Medicine, Department of Clinical Infectiology
+    address: Yalelaan 1
+    city: Utrecht
+    country: The Netherlands
+    postal-code: 3584CL
+
+format: 
+  html:
+    toc: true
+    toc-depth: 3
+    code-fold: true
+    df-print: paged
+    fig-height: 4
+    fig-width: 7
+
+editor:
+  markdown:
+    wrap: 72
+  canonical: true
+
+execute: 
+  echo: true
+  warning: false
+  message: false
+  cache: true
+
+knitr:
+  opts_chunk: 
+    cache: true
+---
+
+```{r setup, include=FALSE}
+library(knitr)
+library(rmarkdown)
+library(here)
+library(tidyverse)
+library(ggpubr)
+library(RColorBrewer)
+library(viridisLite)
+library(patchwork) # Combine figures while aligning axes
+library(ggvenn)
+
+knitr::opts_knit$set(base.dir = here(""))
+```
+
+# Evaluation of clustered unique CRISPR spacers
+
+Taking all 130k *Campylobacter* genomes (and more!\*) from
+AllTheBacteria yielded 403,193 CRISPR spacers using CCTyper. Clustering
+these with CD-HIT-EST at 100% sequence identity (based on the shorter
+sequence; i.e., this should get rid of length variants) brings this down
+to 30,354 unique spacer clusters. (A reduction of 92.5%.)
+
+\*: this includes other species that were stored in the same batches in
+AllTheBacteria. We downloaded all batches containing *Campylobacter
+coli* & *C. jejuni* and thereby also retrieved genomes from other
+species. These are still included in these data!
+
+```{r read_crispr_clusters}
+crispr_df <- read_delim(here("data", "tmp", "cctyper", "test_crispr_table.tsv"),
+  show_col_types = FALSE
+) %>%
+  mutate(Length = as.numeric(gsub(
+    pattern = "nt",
+    replacement = "",
+    x = Length
+  )))
+```
+
+## CRISPR lengths
+
+As a first indicator, quickly look at the length distribution of the
+identified CRISPR spacers.
+
+```{r length_variation}
+length_variation_bar <- ggplot(
+  data = crispr_df,
+  mapping = aes(x = Length)
+) +
+  geom_bar() +
+  theme_pubr() +
+  scale_y_log10(expand = expansion(mult = c(0, 0.05)))
+
+length_variation_bar
+
+table(crispr_df$Length)
+```
+
+The longest reported sequence is 120nt. Clusters 2, 5 and 6 have one of
+these long spacers and a shorter one. These longer spacers appear to
+have some sort of repeats, suggesting that they might be
+sequencing/assembly artifacts. The most common length is 30, followed by
+29, 31, 32 and 28. The shortest is 12 (occurs once, second shortest:
+25). The second (relatively minor) peak is around 36nt long (followed by
+37, 35, 34, 38; so a similar spread around this most common length).
+Further peaks appear at 42nt, 46nt and 50nt, and extremes at 63, 75, 90
+and 106 (with 22, 21, 14 and 3 spacers detected, respectively).
+
+```{r show_longest_spacers}
+crispr_df %>%
+  arrange(desc(Length)) %>%
+  head(10)
+```
+
+The longest spacers we find derive from three different samples:
+SAMEA114388258 (= [*Brachybacterium*
+sp.](https://www.ncbi.nlm.nih.gov/taxonomy/1891286)) , SAMEA114388260 (=
+[*Brachybacterium
+alimentarium*](https://www.ncbi.nlm.nih.gov/taxonomy/47845)) and
+SAMEA112301021 (= *Listeria monocytogenes*). Furthermore, the sequences
+derive from the same contigs and same CRISPR loci within these samples.
+This might indicate that something is odd about these contigs and we
+should take these CRISPR spacers with a grain of salt. Besides, they are
+all singletons: not a single other genome has a CRISPR spacer similar to
+these.
+
+## Cluster sizes
+
+```{r members_per_cluster}
+members_per_cluster <- crispr_df %>%
+  group_by(Cluster) %>%
+  summarise(members = length(Genome))
+
+members_per_cluster %>%
+  ggplot(mapping = aes(x = members)) +
+  geom_histogram(binwidth = 100) +
+  scale_y_log10(expand = expansion(mult = c(0, .05))) +
+  theme_pubr()
+```
+
+The figure shows the number of clusters per size (members). For example,
+20,018 clusters have a size of 1 (singletons). Then, 3,470 clusters have
+only two members. There are some cluster with sizes \> 2,000; these
+indicate CRISPR spacers that are commonly found in our dataset. The
+cluster with the most members is 548 with 6,524 members.
+
+```{r top_ten_cluster_sizes}
+members_per_cluster %>%
+  arrange(desc(members)) %>%
+  head(10)
+```
+
+## Add species names
+
+```{r lookup_species_names}
+species_list <- read_delim(
+  file = here("data", "ATB", "species_call_Campyonly.tsv"),
+  col_names = FALSE, show_col_types = FALSE
+)
+colnames(species_list) <- c("Genome", "Species", "High-quality")
+
+annotated_crispr_df <- left_join(
+  x = crispr_df,
+  y = species_list %>%
+    select(-`High-quality`),
+  by = "Genome"
+)
+
+annotated_crispr_df %>% count(Species)
+```
+
+When adding species names to this list of CRIRSPRs, 43,454 entries
+remain unlabeled. This means they have no 'Campylobacter_D coli' or
+'Campylobacter_D jejuni' in their name and probably derive from other
+species that were in the same ATB batches. These need to be discarded
+anyway, because we are currently not interested in other species.
+
+## Filter Campylobacters
+
+```{r remove_unlabelled_species}
+filtered_crispr_df <- annotated_crispr_df %>%
+  filter(!is.na(Species))
+```
+
+With the other species removed, let's have another look at the total
+number of CRISPR spacers identified and the number of unique clusters:
+
+```{r recalculate_totals}
+print(paste("The total number of CRISPR spacers identified is:", nrow(filtered_crispr_df)))
+
+print(paste("From these, CD-HIT has made", filtered_crispr_df %>% pull(Cluster) %>% unique() %>% length(), "clusters."))
+
+print(paste(
+  "Which equals a reduction of",
+  ((nrow(filtered_crispr_df) - filtered_crispr_df %>%
+    pull(Cluster) %>% unique() %>% length()) /
+    nrow(filtered_crispr_df) * 100) %>% round(2),
+  "percent."
+))
+```
+
+This number is very similar to what I found in earlier clustering
+experiments, in which I used only the 'incremental update' dataset of
+\~29k genomes. This suggests that indeed we achieve CRISPR spacer
+saturation with these data, even with the smaller subset.
+
+This filter also gets rid of the craziest 100nt+ spacers.
+
+## Sanity check: clusters in 'update' part of AllTheBacteria genomes
+
+I have been working with the \~29k *Campylobacter coli* & *jejuni*
+genomes from the incremental update of AllTheBacteria. Using these
+genomes, I got 14,330 clusters from a total of 86,288 CRISPR spacers. As
+I now found the total dataset yields 12,936 clusters of unique spacers,
+which should be impossible given the larger input dataset...
+
+Therefore, something most be off compared to my previous approach. I
+suspect this is from the part of species name annotation. Let's see how
+many clusters I find when I use the same species annotation approach as
+with the total spacer dataset.
+
+```{r count_clusters_in_update_set}
+update_df <- read_delim(here("data", "tmp", "cctyper", "all_spacers_table.tsv"),
+  show_col_types = FALSE
+)
+
+annotated_update_df <- left_join(
+  x = update_df,
+  y = species_list %>%
+    select(-`High-quality`),
+  by = "Genome"
+)
+
+annotated_update_df %>% count(Species)
+
+annotated_update_df %>%
+  filter(!is.na(Species)) %>%
+  select(Cluster) %>%
+  distinct() %>%
+  nrow()
+```
+
+Indeed, a lot of these are still from 'NA' genomes, and removing those
+yields only 4,475 clusters! So something is different about the way I
+filter *Campylobacter coli* & *jejuni* genomes.
+
+And indeed... a little check shows that I have different species in the
+analysis, and therefore in the `all_spacers_table.tsv`: for example,
+SAMEA114388260 = *Brachybacterium alimentarium*. This particular sample
+appears in batch 38 and I have recorded its CCTyper output. Apparently
+this was not filtered out and led to a wrong interpretation of the
+CRISPR clusters earlier...
+
+## Length distribution
+
+First, look at the total length distribution without the
+non-*Campylobacter*s.
+
+```{r filtered_length_bars}
+#| fig-height: 3
+#| fig-width: 8
+#| fig-cap: "Lengths of Campylobacter spacers"
+#| message: false
+
+filtered_length_bars <- ggplot(
+  data = filtered_crispr_df,
+  mapping = aes(x = Length)
+) +
+  geom_bar() +
+  theme_pubr() +
+  scale_y_log10(expand = expansion(mult = c(0, 0.05))) +
+  scale_x_continuous(breaks = c(20, 30, 40, 50, 60))
+
+filtered_length_bars
+```
+
+Let's quickly have a look at the length distribution within the largest
+cluster:
+
+```{r lengths_cluster_548}
+#| fig-height: 3
+#| fig-width: 8
+#| fig-cap: "Lengths of spacers in largest cluster"
+#| message: false
+
+largest_cluster <- filtered_crispr_df %>% filter(Cluster == 548)
+
+largest_cluster %>%
+  ggplot(mapping = aes(x = Length)) +
+  geom_histogram() +
+  theme_pubr() +
+  scale_y_continuous(expand = expansion(mult = c(0, 1)))
+```
+
+Within this cluster, the most common length is 30. However, the
+representative (longest) sequence has 43 nucleotides. The number of
+occurrences per variant is like so:
+
+```{r largest_cluster_most_common_sequences}
+largest_cluster %>%
+  count(Sequence) %>%
+  arrange(desc(n))
+
+# To extract the most common sequence only:
+largest_cluster %>%
+  count(Sequence) %>%
+  slice_max(order_by = n)
+```
+
+Now if I use this method to select the most common spacer as alternative
+representative for each cluster:
+
+```{r select_most_common_per_cluster}
+most_common_per_cluster <- filtered_crispr_df %>%
+  group_by(Cluster) %>%
+  count(Sequence) %>%
+  slice_max(order_by = n)
+
+# Also look up the length of the longest 'representative' per cluster
+# to facilitate visualisation of these two metrics.
+longest_per_cluster <- filtered_crispr_df %>%
+  filter(is.na(Identity)) %>%
+  group_by(Cluster) %>%
+  summarise(Longest_length = str_length(Sequence))
+
+common_crispr_df <- left_join(
+  x = filtered_crispr_df,
+  y = most_common_per_cluster %>%
+    rename("Most_common" = "Sequence") %>%
+    select(-n),
+  by = "Cluster"
+) %>%
+  mutate(Most_common_length = str_length(Most_common))
+
+longest_crispr_df <- left_join(
+  x = common_crispr_df,
+  y = longest_per_cluster,
+  by = "Cluster"
+)
+```
+
+## Longest vs. most common
+
+Visualise the length distribution per cluster, looking at the longest
+(CD-HIT's representative) and the most common (custom method) sequence
+per cluster.
+
+```{r show_representative_length_per_cluster}
+#| fig-width: 5
+#| fig-height: 3
+#| fig-cap: "Length of cluster representative spacers"
+#| message: false
+
+length_per_cluster_df <- longest_crispr_df %>%
+  select(Cluster, Most_common_length, Longest_length) %>%
+  distinct()
+
+longest_per_cluster_plot <- length_per_cluster_df %>%
+  ggplot(mapping = aes(x = Longest_length)) +
+  geom_histogram(binwidth = 1) +
+  scale_y_log10(expand = expansion(mult = c(0, 0.05))) +
+  theme_pubr()
+
+most_common_per_cluster_plot <- length_per_cluster_df %>%
+  ggplot(mapping = aes(x = Most_common_length)) +
+  geom_histogram(binwidth = 1) +
+  scale_y_log10(expand = expansion(mult = c(0, 0.05))) +
+  theme_pubr()
+
+longest_per_cluster_plot / most_common_per_cluster_plot
+```
+
+This move from 'longest' to 'most common' as representative per cluster
+gives only a minor change in the overall picture of the length
+distribution per cluster.
+
+Now show these lengths for the largest clusters: those with at least 100
+members. See how those clusters may (or may not?) shift by changing the
+representative to the most common spacer sequence.
+
+```{r show_representative_length_for_large_clusters}
+#| fig-width: 5
+#| fig-height: 3
+#| fig-cap: "Length of large cluster representative spacers"
+#| message: false
+
+large_clusters <- members_per_cluster %>%
+  filter(members >= 100) %>%
+  pull(Cluster)
+
+length_per_large_cluster_df <- longest_crispr_df %>%
+  filter(Cluster %in% large_clusters) %>%
+  select(Cluster, Most_common_length, Longest_length) %>%
+  distinct()
+
+longest_per_large_cluster_plot <- length_per_large_cluster_df %>%
+  ggplot(mapping = aes(x = Longest_length)) +
+  geom_histogram(binwidth = 1) +
+  scale_y_log10(expand = expansion(mult = c(0, 0.05))) +
+  theme_pubr()
+
+most_common_per_large_cluster_plot <- length_per_large_cluster_df %>%
+  ggplot(mapping = aes(x = Most_common_length)) +
+  geom_histogram(binwidth = 1) +
+  scale_y_log10(expand = expansion(mult = c(0, 0.05))) +
+  theme_pubr()
+
+longest_per_large_cluster_plot / most_common_per_large_cluster_plot
+```
+
+Here you can see the shift more clearly: large clusters (100+) that have
+a longest sequence of \>32 most often have a common spacer of 30nt long,
+or sometimes 29, 31 or below 29.
+
+I suspect the distribution of longest vs. most common is so similar
+because there are so many singletons. Perhaps removing those is enough
+to show a shift in length distribution.
+
+```{r show_representative_length_for_non-singletons}
+#| fig-width: 5
+#| fig-height: 3
+#| fig-cap: "Length of non-singleton representative spacers"
+#| message: false
+
+non_singletons <- members_per_cluster %>%
+  filter(members > 1) %>%
+  pull(Cluster)
+
+length_per_non_singleton_df <- longest_crispr_df %>%
+  filter(Cluster %in% non_singletons) %>%
+  select(Cluster, Most_common_length, Longest_length) %>%
+  distinct()
+
+longest_per_non_singleton_plot <- length_per_non_singleton_df %>%
+  ggplot(mapping = aes(x = Longest_length)) +
+  geom_histogram(binwidth = 1) +
+  scale_y_log10(expand = expansion(mult = c(0, 0.05))) +
+  theme_pubr()
+
+most_common_per_non_singleton_plot <- length_per_non_singleton_df %>%
+  ggplot(mapping = aes(x = Most_common_length)) +
+  geom_histogram(binwidth = 1) +
+  scale_y_log10(expand = expansion(mult = c(0, 0.05))) +
+  theme_pubr()
+
+longest_per_non_singleton_plot / most_common_per_non_singleton_plot
+```
+
+Removing only singletons does not make a clear visual change.
+
+## Saturation plot
+
+To assess whether we have exhaustively sampled all known *Campylobacter*
+CRISPRs, we are checking how many CRISPR spacers we find in a random
+subsample of genomes. If this yields a plot with a flattening curve,
+that suggests we have sampled sufficiently deep and have included
+(nearly) all CRISPRs, whereas if the line keeps going up, that would
+suggest we have not yet reached this saturation.
+
+This random subsampling can be done with the `sample()` function and
+multiple tests can be run by setting different random seeds with
+`set.seed()`. (By repeating the experiment we can include error bars to
+support the robustness of the sampling.)
+
+This process is repeated for:
+
+1.  the total dataset
+2.  *Campylobacter jejuni*
+3.  *Campylobacter coli*
+
+### Total dataset
+
+```{r saturation_functions}
+make_saturation_df <- function(df, repeats) {
+  genome_list <- unique(df$Genome)
+
+  # Set a list of fractions to use
+  fractions <- c(0.01, 0.02, 0.04, 0.08, 0.16, 0.24, 0.32, 0.48, 0.64, 0.86, 1)
+  # Can also be steps of even length, using:
+  ## fractions <- seq(from = 0.01, to = 1, length.out = 10)
+  # Use `floor` to round down to whole numbers
+  sample_sizes <- floor(fractions * length(genome_list))
+
+  # Initialise an empty dataframe
+  saturation_df <- data.frame(matrix(ncol = 3, nrow = 0))
+
+  # Calculate the number of unique clusters for each sample
+  # of genomes, and also record the repeat number.
+  for (number in seq(repeats)) {
+    set.seed(number)
+    for (size in sample_sizes) {
+      sample_genomes <- sample(x = genome_list, size = size)
+
+      subsample <- df %>%
+        filter(Genome %in% sample_genomes)
+
+      no_genomes <- size
+      no_clusters <- subsample %>%
+        pull(Cluster) %>%
+        unique() %>%
+        length()
+
+      saturation_df <- rbind(
+        saturation_df, c(number, no_genomes, no_clusters)
+      )
+    }
+  }
+
+  colnames(saturation_df) <- c(
+    "Repeat", "Genomes", "Clusters"
+  )
+  return(saturation_df)
+}
+
+# test_saturation_df <- make_saturation_df(df = filtered_crispr_df, repeats = 5)
+
+create_saturation_plot <- function(df) {
+  summary_df <- df %>%
+    group_by(Genomes) %>%
+    summarise(mean = mean(Clusters), sd = sd(Clusters))
+
+  return(
+    ggplot(
+      data = summary_df,
+      mapping = aes(x = Genomes, y = mean)
+    ) +
+      geom_errorbar(mapping = aes(ymin = mean - sd, ymax = mean + sd)) +
+      geom_line() +
+      geom_point() +
+      ylab("Unique CRISPR spacers") +
+      theme_pubr()
+  )
+}
+```
+
+```{r total_saturation}
+#| fig-height: 4
+#| fig-width: 8
+#| fig-cap: "Number of unique spacers per sampled genome"
+#| message: false
+
+total_dataset_saturation <- create_saturation_plot(
+  df = make_saturation_df(df = filtered_crispr_df, repeats = 5)
+) + ggtitle("Total")
+
+total_dataset_saturation
+```
+
+### *Campylobacter jejuni*
+
+```{r jejuni_saturation}
+#| fig-height: 4
+#| fig-width: 8
+#| fig-cap: "Number of unique spacers per C. jejuni genome"
+#| message: false
+
+jejuni_saturation <- create_saturation_plot(
+  df = make_saturation_df(
+    df = filtered_crispr_df %>%
+      filter(grepl(
+        pattern = "jejuni",
+        x = Species
+      )),
+    repeats = 5
+  )
+) + ggtitle(expression(italic("Campylobacter jejuni")))
+
+jejuni_saturation
+```
+
+### *Campylobacter coli*
+
+```{r coli_saturation}
+#| fig-height: 4
+#| fig-width: 8
+#| fig-cap: "Number of unique spacers per C. coli genome"
+#| message: false
+
+coli_saturation <- create_saturation_plot(
+  df = make_saturation_df(
+    df = filtered_crispr_df %>%
+      filter(grepl(
+        pattern = "coli",
+        x = Species
+      )),
+    repeats = 5
+  )
+) + ggtitle(expression(italic("Campylobacter coli")))
+
+coli_saturation
+```
+
+Interestingly, we find no saturation in these data, in none of the sets.
+As an interesting observation, we find that both *coli* and *jejuni*
+have a total of \~7000 unique CRISPR spacers, for which *coli* needs
+only 10k genomes and *jejuni* needs over 60k genomes, suggesting that
+the diversity within *C. coli* is greater. This may correlate with the
+different niches/environments in which they occur: *C. coli* can be
+found in more diverse environments and apparently it uses more different
+CRISPR spacers to protect against more diverse DNA elements.
+
+Also, it should be possible to predict with these data how many genomes
+we would need to reach saturation and how many CRISPR spacers there
+would be. This would require some form of regression, but probably not
+linear regression...
+
+#### Test regression
+
+```{r test_regression_on_coli}
+coli_saturation_df <- make_saturation_df(
+  df = filtered_crispr_df %>%
+    filter(grepl(pattern = "coli", x = Species)),
+  repeats = 5
+)
+
+# poly 2 = polynomial regression of degree 2 (not sure if that is fitting...)
+coli_model_fit <- lm(
+  Clusters ~ poly(Genomes, 2),
+  data = coli_saturation_df
+)
+
+ggplot(coli_saturation_df, mapping = aes(x = Genomes, y = Clusters)) +
+  geom_point() +
+  geom_line(mapping = aes(x = Genomes, y = predict(coli_model_fit)))
+```
+
+```{r try_predictions}
+predict(coli_model_fit, data.frame(Genomes = 10000))
+predict(coli_model_fit, data.frame(Genomes = 15000))
+predict(coli_model_fit, data.frame(Genomes = 17500))
+```
+
+For *coli*, the saturation point appears to be around 15k genomes based
+on this model (polynomial linear).
+
+## Shared CRISPRs
+
+What fraction of the CRISPRs is shared between *coli* and *jejuni*?
+
+```{r shared_crisprs}
+#| fig-height: 4
+#| fig-width: 6
+#| label: fig-shared-crisprs
+#| fig-cap: "CRISPR clusters shared between species"
+#| message: false
+
+# Quick overall check:
+filtered_crispr_df %>%
+  mutate(species_short = if_else(
+    grepl(pattern = "coli", x = Species), "coli", "jejuni"
+  )) %>%
+  group_by(Cluster) %>%
+  summarise(spp = length(unique(species_short))) %>%
+  group_by(spp) %>%
+  count(length(Cluster))
+print("There are 11,771 clusters with only one species, 1,165 with both coli and jejuni.")
+
+# And check the number of clusters with coli, jejuni, or both:
+filtered_crispr_df %>%
+  mutate(species_short = if_else(
+    grepl(pattern = "coli", x = Species), "coli", "jejuni"
+  )) %>%
+  select(Cluster, species_short) %>%
+  distinct() %>%
+  group_by(Cluster) %>%
+  summarise(spp = toString(sort(species_short))) %>%
+  group_by(spp) %>%
+  count()
+
+# Only large clusters:
+filtered_crispr_df %>%
+  filter(Cluster %in% large_clusters) %>%
+  mutate(species_short = if_else(
+    grepl(pattern = "coli", x = Species), "coli", "jejuni"
+  )) %>%
+  select(Cluster, species_short) %>%
+  distinct() %>%
+  group_by(Cluster) %>%
+  summarise(spp = toString(sort(species_short))) %>%
+  group_by(spp) %>%
+  count()
+
+cluster_species_df <- filtered_crispr_df %>%
+  mutate(species_short = if_else(
+    grepl(pattern = "coli", x = Species), "coli", "jejuni"
+  )) %>%
+  select(Cluster, species_short) %>%
+  distinct()
+
+large_cluster_species_df <- filtered_crispr_df %>%
+  filter(Cluster %in% large_clusters) %>%
+  mutate(species_short = if_else(
+    grepl(pattern = "coli", x = Species), "coli", "jejuni"
+  )) %>%
+  select(Cluster, species_short) %>%
+  distinct()
+
+coli_and_jejuni_clusters <- list(
+  coli = cluster_species_df %>%
+    filter(species_short == "coli") %>%
+    pull(Cluster),
+  jejuni = cluster_species_df %>%
+    filter(species_short == "jejuni") %>%
+    pull(Cluster)
+)
+
+coli_and_jejuni_large_clusters <- list(
+  coli = large_cluster_species_df %>%
+    filter(species_short == "coli") %>%
+    pull(Cluster),
+  jejuni = large_cluster_species_df %>%
+    filter(species_short == "jejuni") %>%
+    pull(Cluster)
+)
+
+ggvenn(coli_and_jejuni_clusters)
+
+ggvenn(coli_and_jejuni_large_clusters)
+```
+
+There are many clusters with one or a few members, and the majority only
+has one species in it. The clusters with only *coli* or *jejuni* is
+roughly equal: 5,689 and 6,082 clusters, respectively.
+
+When considering only the large clusters (n \>= 100), the distribution
+changes: 359 clusters have both species in it, 66 have only *coli* and
+133 have only *jejuni*.
+
+## Singleton check: position in array
+
+Suppose CRISPR spacers at the end of CRISPR arrays degenerate: they
+mutate to a point where the detection tool can still identify it as
+CRISPR spacer, but it is no longer identical to any other spacer. Let's
+see if that can explain the large number of singletons. By plotting the
+position of each singleton CRISPR relative to the total array length (as
+scatter plot), we can test whether these singletons indeed derive from
+degenerated CRISPR array ends.
+
+```{r split_locus_and_position}
+# First, look up the position in the array (split from 'locus' column)
+filtered_crispr_df <- filtered_crispr_df %>%
+  separate(
+    col = Locus, into = c("Locus", "Position"), sep = ":",
+    convert = TRUE
+  )
+```
+
+```{r check_singleton_positions}
+#| fig-height: 4
+#| fig-width: 6
+#| label: fig-singletons-check
+#| fig-cap: "Singleton position against array length"
+#| message: false
+
+array_lengths <- filtered_crispr_df %>%
+  group_by(Locus) %>%
+  #  slice_max(as.numeric(Position))
+  summarise(Array_length = max(as.numeric(Position)))
+
+singletons_position_and_array_length <- left_join(
+  filtered_crispr_df %>%
+    select(Locus, Position, Cluster, Length, Species),
+  array_lengths,
+  by = "Locus"
+) %>%
+  # Filter singletons, in a roundabout way...
+  filter(!Cluster %in% non_singletons)
+
+singletons_check_plot <- ggplot(
+  data = singletons_position_and_array_length,
+  mapping = aes(x = Position, y = Array_length)
+) +
+  geom_bin2d() +
+  theme_pubr() +
+  theme(legend.position = "right")
+
+singletons_check_plot
+
+# Alternate views:
+ggplot(
+  data = singletons_position_and_array_length,
+  mapping = aes(x = Position, y = Array_length)
+) +
+  stat_density_2d(aes(fill = ..level..), geom = "polygon", colour = "white") +
+  theme_pubr()
+
+ggplot(
+  data = singletons_position_and_array_length,
+  mapping = aes(x = Position, y = Array_length)
+) +
+  geom_point(alpha = 0.3, size = 1) +
+  theme_pubr()
+```
+
+While there are cases when these aberrant spacers are at the end of the
+array (diagonal in figure above), this is not the case in the majority
+of singleton spacers. Most of these derive from very short arrays (1-2
+spacers) and it can also be the first position in the array. In other
+words, we can maybe partly explain these spacers by the 'degenerated
+ends' hypothesis. The majority appear derived from very short arrays,
+which may represent (inactive) orphan arrays, or false positive hits.
+
+## Include further CRISPR annotations
+
+For the above analyses, all CRISPR spacers identified by CCTyper are
+included, regardless of cas genes being near. This information is also
+relevant in further interpretation, so let's look up which arrays are
+near cas genes and which are labelled as 'orphan'.
+
+```{r annotate_near_cas}
+#| message: false
+
+near_cas_files <- Sys.glob(paths = here("data", "tmp", "cctyper", "*", "crisprs_near_cas-*.tab"))
+near_cas_df <- do.call("rbind", lapply(near_cas_files, read_delim))
+near_cas_df <- near_cas_df %>%
+  mutate(near_cas = "near_cas")
+
+orphan_files <- Sys.glob(paths = here("data", "tmp", "cctyper", "*", "crisprs_orphan-*.tab"))
+orphan_df <- do.call("rbind", lapply(orphan_files, read_delim))
+orphan_df <- orphan_df %>%
+  mutate(near_cas = "orphan")
+
+array_annotation_df <- rbind(
+  near_cas_df %>%
+    select(CRISPR, Consensus_repeat, Repeat_len, Subtype, Subtype_probability, near_cas),
+  orphan_df %>%
+    select(CRISPR, Consensus_repeat, Repeat_len, Subtype, Subtype_probability, near_cas)
+)
+
+# Create a new dataframe with the CRISPR information, array subtypes and
+#  whether cas genes were found near the array.
+crisprs_types_near <- left_join(
+  x = filtered_crispr_df,
+  y = array_annotation_df,
+  by = c("Locus" = "CRISPR")
+)
+
+## Save this as 'the current CRISPR spacer database'
+write_delim(
+  x = crisprs_types_near,
+  file = here("data", "processed", "Campylobacter_CRISPR_table.tsv"),
+  delim = "\t"
+)
+```
+
+Using the CCTyper output files `crisprs_near_cas.tab` and
+`crisprs_orphan.tab` to annotate each CRISPR, I find that 1,066 entries
+remain unannotated, while the vast majority (358,757) CRISPRs are now
+annotated with their subtype, consensus repeat and whether or not cas
+genes were found nearby. Of these, the vast majority is near cas genes
+(335,902 vs. 22,855 spacers derived from 'orphan arrays').
+
+### Spacer length and cas presence
+
+Let's see how their respective lengths compare:
+
+```{r length_near_cas_vs_orphan}
+#| fig-height: 4
+#| fig-width: 6
+#| label: fig-length-cas
+#| fig-cap: "CRISPR length separated by cas vicinity"
+#| message: false
+
+near_cas_vs_orphan_barchart <- ggplot(
+  data = crisprs_types_near,
+  mapping = aes(fill = near_cas, x = Length)
+) +
+  geom_bar(position = "stack", stat = "count") +
+  scale_y_log10(expand = expansion(mult = c(0, 0.1))) +
+  theme_pubr() +
+  labs(fill = "Near cas genes") +
+  scale_fill_manual(values = c("cyan3", "seagreen4"), na.value = "bisque2") +
+  scale_x_continuous(
+    breaks = c(25, 30, 36, 40, 45, 50, 55, 60),
+    limits = c(25, 60)
+  )
+
+near_cas_vs_orphan_barchart
+```
+
+From this figure, it can be seen that the length distribution of CRISPR
+spacers among these groups is roughly equal, except spacers with lengths
+50+ only occur in orphan arrays or those for which CCTyper did not
+report vicinity of cas genes. This may (partly) explain the aberrant
+length of these spacers.
+
+### Spacer length per subtype
+
+Also see if different subtypes have a tendency to have distinct lengths
+of spacers:
+
+```{r length_per_subtype}
+#| fig-height: 4
+#| fig-width: 6
+#| label: fig-length-subtype
+#| fig-cap: "CRISPR length separated CRISPR-Cas subtype"
+#| message: false
+
+subtype_barchart <- ggplot(
+  data = crisprs_types_near,
+  mapping = aes(fill = Subtype, x = Length)
+) +
+  geom_bar(position = "stack", stat = "count") +
+  scale_y_log10(expand = expansion(mult = c(0, 0.1))) +
+  theme_pubr() +
+  scale_fill_manual(
+    values = c(
+      "#b5bdf0", "#808de9", "#4c5dd2",
+      "#f66a6a", "#f21919",
+      "#e3ea6c",
+      "#6ceaac", "#41c987", "#32a26b", "#227d50",
+      "#a839bd"
+    ),
+    na.value = "bisque2"
+  ) +
+  theme(legend.position = "right") +
+  scale_x_continuous(
+    breaks = c(25, 30, 36, 40, 45, 50, 55, 60),
+    limits = c(25, 60)
+  )
+
+subtype_barchart
+```
+
+Indeed, this does reveal patterns. Subtype II-C (bright red) are the
+most common in this dataset and spacers of this type are mostly 26-36 nt
+long, while spacers of around 38 and 41 nt are also relatively common.
+Subtype II-A (light red) is consistent at 28-32 nt. Type I spacers (I-B,
+I-D, I-F, blue shades) are often longer at 36-39 nt, but may also be
+26-27 nt long. Subtype I-B (lightest blue) is more variable than I-D
+(middle blue), which occurs at only 43 nt long. Type III (III-B, yellow)
+are always relatively long at 38-42 or 44 nt long. Type V (most often
+V-F1, green) is quite variable and lengths range from 26 to 43 nt and
+even 50 and 52 nt long spacers occur in this subtype. Subtype V-A
+(lightest green) appears similar to III-B and ranges from 39-42 nt.
+Subtype V-F3 (darkest green) is always 32 nt long. Type VI (VI-A,
+purple) always appear to be 29 nt long. Spacers of unknown subtype occur
+in basically any length (except 29 and 32 nt?).
+
+------------------------------------------------------------------------
+
+# Used software
+
+```{r session_info}
+sessionInfo()
+```
