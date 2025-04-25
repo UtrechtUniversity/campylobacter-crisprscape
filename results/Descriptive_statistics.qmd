@@ -566,6 +566,33 @@ Now let's see the predicted type of the CRISPR arrays (using the column
 
 ## Type of CRISPR arrays
 
+To gain a complete overview of the CRISPR arrays detected by CCTyper,
+and the cas genes associated with the arrays, I am going to find and
+combine several of CCTyper's output files. These include the
+abovementioned `crisprs_near_cas.tab` and `crisprs_orphan.tab`, as well
+as the general `CRISPR_Cas.tab` and `cas_operons_putative.tab` for more
+information on the cas genes. This includes:
+
+1.  Genome (sample), contig, CRISPR and cas operon IDs
+2.  CRISPR array start and end positions
+3.  Repeat and spacer statistics (length, consensus)
+4.  Repeat subtype prediction
+5.  Whether CCTyper found cas genes adjacent to the CRISPR array
+    ('near_cas' or 'orphan')
+6.  Cas gene start and end positions
+7.  Cas subtype prediction and gene names
+8.  Cas adaptation and interference module presence
+9.  Cas 'strandness' as +, -, unknown or ambiguous (is determined based
+    on cas genes for adaptation and interference combined, or either
+    when only one is present)
+
+These data may also be re-evaluated to estimate the likelihood of each
+CRISPR locus being 'real' and biologically active/relevant.
+
+Then, the ENA metadata for the samples/genomes is also added, including:
+country, host species, isolation source, scientific name
+(*Campylobacter* ...), taxon ID, and a sample description.
+
 ```{r view_type_of_crisprs}
 selected_metadata <- campylobacter_metadata %>%
     select(sample_accession, country, host, isolation_source,
