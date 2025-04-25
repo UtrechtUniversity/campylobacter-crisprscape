@@ -116,12 +116,7 @@ library(rmarkdown)
 library(here)
 library(tidyverse)
 library(ggpubr)
-library(RColorBrewer)
-library(viridisLite)
 library(patchwork) # Combine figures while aligning axes
-library(rstatix) # for convenient statistical tests and p-value reporting
-library(scales) # for manually adjusting log-scale figure axes
-library(colorspace) # for filling boxplots/violins with lighter shade of same colour
 
 knitr::opts_knit$set(base.dir = here(""))
 ```
@@ -181,7 +176,8 @@ crisprs_near_cas_df <- read_or_create(
   ) %>%
   select(-Contig) %>%
   separate_wider_delim(cols = CRISPR, delim = ".",
-                       names = c("sample_accession", "Contig")) %>%
+                       names = c("sample_accession", "Contig"),
+                       cols_remove = FALSE) %>%
   separate_wider_delim(cols = Contig, delim = "_",
                        names = c("Contig", "CRISPR_number"))
 
@@ -190,9 +186,14 @@ crisprs_orphan_df <- read_or_create(
   ) %>%
   select(-Contig) %>%
   separate_wider_delim(cols = CRISPR, delim = ".",
-                       names = c("sample_accession", "Contig")) %>%
+                       names = c("sample_accession", "Contig"),
+                       cols_remove = FALSE) %>%
   separate_wider_delim(cols = Contig, delim = "_",
                        names = c("Contig", "CRISPR_number"))
+
+cas_operons_df <- read_or_create(
+  here("data/processed/cas_operons-concatenated.tab")
+)
 ```
 
 The output of CCTyper only contains sample accession IDs that can be
@@ -271,7 +272,7 @@ campylobacter_species_numbers <- campylobacter_metadata %>%
   mutate(species = if_else(grepl("jejuni", Species), "jejuni", "coli")) %>%
   count(species)
 
-# Alternative visualisation method: stacked bar chart
+# Visualisation method: stacked bar chart
 stacked_species_plot <- ggplot(data = campylobacter_species_numbers,
                              aes(x = 0, y = n, fill = species)) +
   geom_bar(stat = "identity") +
@@ -302,7 +303,7 @@ test_metadata <- read_delim(here("data/ATB/ena_metadata.20240801-filtered.tsv.gz
                             col_names = F)
 
 # Collect the column names from the original metadata file
-test_metadata_colames <- read.table(
+test_metadata_colnames <- read.table(
   here("data/ATB/ena_metadata.20240801.tsv.gz"),
   nrows = 1
 )
@@ -313,7 +314,7 @@ current_samples <- list.files(
 )
 
 # Insert column names
-colnames(test_metadata) <- test_metadata_colames[1,]
+colnames(test_metadata) <- test_metadata_colnames[1,]
 
 # Remove columns with only NA values
 test_metadata <- test_metadata[colSums(!is.na(test_metadata)) > 0]
@@ -570,47 +571,117 @@ selected_metadata <- campylobacter_metadata %>%
     select(sample_accession, country, host, isolation_source,
            scientific_name, tax_id, Species, description)
 
-annotated_crispr_df <- rbind(
-  left_join(
-    x = selected_metadata,
-    y = crisprs_near_cas_df,
-    by = "sample_accession"
-  ) %>%
-    mutate(orientation = "near_cas"),
-  left_join(
-    x = selected_metadata,
-    y = crisprs_orphan_df,
-    by = "sample_accession"
-    ) %>%
-    mutate(orientation = "orphan")
-  ) %>%
-  mutate(
-    simple_species = if_else(
-    grepl(pattern = "jejuni", x = Species),
-    "jejuni", "coli"),
-
-    N_spacers = case_when(
-      N_repeats > 1 ~ N_repeats - 1,
-      is.na(N_repeats) ~ 0,
-      TRUE ~ 0
-    )
+# Generate a comprehensive CRISPR array information table
+crispr_array_info <- rbind(
+  crisprs_near_cas_df %>%
+    mutate(Orientation = "near_cas"),
+  crisprs_orphan_df %>%
+    mutate(Orientation = "orphan")
+) %>%
+  select(sample_accession, Contig, CRISPR, CRISPR_number,
+         Start, End, Orientation, Trusted, Subtype, Subtype_probability,
+         Consensus_repeat, N_repeats, Repeat_len, Repeat_identity,
+         Spacer_len_avg, Spacer_identity, Spacer_len_sem) %>%
+  rename(
+    "CRISPR_ID" = "CRISPR",
+    "CRISPR_start" = "Start",
+    "CRISPR_end" = "End",
+    "Repeat_subtype" = "Subtype",
+    "Repeat_type_probability" = "Subtype_probability"
   )
 
-annotated_crispr_df %>%
-  count(orientation, Prediction) %>%
-  arrange(orientation, desc(n))
+# Combine the CRISPR info with cas operon info
+crispr_cas_info <- left_join(
+  # First, find the cas operon ID from CRISPR_Cas.tab
+  x = left_join(
+    x = crispr_array_info,
+    y = CRISPR_Cas_df %>%
+      select(CRISPRs, Distances, Operon) %>%
+    # Note: CCTyper may have identified multiple CRISPR arrays per operon,
+    #  so these have to be processed separately.
+      separate_longer_delim(
+        cols = c(CRISPRs, Distances),
+        delim = ","
+      ) %>%
+      # Remove unnecessary characters
+      mutate(CRISPRs = trimws(
+        x = CRISPRs,
+        which = "both",
+        # Remove '[' (escaped), ']' (escaped) and ''' (single quote)
+        whitespace = "[\\[\\]']"),
+        Distance = trimws(
+          x = Distances,
+          which = "both",
+          whitespace = "[\\[\\]]"
+        )) %>%
+      # And rename columns for convenience
+      select(-Distances) %>%
+      rename("CRISPR_ID" = "CRISPRs",
+             "Operon_ID" = "Operon"),
+    by = "CRISPR_ID"
+    ),
 
-annotated_crispr_df %>%
-  count(simple_species, orientation, Prediction) %>%
-  arrange(desc(simple_species), orientation, desc(n))
+  y = cas_operons_df %>%
+    select(Operon, Start, End, Best_type, Best_score,
+           Genes,
+           Complete_Interference, Complete_Adaptation,
+           Strand_Interference, Strand_Adaptation) %>%
+    mutate(Strand_cas = case_when(
+      # When the two agree, use that:
+      Strand_Interference == -1 &
+        Strand_Adaptation == -1 ~ "-",
+      Strand_Interference == 1 &
+        Strand_Adaptation == 1 ~ "+",
+
+      # Else, if only one was found, use that:
+      Strand_Interference == -1 ~ "-",
+      Strand_Adaptation == -1 ~ "-",
+      Strand_Interference == 1 ~ "+",
+      Strand_Adaptation == 1 ~ "+",
+
+      # Else, when both are unknown:
+      is.na(Strand_Interference) &
+        is.na(Strand_Adaptation) ~ "Unknown",
+
+      # Or there is some disagreement:
+      TRUE ~ "Unknown/ambiguous"
+    )) %>%
+    select(-c(Strand_Adaptation, Strand_Interference)),
+  by = c("Operon_ID" = "Operon")
+)
+
+# Use inner join to get rid of non-Campylobacter CRISPR-Cas systems
+# (selected_metadata should contain only Campylobacter metadata)
+crispr_cas_annotated <- inner_join(
+  x = crispr_cas_info,
+  y = selected_metadata,
+  by = "sample_accession"
+)  %>%
+  mutate(
+    simple_species = if_else(
+      grepl(pattern = "jejuni", x = Species),
+      "jejuni", "coli")
+  )
+
+# Save this as the 'current CRISPR-Cas database'
+write_delim(
+  x = crispr_cas_annotated,
+  file = here("data/processed/Campylobacter_CRISPR-Cas_info.tsv"),
+  delim = "\t"
+)
+
+crispr_cas_annotated %>%
+  count(Orientation, Repeat_subtype) %>%
+  arrange(Orientation, desc(n))
+
+crispr_cas_annotated %>%
+  count(simple_species, Orientation, Repeat_subtype) %>%
+  arrange(desc(simple_species), Orientation, desc(n))
 ```
 
 Among the both the CRISPR arrays with *cas* genes nearby and the orphan
-CRISPRs the most prevalent type predicted is II-C. The second most
-prevalent type is 'unknown', which might be II-C with low certainty.
-This pattern occurs in both *C. jejuni* and *C. coli*. (Note:
-'Prediction = NA' refers to absence of CRISPRs, genomes with no CRISPRs
-'near_cas' or 'orphan'.)
+CRISPRs the most prevalent type predicted is II-C. This pattern occurs
+in both *C. jejuni* and *C. coli*.
 
 Now that we have seen the prevalence of CRISPR arrays and their type,
 let's have a closer look at the number of CRISPR spacers and repeats
@@ -627,11 +698,13 @@ repeats (`N_repeats`) minus one.
 #| fig-cap: Total number of CRISPR spacers
 #| label: fig-spacers_per_genome
 
-total_spacer_scatter_data <- annotated_crispr_df %>%
+total_spacer_scatter_data <- crispr_cas_annotated %>%
+  mutate(N_spacers = N_repeats - 1) %>%
   pivot_wider(id_cols = c(sample_accession, simple_species),
-              names_from = orientation,
+              names_from = Orientation,
               values_from = N_spacers,
-              values_fn = sum)
+              values_fn = sum,
+              values_fill = 0)
 
 number_of_spacers_scatterplot <- ggplot(
   data = total_spacer_scatter_data,
@@ -681,17 +754,18 @@ spacers if there are multiple arrays!)
 #| fig-cap: "Total spacers per species"
 #| label: fig-total_spacers_per_species
 
-annotated_crispr_df %>%
+crispr_cas_annotated %>%
   ggplot(mapping = aes(x = N_repeats - 1)) +
   geom_histogram(binwidth = 1) +
-  facet_wrap(vars(simple_species, orientation),
+  facet_wrap(vars(simple_species, Orientation),
              scales = "free_y",
              labeller = labeller(
                simple_species = c(coli = "C. coli", jejuni = "C. jejuni"),
                orientation = c(near_cas = "Near cas", orphan = "Orphan")),
              axes = "all_x"
              )+
-  scale_y_continuous(expand = expansion(mult = c(0, 0.05))) +
+  scale_y_log10(expand = expansion(mult = c(0, 0.05))) +
+  xlim(0, 30) +
   theme_pubr() +
   labs(x = "Number of spacers",
        y = "Count")
@@ -707,6 +781,10 @@ with 11 and 13 spacers are higher than those for 10, 12, 14 or more
 spacers. This might be correlated with other underlying biological data,
 such as the origin of the genomes (different environments, or
 lineages?).
+
+The differences are less dramatic when viewed on a logarithmic Y-axis.
+Also, there are very few arrays with over 30 spacers (4 according to
+@fig-spacers_per_genome), so the X-axis can be limited to 30.
 
 # Length of spacers and repeats {#length-of-spacers-and-repeats}
 
@@ -726,7 +804,7 @@ to show this.
 #| fig-cap: "CRISPR repeat and spacer length"
 
 repeat_and_spacer_length_figure <- ggplot(
-  data = annotated_crispr_df,
+  data = crispr_cas_annotated,
   mapping = aes(x = Spacer_len_avg,
                 y = Repeat_len)
 ) +
@@ -737,7 +815,7 @@ repeat_and_spacer_length_figure <- ggplot(
        y = "Repeat length (bp)")
 
 repeat_length_histogram <- ggplot(
-  annotated_crispr_df,
+  crispr_cas_annotated,
   mapping = aes(y = Repeat_len)) +
   geom_histogram(binwidth = 1) +
   theme_pubr() +
@@ -745,7 +823,7 @@ repeat_length_histogram <- ggplot(
        x = "Count")
 
 spacer_length_histogram <- ggplot(
-  annotated_crispr_df,
+  crispr_cas_annotated,
   mapping = aes(x = Spacer_len_avg)) +
   geom_histogram(binwidth = 1) +
   theme_pubr() +
@@ -833,8 +911,8 @@ Look at the consensus repeat sequences to get an idea of the diversity
 and possible errors in calling.
 
 ```{r count_consensus_repeat_sequences}
-annotated_crispr_df %>%
-  count(Consensus_repeat, Repeat_len) %>%
+crispr_cas_annotated %>%
+  count(Consensus_repeat, Strand_cas, Repeat_len) %>%
   arrange(desc(n))
 ```
 
@@ -858,7 +936,8 @@ For comparison, the 'GT-start' orientation (reverse complement):
 # Estimated assembly quality {#estimated-assembly-quality}
 
 The genomes collected by AllTheBacteria have all gone through their
-quality control, including [CheckM2](#0). (Also see the
+quality control, including
+[CheckM2](https://github.com/chklovski/CheckM2). (Also see the
 [documentation](https://allthebacteria.readthedocs.io/en/latest/sample_metadata.html#checkm2).)
 The results are available as separate tab-separated text file and should
 allow for a simple visualisation of the estimated completeness and
