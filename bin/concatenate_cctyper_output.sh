@@ -53,3 +53,25 @@ concatenate_files "crisprs_near_cas.tab"
 
 # Concatenate crisprs_orphan.tab
 concatenate_files "crisprs_orphan.tab"
+
+# Concatenate cas_operons_putative.tab
+concatenate_files "cas_operons_putative.tab"
+# Already filter out the arrays that CCTyper identified:
+#  remove the 'putatives'.
+if [ ${output_dir} == "none" ]
+then
+    grep -f <(cut -f 2 ${batch}/CRISPR_Cas-${batch_name}.tab)\
+     ${batch}/cas_operons_putative-${batch_name}.tab\
+     > ${batch}/cas_operons-${batch_name}.tab
+
+    echo "Filtered the cas operons:"
+    ls -lh ${batch}/cas_operons-${batch_name}.tab
+else
+    grep -f <(cut -f 2 ${output_dir}/CRISPR_Cas-${batch_name}.tab)\
+     ${output_dir}/cas_operons_putative-${batch_name}.tab\
+     > ${output_dir}/cas_operons-${batch_name}.tab
+
+    echo "Filtered the cas operons:"
+    ls -lh ${output_dir}/cas_operons-${batch_name}.tab
+fi
+

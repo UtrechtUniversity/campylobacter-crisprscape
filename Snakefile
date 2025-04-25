@@ -58,6 +58,7 @@ rule all:
                 "crisprs_all",
                 "crisprs_near_cas",
                 "crisprs_orphan",
+                "cas_operons",
             ],
         ),
         expand(OUTPUT_DIR + "cctyper/{batch}/all_spacers-{batch}.fa", batch=BATCHES),
@@ -117,6 +118,8 @@ rule collect_cctyper:
         crisprs_near_cas=OUTPUT_DIR + "cctyper/{batch}/crisprs_near_cas-{batch}.tab",
         crisprs_orphan=OUTPUT_DIR + "cctyper/{batch}/crisprs_orphan-{batch}.tab",
         spacers=OUTPUT_DIR + "cctyper/{batch}/all_spacers-{batch}.fa",
+        cas_putative=temp(OUTPUT_DIR + "cctyper/{batch}/cas_operons_putative-{batch}.tab"),
+        cas=OUTPUT_DIR + "cctyper/{batch}/cas_operons-{batch}.tab",
     threads: 1
     log:
         "log/cctyper/collect_{batch}.txt",
