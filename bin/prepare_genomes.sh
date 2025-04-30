@@ -42,7 +42,8 @@ echo "----------"
 #  and cut column 1 which contains the accession IDs
 echo "Step 2: extracting sample accession IDs of species of interest"
 species_samples_file="${output_dir}all_samples_of_interest.txt"
-zgrep -f config/species_of_interest.txt ${output_dir}species_calls.tsv.gz | grep -v "F" | cut -f 1 > ${species_samples_file}
+zgrep -f config/species_of_interest.txt ${output_dir}species_calls.tsv.gz |\
+ grep -v "F" | cut -f 1 > ${species_samples_file}
 
 echo "Done extracting sample names!"
 ls -lh ${species_samples_file}
@@ -51,7 +52,8 @@ echo "----------"
 
 ## Step 3: Filter metadata to the species of interest
 echo "Step 3: Filtering metadata for species of interest"
-zgrep -f ${species_samples_file} ${output_dir}ena_metadata.20240801.tsv.gz | gzip > ${output_dir}ena_metadata.20240801-filtered.tsv.gz
+zgrep -f ${species_samples_file} ${output_dir}ena_metadata.20240801.tsv.gz |\
+ gzip > ${output_dir}ena_metadata.20240801-filtered.tsv.gz
 
 echo "Done filtering!"
 ls -lh ${output_dir}ena_metadata.20240801-filtered.tsv.gz
@@ -60,7 +62,8 @@ echo "----------"
 ## Step 4: Find which batches contain the species of interest
 #  search for accession IDs and collect unique (deduplicated) file names, URLs and md5 checksums
 echo "Step 4: Find relevant genome batches"
-zgrep -f ${species_samples_file} ${output_dir}file_list.all.20240805.tsv.gz | cut -f 5,6,7 | sort | uniq > ${output_dir}batches_to_download.tsv
+zgrep -f ${species_samples_file} ${output_dir}file_list.all.20240805.tsv.gz |\
+ cut -f 3-5 | sort | uniq > ${output_dir}batches_to_download.tsv
 
 echo "Found all relevant batches!"
 ls -lh ${output_dir}batches_to_download.tsv
