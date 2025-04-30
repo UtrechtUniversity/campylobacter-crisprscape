@@ -116,6 +116,7 @@ library(rmarkdown)
 library(here)
 library(tidyverse)
 library(ggpubr)
+library(rstatix)
 library(patchwork) # Combine figures while aligning axes
 
 knitr::opts_knit$set(base.dir = here(""))
