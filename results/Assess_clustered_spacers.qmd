@@ -342,6 +342,20 @@ longest_crispr_df <- left_join(
 )
 ```
 
+## Cluster sizes: only *Campylobacter*
+
+```{r members_per_campy_cluster}
+members_per_campy_cluster <- filtered_crispr_df %>%
+  group_by(Cluster) %>%
+  summarise(members = length(Genome))
+
+members_per_campy_cluster %>%
+  ggplot(mapping = aes(x = members)) +
+  geom_histogram(binwidth = 100) +
+  scale_y_log10(expand = expansion(mult = c(0, .05))) +
+  theme_pubr()
+```
+
 ## Longest vs. most common
 
 Visualise the length distribution per cluster, looking at the longest
@@ -853,13 +867,13 @@ annotated with their subtype, consensus repeat and whether or not cas
 genes were found nearby. Of these, the vast majority is near cas genes
 (335,902 vs. 22,855 spacers derived from 'orphan arrays').
 
-### Spacer length and cas presence
+### Spacer length and *cas* presence
 
 Let's see how their respective lengths compare:
 
 ```{r length_near_cas_vs_orphan}
 #| fig-height: 4
-#| fig-width: 6
+#| fig-width: 5
 #| label: fig-length-cas
 #| fig-cap: "CRISPR length separated by cas vicinity"
 #| message: false
@@ -869,8 +883,10 @@ near_cas_vs_orphan_barchart <- ggplot(
   mapping = aes(fill = near_cas, x = Length)
 ) +
   geom_bar(position = "stack", stat = "count") +
+  facet_wrap(~near_cas, ncol = 1) +
   scale_y_log10(expand = expansion(mult = c(0, 0.1))) +
   theme_pubr() +
+  theme(legend.position = "none") +
   labs(fill = "Near cas genes") +
   scale_fill_manual(values = c("cyan3", "seagreen4"), na.value = "bisque2") +
   scale_x_continuous(
@@ -895,8 +911,6 @@ of spacers:
 ```{r length_per_subtype}
 #| fig-height: 4
 #| fig-width: 6
-#| label: fig-length-subtype
-#| fig-cap: "CRISPR length separated CRISPR-Cas subtype"
 #| message: false
 
 subtype_barchart <- ggplot(
@@ -918,7 +932,7 @@ subtype_barchart <- ggplot(
   ) +
   theme(legend.position = "right") +
   scale_x_continuous(
-    breaks = c(25, 30, 36, 40, 45, 50, 55, 60),
+    breaks = c(25, 30, 35, 40, 45, 50, 55, 60),
     limits = c(25, 60)
   )
 
@@ -939,6 +953,114 @@ even 50 and 52 nt long spacers occur in this subtype. Subtype V-A
 Subtype V-F3 (darkest green) is always 32 nt long. Type VI (VI-A,
 purple) always appear to be 29 nt long. Spacers of unknown subtype occur
 in basically any length (except 29 and 32 nt?).
+
+**Note that while this gives a visually nice figure, the Y-axis is very
+wrong!** Stacked bar charts on a logarithmic Y-axis causes errors in the
+counts, leading to way too high values. Instead, use dodge for bars,
+facet them or a scatter plot. See also:
+<https://stackoverflow.com/questions/9502003/bar-plot-with-log-scales>.
+If not using a logarithmic scale, basically only a red peak at 30nt can
+be seen. It is more fair to use facets instead:
+
+```{r}
+#| fig-width: 8
+#| label: fig-length-subtype
+#| fig-cap: "CRISPR length separated by CRISPR-Cas subtype"
+#| message: false
+
+subtype_barchart +
+  facet_wrap(~Subtype, nrow = 3, dir = "v") +
+  theme(legend.position = "none") +
+  scale_x_continuous(
+    breaks = c(30, 40, 50, 60),
+    limits = c(25, 60)
+  )
+```
+
+### Spacer length per species
+
+```{r length_per_species}
+#| fig-height: 4
+#| fig-width: 7
+#| label: fig-length-species
+#| fig-cap: "CRISPR length separated by species"
+#| message: false
+
+species_points <- ggplot(
+  data = crisprs_types_near,
+  mapping = aes(fill = Species, x = Length)
+) +
+  geom_point(aes(colour = Species, shape = Species),
+             stat = "bin", binwidth = 1, size = 2.5) + 
+  geom_line(aes(colour = Species),
+            stat = "bin", binwidth = 1) +
+  scale_y_log10(expand = expansion(mult = c(0, 0.05))) +
+  theme_pubr() +
+  scale_shape_manual(
+    values = c(19, 65, 66, 17, 65, 66, 68)
+  ) +
+  scale_colour_manual(
+    values = c(
+      "#6c1414", "#553e3e", "#9d5353",
+      "#f43994", "#e770aa", "#d493b3", "#baa9b1"
+    ),
+    na.value = "bisque2"
+  ) +
+  theme(legend.position = "right") +
+  scale_x_continuous(
+    breaks = c(25, 30, 35, 40, 45, 50, 55, 60),
+    limits = c(25, 60)
+  )
+
+species_points
+```
+
+The distribution of spacer lengths between species seems pretty similar.
+Visible differences are that *jejuni* appears to have more CRISPR
+spacers of around 37 bp long and of 46 bp. *C. coli* on the other hand
+has more 50-52 bp spacers.
+
+```{r}
+#| fig-height: 6
+#| fig-width: 7
+#| label: fig-length-species-bars-facet
+#| fig-cap: "CRISPR length separated by species"
+#| message: false
+
+species_barchart <- ggplot(
+  data = crisprs_types_near %>%
+    mutate(across(Species, ~factor(
+      .,
+      levels = c(
+        "Campylobacter_D jejuni",
+        "Campylobacter_D jejuni_A",
+        "Campylobacter_D jejuni_B",
+        "Campylobacter_D jejuni_D",
+        "Campylobacter_D coli",
+        "Campylobacter_D coli_A",
+        "Campylobacter_D coli_B")))),
+  mapping = aes(fill = Species, x = Length)
+) +
+  geom_bar(position = "stack", stat = "count") +
+  facet_wrap(~Species, nrow = 4, ncol = 2,
+             dir = "v") +
+  scale_y_log10(expand = expansion(mult = c(0, 0.1))) +
+  theme_pubr() +
+  scale_fill_manual(
+    values = c(
+      "#f43994", "#e770aa", "#d493b3", "#baa9b1",
+      "#6c1414", "#553e3e", "#9d5353"
+    ),
+    na.value = "bisque2"
+  ) +
+  theme(legend.position = "none") +
+  scale_x_continuous(
+    breaks = c(25, 30, 36, 40, 45, 50, 55, 60),
+    limits = c(25, 60)
+  )
+
+species_barchart
+```
 
 ------------------------------------------------------------------------
 
