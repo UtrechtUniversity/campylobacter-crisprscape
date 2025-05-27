@@ -664,9 +664,9 @@ def main():
         print("Sample %s has no (extra) cas operons." % work_dir.name)
 
     # Finally, check for CRISPR arrays that may have no cas genes nearby
-    crispr_file = work_dir / "crisprs_all.tab"
+    crispr_file = work_dir / "crisprs_orphan.tab"
     if crispr_file.is_file():
-        print("Sample %s has at least one CRISPR array." % work_dir.name)
+        print("Sample %s has at least one orphan CRISPR array." % work_dir.name)
         crispr_info = []
 
         # Start reading the CRISPR array IDs
@@ -676,6 +676,7 @@ def main():
                 elements = line.split("\t")
                 crispr_id = elements[1]  # The second entry (0-based) is the ID
                 # Now check if it is not part of a CRISPR-Cas system
+                # (To make doubly sure)
                 try:
                     if any(crispr_id in sublist for sublist in cc_info):
                         pass  # Ignore the CRISPR that is already saved as CRISPR-Cas
@@ -705,7 +706,7 @@ def main():
                     )
 
     else:
-        print("Sample %s has no CRISPR arrays." % work_dir.name)
+        print("Sample %s has no orphan CRISPRs." % work_dir.name)
 
 
 if __name__ == "__main__":
