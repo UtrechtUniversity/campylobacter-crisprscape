@@ -75,7 +75,7 @@ def find_positions(directory):
         "%s is not a directory! Please provide a valid directory." % work_dir
     )
 
-    crispr_cas_df = pd.DataFrame(
+    crispr_cas_df_columns = pd.DataFrame(
         columns=[
             "Sample_accession",
             "Contig",
@@ -116,256 +116,38 @@ def find_positions(directory):
     #########################################
     ### BELOW HERE IS THE ORIGINAL SCRIPT ###
     #########################################
-    # Try finding the CRISPR-Cas loci
-    crispr_cas_file = work_dir / "CRISPR_Cas.tab"
-    if crispr_cas_file.is_file():
-        print("CRISPR-Cas found in %s" % work_dir.name)
 
-        # CRISPR-Cas data from CRISPR-Cas Typer (CCTyper)
-        cc_data = pd.read_csv(crispr_cas_file, sep="\t")
-        contigs = list(cc_data["Contig"])  # contig name as string
-        operons = list(cc_data["Operon"])  # cas gene operon ID as string
-        crisprs = list(cc_data["CRISPRs"])  # CRISPR array ID
-        crisprs = [crispr.strip("[]'\"") for crispr in crisprs]
-        cas_positions = list(cc_data["Operon_Pos"])  # cas operon start and end as list
+    cas_operons_info.append(
+        [contig, operon, int(start), int(stop), number_of_genes, strand]
+    )
 
-        ## Read cas operon information, store in list and write BED file
-        cas_file = work_dir / "cas_operons_putative.tab"
-        cas_data = pd.read_csv(cas_file, sep="\t")
-        cas_operons_info = []
+    cas_operons_bed_string = "%s\t%s\t%s\t%s\t%s\t%s\n" % (
+        contig,
+        start,
+        stop,
+        operon,
+        number_of_genes,
+        strand,
+    )
 
-        cas_operons_bed_file = work_dir / "Cas_operons.bed"
+    outfile.write(cas_operons_bed_string)
 
-        hmmer_file = work_dir / "hmmer.tab"
-        hmmer_data = pd.read_csv(hmmer_file, sep="\t")
+    print(crispr_cas_dict)
 
-        with open(cas_operons_bed_file, "w") as outfile:
-            for index in range(len(operons)):
-                contig = contigs[index]
-                # Extract sample name, which is split by a dot: 'sample.contig'
-                sample_accession = contig.split(".")[0]
-                positions = cas_positions[index].strip("[]").split(", ")
-                start = positions[0]
-                stop = positions[1]
-                operon = operons[index]
-                # Use `ast.literal_eval()` to read CCTyper's output file lists as list
-                # rather than strings.
-                cas_genes = ast.literal_eval(
-                    cas_data[cas_data["Operon"] == operon]["Genes"].iloc[0]
-                )
-                number_of_genes = len(cas_genes)
-
-                # Try to infer strand from these cas genes:
-                strand_adaptation = cas_data[cas_data["Operon"] == operon][
-                    "Strand_Adaptation"
-                ].iloc[0]
-                strand_interference = cas_data[cas_data["Operon"] == operon][
-                    "Strand_Interference"
-                ].iloc[0]
-
-                if strand_adaptation == 1 and strand_interference == 1:
-                    strand = "+"
-                elif strand_adaptation == -1 and strand_interference == -1:
-                    strand = "-"
-                else:
-                    strand = "."
-
-                cas_operons_info.append(
-                    [contig, operon, int(start), int(stop), number_of_genes, strand]
-                )
-
-                cas_operons_bed_string = "%s\t%s\t%s\t%s\t%s\t%s\n" % (
-                    contig,
-                    start,
-                    stop,
-                    operon,
-                    number_of_genes,
-                    strand,
-                )
-
-                outfile.write(cas_operons_bed_string)
-
-                # Look up cas operon data in `CRISPR_Cas.tab` and `cas_operons_putative.tab`
-                distance = (
-                    cc_data[cc_data["Operon"] == operon]["Distances"]
-                    .iloc[0]
-                    .strip("[]")
-                )
-                best_type = cas_data[cas_data["Operon"] == operon]["Best_type"].iloc[0]
-                best_score = cas_data[cas_data["Operon"] == operon]["Best_score"].iloc[
-                    0
-                ]
-                complete_interference = cas_data[cas_data["Operon"] == operon][
-                    "Complete_Interference"
-                ].iloc[0]
-                complete_adaptation = cas_data[cas_data["Operon"] == operon][
-                    "Complete_Adaptation"
-                ].iloc[0]
-
-                gene_lengths = (
-                    []
-                )  # Store as list (need to be extracted from `hmmer.tab`)
-                for index in range(len(cas_genes)):
-                    gene = cas_genes[index]
-                    # Use `ast.literal_eval()` to read CCTyper's output file lists as list
-                    # rather than strings.
-                    position = ast.literal_eval(
-                        cas_data[cas_data["Operon"] == operon]["Positions"].iloc[0]
-                    )[index]
-                    orf = "%s_%s" % (contig, position)
-                    evalue = float(
-                        ast.literal_eval(
-                            cas_data[cas_data["Operon"] == operon]["E-values"].iloc[0]
-                        )[index]
-                    )
-                    gene_length = hmmer_data[
-                        (hmmer_data["ORF"] == orf) & (hmmer_data["Eval"] == evalue)
-                    ]["qlen"].iloc[0]
-                    gene_lengths.append(gene_length)
-
-                # And write these stats to a dictionary (to-be dataframe)
-                crispr_cas_dict = {
-                    "Sample_accession": sample_accession,
-                    "Contig": contig,
-                    "Operon_ID": operon,
-                    "Distance": distance,
-                    "Cas_start": start,
-                    "Cas_end": stop,
-                    "Best_type": best_type,
-                    "Genes": cas_genes,
-                    "Complete_interference": complete_interference,
-                    "Complete_adaptation": complete_adaptation,
-                    "Strand_cas": strand,
-                    "Gene_lengths_aa": gene_lengths,
-                }
-
-        ## Read CRISPR array information, store in list and write BED file
-        crispr_file = work_dir / "crisprs_all.tab"
-        crispr_data = pd.read_csv(crispr_file, sep="\t")
-        crispr_info = []
-
-        arrays_bed_file = work_dir / "CRISPR_arrays.bed"
-        with open(arrays_bed_file, "w") as outfile:
-            for crispr in crisprs:
-                contig = crispr.rstrip(string.digits).rstrip("_")
-                crispr_start = crispr_data[crispr_data["CRISPR"] == crispr][
-                    "Start"
-                ].iloc[0]
-                crispr_stop = crispr_data[crispr_data["CRISPR"] == crispr]["End"].iloc[
-                    0
-                ]
-                number_of_repeats = crispr_data[crispr_data["CRISPR"] == crispr][
-                    "N_repeats"
-                ].iloc[0]
-                crispr_info.append(
-                    [crispr, crispr_start, crispr_stop, number_of_repeats]
-                )
-
-                crisprs_bed_string = "%s\t%s\t%s\t%s\t%s\t%s\n" % (
-                    contig,
-                    crispr_start,
-                    crispr_stop,
-                    crispr,
-                    number_of_repeats,
-                    strand,
-                )
-
-                outfile.write(crisprs_bed_string)
-
-                # Look up extra stats in `crisprs_all.tab`
-                trusted = crispr_data[crispr_data["CRISPR"] == crispr]["Trusted"].iloc[
-                    0
-                ]
-                repeat_subtype = crispr_data[crispr_data["CRISPR"] == crispr][
-                    "Subtype"
-                ].iloc[0]
-                repeat_subtype_prob = crispr_data[crispr_data["CRISPR"] == crispr][
-                    "Subtype_probability"
-                ].iloc[0]
-                consensus_repeat = crispr_data[crispr_data["CRISPR"] == crispr][
-                    "Consensus_repeat"
-                ].iloc[0]
-                repeat_len = crispr_data[crispr_data["CRISPR"] == crispr][
-                    "Repeat_len"
-                ].iloc[0]
-                repeat_identity = crispr_data[crispr_data["CRISPR"] == crispr][
-                    "Repeat_identity"
-                ].iloc[0]
-                spacer_len_avg = crispr_data[crispr_data["CRISPR"] == crispr][
-                    "Spacer_len_avg"
-                ].iloc[0]
-                spacer_identity = crispr_data[crispr_data["CRISPR"] == crispr][
-                    "Spacer_identity"
-                ].iloc[0]
-                spacer_len_sem = crispr_data[crispr_data["CRISPR"] == crispr][
-                    "Spacer_len_sem"
-                ].iloc[0]
-
-                # And put them in the dictionary (to-be dataframe)
-                crispr_cas_dict["CRISPR_ID"] = crispr
-                crispr_cas_dict["CRISPR_start"] = crispr_start
-                crispr_cas_dict["CRISPR_end"] = crispr_stop
-                crispr_cas_dict["Near_cas"] = (
-                    "near_cas"  # By definition, because it is read from 'CRISPR_cas.tab'
-                )
-                crispr_cas_dict["Trusted"] = trusted
-                crispr_cas_dict["Repeat_subtype"] = repeat_subtype
-                crispr_cas_dict["Repeat_type_probability"] = repeat_subtype_prob
-                crispr_cas_dict["Consensus_repeat"] = consensus_repeat
-                crispr_cas_dict["N_repeats"] = number_of_repeats
-                crispr_cas_dict["Repeat_len"] = repeat_len
-                crispr_cas_dict["Repeat_identity"] = repeat_identity
-                crispr_cas_dict["Spacer_len_avg"] = spacer_len_avg
-                crispr_cas_dict["Spacer_identity"] = spacer_identity
-                crispr_cas_dict["Spacer_len_sem"] = spacer_len_sem
-
-                print(crispr_cas_dict)
-
-                # To accomodate a mix of string values (e.g. Sample_accession) and lists
-                # (e.g. cas genes), create a dataframe of the dictionary values (list type),
-                # which by default reads the list as rows in one column. Attach the key
-                # values as index and then transpose the dataframe to wide format (`.T`)
-                print(
-                    pd.concat(
-                        [
-                            crispr_cas_df,
-                            pd.DataFrame(
-                                crispr_cas_dict.values(), index=crispr_cas_dict.keys()
-                            ).T,
-                        ]
-                    )
-                )
-                # Otherwise, those list values will cause duplicate entries: one row for
-                # each gene present in the operon and all other values are copied as well.
-
-        ## Combine CRISPR array and cas operon information to create CRISPR-Cas BED
-        crispr_cas_info = []
-        crispr_cas_bed_file = work_dir / "CRISPR-Cas.bed"
-        with open(crispr_cas_bed_file, "w") as outfile:
-            for index in range(len(crispr_info)):
-                crispr_cas_info.append(cas_operons_info[index] + crispr_info[index])
-                print(crispr_cas_info)
-                contig = crispr_cas_info[index][0]
-                # Grab both the start and stop positions for the cas operon and the CRISPR array
-                all_starts_and_stops = itemgetter(2, 3, 7, 8)(crispr_cas_info[index])
-                start = min(all_starts_and_stops)
-                stop = max(all_starts_and_stops)
-                array_name = crispr_cas_info[index][6]
-                number_of_repeats = crispr_cas_info[index][9]
-                strand = crispr_cas_info[index][5]
-
-                crispr_cas_bed_string = "%s\t%s\t%s\t%s\t%s\t%s\n" % (
-                    contig,
-                    start,
-                    stop,
-                    array_name,
-                    number_of_repeats,
-                    strand,
-                )
-                outfile.write(crispr_cas_bed_string)
-
-    else:
-        print("No CRISPR-Cas system found in %s" % work_dir.name)
+    # To accomodate a mix of string values (e.g. Sample_accession) and lists
+    # (e.g. cas genes), create a dataframe of the dictionary values (list type),
+    # which by default reads the list as rows in one column. Attach the key
+    # values as index and then transpose the dataframe to wide format (`.T`)
+    print(
+        pd.concat(
+            [
+                crispr_cas_df,
+                pd.DataFrame(crispr_cas_dict.values(), index=crispr_cas_dict.keys()).T,
+            ]
+        )
+    )
+    # Otherwise, those list values will cause duplicate entries: one row for
+    # each gene present in the operon and all other values are copied as well.
 
     return 0
 
@@ -413,7 +195,7 @@ def extract_crispr_cas_info(crispr_cas_file):
                 stop,
                 distance,
                 crisprs[number],
-                "crispr-cas",
+                "CRISPR-Cas",
             ]
         )
 
@@ -497,13 +279,14 @@ def annotate_cas_operon(operon, work_dir):
         gene_lengths.append(gene_length)
 
     cas_operon_info = [
-        cas_genes,
-        number_of_genes,
-        strand,
         best_type,
         best_score,
+        cas_genes,
         complete_interference,
         complete_adaptation,
+        strand,
+        number_of_genes,
+        gene_lengths,
     ]
 
     return cas_operon_info
@@ -618,13 +401,47 @@ def main():
 
     print(message)
 
-    #   # Check if the provided directory exists and is a directory
+    # Check if the provided directory exists and is a directory
     work_dir = Path(arguments.directory)
     assert work_dir.is_dir(), (
         "%s is not a directory! Please provide a valid directory." % work_dir
     )
 
-    # Look for the CRISPR-Cas file
+    ## 4. Initialise a dataframe to combine all information
+    crispr_cas_df_columns = [
+        "Sample_accession",
+        "Contig",
+        "System",  # CRISPR-Cas, orphan CRISPR, or only cas genes
+        "CRISPR_ID",
+        "CRISPR_start",
+        "CRISPR_end",
+        "Trusted",
+        "Repeat_subtype",
+        "Repeat_type_probability",
+        "Consensus_repeat",
+        "N_repeats",
+        "Repeat_len",
+        "Repeat_identity",
+        "Spacer_len_avg",
+        "Spacer_identity",
+        "Spacer_len_sem",
+        "Operon_ID",
+        "Distance_to_CRISPR",
+        "Cas_start",
+        "Cas_end",
+        "Best_type",
+        "Best_score",
+        "Genes",
+        "Complete_interference",
+        "Complete_adaptation",
+        "Strand_cas",
+        "N_genes",
+        "Gene_lengths_aa",
+    ]
+
+    crispr_cas_info = []
+
+    ## 1. Look for the CRISPR-Cas file
     crispr_cas_file = work_dir / "CRISPR_Cas.tab"
     if crispr_cas_file.is_file():
         print("CRISPR-Cas found in %s" % work_dir.name)
@@ -638,36 +455,61 @@ def main():
 
             print("Cas operon info: %s" % cas_info)
 
-            crispr = array[-2]
+            crispr = array[6]
             crispr_info = annotate_crispr_array(crispr=crispr, work_dir=work_dir)
             print("CRISPR array info: %s" % crispr_info)
+
+            total_info = (
+                # Sample accession, contig ID, System configuration, CRISPR ID
+                list(itemgetter(0, 1, 7, 6)(array))
+                # start, end, trusted, subtype, subtype_prob, consensus_repeat, N_repeats, repeat_len, repeat_identity, spacer_avg_len, spacer_identity, spacer_len_sem
+                + crispr_info
+                + [operon]
+                # Distance, operon start-stop
+                + list(itemgetter(5, 3, 4)(array))
+                # type, score, genes, interference, adaptation, strand, N_genes, gene_lengths
+                + cas_info
+            )
+
+            crispr_cas_info.append(total_info)
 
     else:
         print("Sample %s has no complete CRISPR-Cas system." % work_dir.name)
 
-    # Look for seperately reported cas operons
+    ## 2. Look for seperately reported cas operons
     cas_file = work_dir / "cas_operons.tab"
     if cas_file.is_file():
         print("Sample %s has a file for separate cas operons." % work_dir.name)
-        operons_info = []
+
         with open(cas_file, "r") as infile:
             infile.readline()  # Skip the first (header) line
 
             for line in infile:
                 elements = line.split("\t")
                 operon = elements[1]  # The second entry (0-based) is the operon ID
-                operons_info.append(
-                    [annotate_cas_operon(operon=operon, work_dir=work_dir), "only_cas"]
+                sample = operon.split(".")[0]
+                contig = operon.split("@")[0]
+                start = elements[2]
+                stop = elements[3]
+
+                print(" - separate cas operon: %s" % operon)
+
+                crispr_cas_info.append(
+                    [sample, contig, "Only_cas"]
+                    + 14 * ["NA"]
+                    + [operon]
+                    + ["NA"]
+                    + [start, stop]
+                    + [annotate_cas_operon(operon=operon, work_dir=work_dir)]
                 )
 
     else:
         print("Sample %s has no (extra) cas operons." % work_dir.name)
 
-    # Finally, check for CRISPR arrays that may have no cas genes nearby
+    ## 3. Finally, check for CRISPR arrays that may have no cas genes nearby
     crispr_file = work_dir / "crisprs_orphan.tab"
     if crispr_file.is_file():
         print("Sample %s has at least one orphan CRISPR array." % work_dir.name)
-        crispr_info = []
 
         # Start reading the CRISPR array IDs
         with open(crispr_file, "r") as infile:
@@ -675,38 +517,38 @@ def main():
             for line in infile:
                 elements = line.split("\t")
                 crispr_id = elements[1]  # The second entry (0-based) is the ID
+                sample = crispr_id.split(".")[0]
+                contig = crispr_id.split("_")[0]
+
                 # Now check if it is not part of a CRISPR-Cas system
                 # (To make doubly sure)
                 try:
                     if any(crispr_id in sublist for sublist in cc_info):
                         pass  # Ignore the CRISPR that is already saved as CRISPR-Cas
                     else:
-                        print(
-                            "Sample %s has orphan CRISPR: %s"
-                            % (work_dir.name, crispr_id)
+                        print(" - orphan CRISPR: %s" % crispr_id)
+
+                        crispr_cas_info.append(
+                            [sample, contig, "Orphan_CRISPR", crispr_id]
+                            + annotate_crispr_array(crispr=crispr_id, work_dir=work_dir)
+                            + 12 * ["NA"]
                         )
-                        crispr_info.append(
-                            [
-                                annotate_crispr_array(
-                                    crispr=crispr_id, work_dir=work_dir
-                                ),
-                                "orphan_crispr",
-                            ]
-                        )
+
                 except NameError:
                     # If CRISPR-Cas info has not been collected yet, lookup the CRISPR info!
-                    print(
-                        "Sample %s has orphan CRISPR: %s" % (work_dir.name, crispr_id)
-                    )
-                    crispr_info.append(
-                        [
-                            annotate_crispr_array(crispr=crispr_id, work_dir=work_dir),
-                            "orphan_crispr",
-                        ]
+                    print(" - orphan CRISPR: %s" % crispr_id)
+                    crispr_cas_info.append(
+                        [sample, contig, "Orphan_CRISPR", crispr_id]
+                        + annotate_crispr_array(crispr=crispr_id, work_dir=work_dir)
+                        + 12 * ["NA"]
                     )
 
     else:
         print("Sample %s has no orphan CRISPRs." % work_dir.name)
+
+    crispr_cas_df = pd.DataFrame(crispr_cas_info, columns=crispr_cas_df_columns)
+
+    print(crispr_cas_df)
 
 
 if __name__ == "__main__":
