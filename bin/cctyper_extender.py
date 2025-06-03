@@ -31,6 +31,7 @@
 import argparse
 from pathlib import Path
 import pandas as pd
+import numpy as np
 import string
 from operator import itemgetter
 import ast
@@ -393,10 +394,9 @@ def main():
     arguments = parse_arguments()
 
     message = (
-        "\n"
         "These are the command-line arguments:\n"
         "  DIRECTORY:\n"
-        "{0}\n".format(arguments.directory)
+        "    {0}\n".format(arguments.directory)
     )
 
     print(message)
@@ -447,17 +447,17 @@ def main():
         print("CRISPR-Cas found in %s" % work_dir.name)
 
         cc_info = extract_crispr_cas_info(crispr_cas_file=crispr_cas_file)
-        print("CRISPR-Cas info: %s" % cc_info)
+        print("\nCRISPR-Cas info: %s" % cc_info)
 
         for array in cc_info:
             operon = array[2]
             cas_info = annotate_cas_operon(operon=operon, work_dir=work_dir)
 
-            print("Cas operon info: %s" % cas_info)
+            print("\nCas operon info: %s" % cas_info)
 
             crispr = array[6]
             crispr_info = annotate_crispr_array(crispr=crispr, work_dir=work_dir)
-            print("CRISPR array info: %s" % crispr_info)
+            print("\nCRISPR array info: %s" % crispr_info)
 
             total_info = (
                 # Sample accession, contig ID, System configuration, CRISPR ID
@@ -479,7 +479,7 @@ def main():
     ## 2. Look for seperately reported cas operons
     cas_file = work_dir / "cas_operons.tab"
     if cas_file.is_file():
-        print("Sample %s has a file for separate cas operons." % work_dir.name)
+        print("\nSample %s has a file for separate cas operons." % work_dir.name)
 
         with open(cas_file, "r") as infile:
             infile.readline()  # Skip the first (header) line
@@ -496,20 +496,20 @@ def main():
 
                 crispr_cas_info.append(
                     [sample, contig, "Only_cas"]
-                    + 14 * ["NA"]
+                    + 13 * ["NA"]
                     + [operon]
                     + ["NA"]
                     + [start, stop]
-                    + [annotate_cas_operon(operon=operon, work_dir=work_dir)]
+                    + annotate_cas_operon(operon=operon, work_dir=work_dir)
                 )
 
     else:
-        print("Sample %s has no (extra) cas operons." % work_dir.name)
+        print("\nSample %s has no (extra) cas operons." % work_dir.name)
 
     ## 3. Finally, check for CRISPR arrays that may have no cas genes nearby
     crispr_file = work_dir / "crisprs_orphan.tab"
     if crispr_file.is_file():
-        print("Sample %s has at least one orphan CRISPR array." % work_dir.name)
+        print("\nSample %s has at least one orphan CRISPR array." % work_dir.name)
 
         # Start reading the CRISPR array IDs
         with open(crispr_file, "r") as infile:
@@ -531,7 +531,9 @@ def main():
                         crispr_cas_info.append(
                             [sample, contig, "Orphan_CRISPR", crispr_id]
                             + annotate_crispr_array(crispr=crispr_id, work_dir=work_dir)
-                            + 12 * ["NA"]
+                            + 9 * [np.nan]
+                            + ["."]
+                            + 2 * [np.nan]
                         )
 
                 except NameError:
@@ -540,15 +542,17 @@ def main():
                     crispr_cas_info.append(
                         [sample, contig, "Orphan_CRISPR", crispr_id]
                         + annotate_crispr_array(crispr=crispr_id, work_dir=work_dir)
-                        + 12 * ["NA"]
+                        + 9 * [np.nan]
+                        + ["."]
+                        + 2 * [np.nan]
                     )
 
     else:
-        print("Sample %s has no orphan CRISPRs." % work_dir.name)
+        print("\nSample %s has no orphan CRISPRs." % work_dir.name)
 
     crispr_cas_df = pd.DataFrame(crispr_cas_info, columns=crispr_cas_df_columns)
 
-    print(crispr_cas_df)
+    return 0
 
 
 if __name__ == "__main__":
