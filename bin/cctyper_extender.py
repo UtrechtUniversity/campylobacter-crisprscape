@@ -276,7 +276,7 @@ def annotate_cas_operon(operon, work_dir):
         ]
 
         orf = "%s_%s" % (contig, position)
-        gene_length = hmmer_data[hmmer_data["ORF"] == orf]["qlen"].iloc[0]
+        gene_length = int(hmmer_data[hmmer_data["ORF"] == orf]["qlen"].iloc[0])
         gene_lengths.append(gene_length)
 
     cas_operon_info = [
@@ -316,8 +316,8 @@ def annotate_crispr_array(crispr, work_dir):
     crispr_info = []
 
     contig = crispr.rstrip(string.digits).rstrip("_")
-    crispr_start = crispr_data[crispr_data["CRISPR"] == crispr]["Start"].iloc[0]
-    crispr_stop = crispr_data[crispr_data["CRISPR"] == crispr]["End"].iloc[0]
+    crispr_start = int(crispr_data[crispr_data["CRISPR"] == crispr]["Start"].iloc[0])
+    crispr_stop = int(crispr_data[crispr_data["CRISPR"] == crispr]["End"].iloc[0])
     number_of_repeats = crispr_data[crispr_data["CRISPR"] == crispr]["N_repeats"].iloc[
         0
     ]
@@ -489,16 +489,16 @@ def main():
                 operon = elements[1]  # The second entry (0-based) is the operon ID
                 sample = operon.split(".")[0]
                 contig = operon.split("@")[0]
-                start = elements[2]
-                stop = elements[3]
+                start = int(elements[2])
+                stop = int(elements[3])
 
                 print(" - separate cas operon: %s" % operon)
 
                 crispr_cas_info.append(
                     [sample, contig, "Only_cas"]
-                    + 13 * ["NA"]
+                    + 13 * [np.nan]
                     + [operon]
-                    + ["NA"]
+                    + [np.nan]
                     + [start, stop]
                     + annotate_cas_operon(operon=operon, work_dir=work_dir)
                 )
@@ -551,6 +551,10 @@ def main():
         print("\nSample %s has no orphan CRISPRs." % work_dir.name)
 
     crispr_cas_df = pd.DataFrame(crispr_cas_info, columns=crispr_cas_df_columns)
+
+    crispr_cas_file = work_dir / "CRISPR-Cas.csv"
+    crispr_cas_df.to_csv(crispr_cas_file, index=False, na_rep="NA")
+    print("Wrote CRISPR-Cas information to: %s" % crispr_cas_file)
 
     return 0
 
