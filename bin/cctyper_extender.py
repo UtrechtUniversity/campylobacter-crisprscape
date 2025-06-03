@@ -362,32 +362,45 @@ def annotate_crispr_array(crispr, work_dir):
     return crispr_info
 
 
-def create_bedfile(bed_entries, filename):
+def extract_bed_entries(info_df):
     """
-    Given a list of entries and a filename, write the entries to the file!
+    Given a dataframe, extract relevant information from CRISPR arrays,
+    cas genes, and entire CRISPR-Cas loci and write to BED files.
     """
-    with open(filename, "w") as outfile:
-        for entry in bed_entries:
-            outfile.write(entry)
+    info_df["crisprcas_start"] = info_df[
+        ["CRISPR_start", "CRISPR_end", "Cas_start", "Cas_end"]
+    ].min(axis=1)
+    info_df["crisprcas_end"] = info_df[
+        ["CRISPR_start", "CRISPR_end", "Cas_start", "Cas_end"]
+    ].max(axis=1)
+
+    crispr_cas_bed_df = info_df.filter(
+        [
+            "Contig",
+            "crisprcas_start",
+            "crisprcas_end",
+            "CRISPR_ID",
+            "N_repeats",
+            "Strand_cas",
+        ]
+    ).dropna()
+    crispr_cas_bed_df.to_csv(
+        work_dir / "CRISPR_Cas.bed", index=False, header=False, sep="\t"
+    )
+
+    crispr_bed_df = info_df.filter(
+        ["Contig", "CRISPR_start", "CRISPR_end", "CRISPR_ID", "N_repeats", "Strand_cas"]
+    ).dropna()
+    crispr_bed_df.to_csv(
+        work_dir / "CRISPR_arrays.bed", index=False, header=False, sep="\t"
+    )
+
+    cas_bed_df = info_df.filter(
+        ["Contig", "Cas_start", "Cas_end", "CRISPR_ID", "N_genes", "Strand_cas"]
+    ).dropna()
+    cas_bed_df.to_csv(work_dir / "Cas_operons.bed", index=False, header=False, sep="\t")
+
     return 0
-
-
-def extract_bed_entries(info_df, type):
-    """
-    Given a list of data needed to create BED files, and the type of BED file to
-    be created (CRISPR array, cas genes, or entire CRISPR-Cas locus, as:
-    'crispr', 'cas', or 'crispr-cas' or 'locus'), extract the relevant
-    information from the list and pass this including filename to `create_bedfile()`.
-    """
-
-    ### THIS FUNCTION NEEDS TO BE COMPLETED ###
-    ### IT DOES NOT WORK YET ###
-    ### Maybe it is easier to just do this separately for each BED file,
-    ### with or without seperate functions...
-    bed_entries = []
-    if type == "crispr":
-        for info in info_df:
-            bed_entries.append(info_df)
 
 
 def main():
