@@ -94,8 +94,8 @@ def extract_crispr_cas_info(crispr_cas_file):
     for number in range(len(crisprs)):
         # Collect the matching data
         positions = cas_positions[number].strip("[]").split(", ")
-        start = positions[0]
-        stop = positions[1]
+        start = int(positions[0])
+        stop = int(positions[1])
         distance = distances[number].strip("[]")
 
         # Save that in a list
@@ -274,43 +274,58 @@ def annotate_crispr_array(crispr, work_dir):
     return crispr_info
 
 
-def extract_bed_entries(info_df):
+def extract_bed_entries(info_df, work_dir):
     """
     Given a dataframe, extract relevant information from CRISPR arrays,
     cas genes, and entire CRISPR-Cas loci and write to BED files.
     """
     info_df["crisprcas_start"] = info_df[
         ["CRISPR_start", "CRISPR_end", "Cas_start", "Cas_end"]
-    ].min(axis=1)
+    ].min(axis=1, skipna=True)
     info_df["crisprcas_end"] = info_df[
         ["CRISPR_start", "CRISPR_end", "Cas_start", "Cas_end"]
-    ].max(axis=1)
+    ].max(axis=1, skipna=True)
 
-    crispr_cas_bed_df = info_df.filter(
-        [
-            "Contig",
-            "crisprcas_start",
-            "crisprcas_end",
-            "CRISPR_ID",
-            "N_repeats",
-            "Strand_cas",
-        ]
-    ).dropna()
-    crispr_cas_bed_df.to_csv(
-        work_dir / "CRISPR_Cas.bed", index=False, header=False, sep="\t"
+    crispr_cas_bed_df = (
+        info_df[info_df["System"] == "CRISPR-Cas"]
+        .filter(
+            [
+                "Contig",
+                "crisprcas_start",
+                "crisprcas_end",
+                "CRISPR_ID",
+                "N_repeats",
+                "Strand_cas",
+            ]
+        )
+        .dropna()
     )
+    if not crispr_cas_bed_df.empty:
+        crispr_cas_bed_df.to_csv(
+            work_dir / "CRISPR-Cas.bed", index=False, header=False, sep="\t"
+        )
+    else:
+        pass
 
     crispr_bed_df = info_df.filter(
         ["Contig", "CRISPR_start", "CRISPR_end", "CRISPR_ID", "N_repeats", "Strand_cas"]
     ).dropna()
-    crispr_bed_df.to_csv(
-        work_dir / "CRISPR_arrays.bed", index=False, header=False, sep="\t"
-    )
+    if not crispr_bed_df.empty:
+        crispr_bed_df.to_csv(
+            work_dir / "CRISPR_arrays.bed", index=False, header=False, sep="\t"
+        )
+    else:
+        pass
 
     cas_bed_df = info_df.filter(
-        ["Contig", "Cas_start", "Cas_end", "CRISPR_ID", "N_genes", "Strand_cas"]
+        ["Contig", "Cas_start", "Cas_end", "Operon_ID", "N_genes", "Strand_cas"]
     ).dropna()
-    cas_bed_df.to_csv(work_dir / "Cas_operons.bed", index=False, header=False, sep="\t")
+    if not cas_bed_df.empty:
+        cas_bed_df.to_csv(
+            work_dir / "Cas_operons.bed", index=False, header=False, sep="\t"
+        )
+    else:
+        pass
 
     return 0
 
@@ -480,6 +495,9 @@ def main():
     crispr_cas_file = work_dir / "CRISPR-Cas.csv"
     crispr_cas_df.to_csv(crispr_cas_file, index=False, na_rep="NA")
     print("Wrote CRISPR-Cas information to: %s" % crispr_cas_file)
+
+    extract_bed_entries(info_df=crispr_cas_df, work_dir=work_dir)
+    print("Also created BED files (if applicable).")
 
     return 0
 
