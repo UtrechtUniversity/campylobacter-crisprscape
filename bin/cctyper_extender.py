@@ -65,94 +65,6 @@ def parse_arguments():
     return args
 
 
-def find_positions(directory):
-    """
-    Search the input directory for CRISPR-Cas files to determine their positions
-    the genome. Write the found information to BED files. If no relevant files
-    are found, only write a message to standard output.
-    """
-    work_dir = Path(directory)
-    assert work_dir.is_dir(), (
-        "%s is not a directory! Please provide a valid directory." % work_dir
-    )
-
-    crispr_cas_df_columns = pd.DataFrame(
-        columns=[
-            "Sample_accession",
-            "Contig",
-            "CRISPR_ID",
-            "CRISPR_start",
-            "CRISPR_end",
-            "Near_cas",
-            "Trusted",
-            "Repeat_subtype",
-            "Repeat_type_probability",
-            "Consensus_repeat",
-            "N_repeats",
-            "Repeat_len",
-            "Repeat_identity",
-            "Spacer_len_avg",
-            "Spacer_len_sem",
-            "Operon_ID",
-            "Distance_to_CRISPR",
-            "Cas_start",
-            "Cas_end",
-            "Best_type",
-            "Best_score",
-            "Genes",
-            "Complete_interference",
-            "Complete_adaptation",
-            "Strand_cas",
-            "Gene_lengths_aa",
-        ]
-    )  # Store both CRISPR array and cas operon information
-
-    ### Start by searching whether there is a CRISPR-Cas locus (complete),
-    ### only cas genes (`cas_operons.tab`), or only orphan crispr arrays
-    ### (`crispr_orphan.tab`). If none of these matches, there is nothing
-    ### to do!
-    ### There might also be combinations of these, which are worthwhile
-    ### mentioning.
-
-    #########################################
-    ### BELOW HERE IS THE ORIGINAL SCRIPT ###
-    #########################################
-
-    cas_operons_info.append(
-        [contig, operon, int(start), int(stop), number_of_genes, strand]
-    )
-
-    cas_operons_bed_string = "%s\t%s\t%s\t%s\t%s\t%s\n" % (
-        contig,
-        start,
-        stop,
-        operon,
-        number_of_genes,
-        strand,
-    )
-
-    outfile.write(cas_operons_bed_string)
-
-    print(crispr_cas_dict)
-
-    # To accomodate a mix of string values (e.g. Sample_accession) and lists
-    # (e.g. cas genes), create a dataframe of the dictionary values (list type),
-    # which by default reads the list as rows in one column. Attach the key
-    # values as index and then transpose the dataframe to wide format (`.T`)
-    print(
-        pd.concat(
-            [
-                crispr_cas_df,
-                pd.DataFrame(crispr_cas_dict.values(), index=crispr_cas_dict.keys()).T,
-            ]
-        )
-    )
-    # Otherwise, those list values will cause duplicate entries: one row for
-    # each gene present in the operon and all other values are copied as well.
-
-    return 0
-
-
 def extract_crispr_cas_info(crispr_cas_file):
     """
     Takes a `CRISPR_Cas.tab` file to read relevant information:
@@ -420,38 +332,7 @@ def main():
         "%s is not a directory! Please provide a valid directory." % work_dir
     )
 
-    ## 4. Initialise a dataframe to combine all information
-    crispr_cas_df_columns = [
-        "Sample_accession",
-        "Contig",
-        "System",  # CRISPR-Cas, orphan CRISPR, or only cas genes
-        "CRISPR_ID",
-        "CRISPR_start",
-        "CRISPR_end",
-        "Trusted",
-        "Repeat_subtype",
-        "Repeat_type_probability",
-        "Consensus_repeat",
-        "N_repeats",
-        "Repeat_len",
-        "Repeat_identity",
-        "Spacer_len_avg",
-        "Spacer_identity",
-        "Spacer_len_sem",
-        "Operon_ID",
-        "Distance_to_CRISPR",
-        "Cas_start",
-        "Cas_end",
-        "Best_type",
-        "Best_score",
-        "Genes",
-        "Complete_interference",
-        "Complete_adaptation",
-        "Strand_cas",
-        "N_genes",
-        "Gene_lengths_aa",
-    ]
-
+    ## Initialise a list to combine (append) all information
     crispr_cas_info = []
 
     ## 1. Look for the CRISPR-Cas file
@@ -563,6 +444,37 @@ def main():
     else:
         print("\nSample %s has no orphan CRISPRs." % work_dir.name)
 
+    ## Combine the information in one dataframe
+    crispr_cas_df_columns = [
+        "Sample_accession",
+        "Contig",
+        "System",  # CRISPR-Cas, orphan CRISPR, or only cas genes
+        "CRISPR_ID",
+        "CRISPR_start",
+        "CRISPR_end",
+        "Trusted",
+        "Repeat_subtype",
+        "Repeat_type_probability",
+        "Consensus_repeat",
+        "N_repeats",
+        "Repeat_len",
+        "Repeat_identity",
+        "Spacer_len_avg",
+        "Spacer_identity",
+        "Spacer_len_sem",
+        "Operon_ID",
+        "Distance_to_CRISPR",
+        "Cas_start",
+        "Cas_end",
+        "Best_type",
+        "Best_score",
+        "Genes",
+        "Complete_interference",
+        "Complete_adaptation",
+        "Strand_cas",
+        "N_genes",
+        "Gene_lengths_aa",
+    ]
     crispr_cas_df = pd.DataFrame(crispr_cas_info, columns=crispr_cas_df_columns)
 
     crispr_cas_file = work_dir / "CRISPR-Cas.csv"
