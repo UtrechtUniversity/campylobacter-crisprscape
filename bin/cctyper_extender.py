@@ -358,7 +358,8 @@ def main():
         cc_info = extract_crispr_cas_info(crispr_cas_file=crispr_cas_file)
         print("\nCRISPR-Cas info: %s" % cc_info)
 
-        for array in cc_info:
+        for index in range(len(cc_info)):
+            array = cc_info[index]
             operon = array[2]
             cas_info = annotate_cas_operon(operon=operon, work_dir=work_dir)
 
@@ -424,7 +425,7 @@ def main():
                 # And overwrite the CRISPR-Cas information list with this
                 # custom name.
                 print("Combined CRISPR name: %s" % combined_crispr_name)
-                cc_info[-1][6] = combined_crispr_name
+                cc_info[index][6] = combined_crispr_name
 
                 crispr_info = [
                     crispr_start,
