@@ -102,10 +102,10 @@ rule crisprcastyper:
         "log/benchmark/cctyper/{batch}.txt"
     shell:
         """
-parallel --jobs {threads} --retry-failed --halt='now,fail=1'\
- rm -rf "{params.out_dir}{{/.}}" &&\
- cctyper -t 1 {{}} "{params.out_dir}{{/.}}" > {log} 2>&1\
- ::: {input.batch}/*.fa
+find {input.batch} -mindepth 1 -maxdepth 1 -type f -name "*.fa" -print0 |\
+ parallel -0 --jobs {threads} --retry-failed --halt='now,fail=1'\
+ 'rm -rf "{params.out_dir}{{/.}}" &&\
+ cctyper -t 1 {{}} "{params.out_dir}{{/.}}"' > {log} 2>&1
 
 touch {output}
         """
