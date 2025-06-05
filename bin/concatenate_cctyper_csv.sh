@@ -10,10 +10,10 @@ echo ${batch_name}
 concatenate_files () {
     if [ ${output_dir} == "none" ]
     then
-        output_file="${batch}/${filename/.csv/-${batch}.csv}"
+        output_file="${batch}/${filename/.csv/-${batch_name}.csv}"
     else
         mkdir -p ${output_dir}
-        output_file="${output_dir}/${filename/.csv/-${batch}.csv}"
+        output_file="${output_dir}/${filename/.csv/-${batch_name}.csv}"
     fi
 
     if [ ! -e ${output_file} ]
