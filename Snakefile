@@ -113,7 +113,7 @@ touch {output}
 
 rule parse_cctyper:
     input:
-        batch=OUTPUT_DIR + "cctyper/{batch}",
+        batch=OUTPUT_DIR + "cctyper/{batch}/complete",
     output:
         OUTPUT_DIR + "cctyper/{batch}/parsed",
     conda:
@@ -125,7 +125,7 @@ rule parse_cctyper:
         "log/benchmark/parse_cctyper/{batch}.txt"
     shell:
         """
-find {input.batch} -mindepth 1  -maxdepth 1 -type d -print0 |\
+find $(dirname {input.batch}) -mindepth 1 -maxdepth 1 -type d -print0 |\
 parallel -0 --jobs {threads} --retry-failed --halt='now,fail=1'\
     python bin/cctyper_extender.py -d {{.}} > {log} 2>&1
 
@@ -135,7 +135,8 @@ touch {output}
 
 rule collect_cctyper:
     input:
-        OUTPUT_DIR + "cctyper/{batch}/complete",
+        cctyper = OUTPUT_DIR + "cctyper/{batch}/complete",
+        parser = OUTPUT_DIR + "cctyper/{batch}/parsed"
     output:
         crispr_cas=OUTPUT_DIR + "cctyper/{batch}/CRISPR_Cas-{batch}.tab",
         crisprs_all=OUTPUT_DIR + "cctyper/{batch}/crisprs_all-{batch}.tab",
@@ -146,6 +147,7 @@ rule collect_cctyper:
             OUTPUT_DIR + "cctyper/{batch}/cas_operons_putative-{batch}.tab"
         ),
         cas=OUTPUT_DIR + "cctyper/{batch}/cas_operons-{batch}.tab",
+        csv=OUTPUT_DIR + "cctyper/{batch}/CRISPR-Cas-{batch}.csv",
     threads: 1
     log:
         "log/cctyper/collect_{batch}.txt",
@@ -153,7 +155,9 @@ rule collect_cctyper:
         "log/benchmark/cctyper/collect_{batch}.txt"
     shell:
         """
-bash bin/concatenate_cctyper_output.sh $(dirname {input}) > {log} 2>&1
+bash bin/concatenate_cctyper_output.sh $(dirname {input.cctyper}) > {log} 2>&1
+echo "\n========================" >> {log}
+bash bin/concatenate_cctyper_csv.sh $(dirname {input.parser}) >> {log} 2>&1
 
 find $(dirname {input}) -mindepth 3 -maxdepth 3 -name "*.fa" -exec cat {{}} + > {output.spacers} 2>> {log}
         """
