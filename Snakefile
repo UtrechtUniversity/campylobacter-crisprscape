@@ -49,6 +49,8 @@ OUTPUT_DIR = config["output_directory"]
 
 rule all:
     input:
+        # Combined CCTyper output as CSV + BED files
+        expand(OUTPUT_DIR + "cctyper/{batch}/parsed", batch=BATCHES),
         # Concatenated CCTyper output
         expand(
             OUTPUT_DIR + "cctyper/{batch}/{filename}-{batch}.tab",
@@ -109,6 +111,28 @@ touch {output}
         """
 
 
+rule parse_cctyper:
+    input:
+        batch=OUTPUT_DIR + "cctyper/{batch}",
+    output:
+        OUTPUT_DIR + "cctyper/{batch}/parsed",
+    conda:
+        "envs/pandas.yaml"
+    threads: config["parse_cctyper"]["threads"]
+    log:
+        "log/parse_cctyper/{batch}.txt",
+    benchmark:
+        "log/benchmark/parse_cctyper/{batch}.txt"
+    shell:
+        """
+find {input.batch} -mindepth 1  -maxdepth 1 -type d -print0 |\
+parallel -0 --jobs {threads} --retry-failed --halt='now,fail=1'\
+    python bin/cctyper_extender.py -d {{.}} > {log} 2>&1
+
+touch {output}
+        """
+
+
 rule collect_cctyper:
     input:
         OUTPUT_DIR + "cctyper/{batch}/complete",
@@ -118,7 +142,9 @@ rule collect_cctyper:
         crisprs_near_cas=OUTPUT_DIR + "cctyper/{batch}/crisprs_near_cas-{batch}.tab",
         crisprs_orphan=OUTPUT_DIR + "cctyper/{batch}/crisprs_orphan-{batch}.tab",
         spacers=OUTPUT_DIR + "cctyper/{batch}/all_spacers-{batch}.fa",
-        cas_putative=temp(OUTPUT_DIR + "cctyper/{batch}/cas_operons_putative-{batch}.tab"),
+        cas_putative=temp(
+            OUTPUT_DIR + "cctyper/{batch}/cas_operons_putative-{batch}.tab"
+        ),
         cas=OUTPUT_DIR + "cctyper/{batch}/cas_operons-{batch}.tab",
     threads: 1
     log:
@@ -140,7 +166,7 @@ rule extract_crispr_cas_locations:
         OUTPUT_DIR + "cctyper/{batch}/CRISPR_Cas-{batch}.bed",
     threads: 1
     log:
-        "log/extract_crispr_cas_location/{batch}.txt"
+        "log/extract_crispr_cas_location/{batch}.txt",
     benchmark:
         "log/benchmark/extract_crispr_cas_location/{batch}.txt"
     shell:
@@ -156,12 +182,12 @@ rule extract_crispr_array:
     output:
         OUTPUT_DIR + "arrays/{batch}/complete",
     params:
-        out_dir=OUTPUT_DIR + "arrays/{batch}/"
+        out_dir=OUTPUT_DIR + "arrays/{batch}/",
     conda:
         "envs/seqkit.yaml"
     threads: config["extract_arrays"]["threads"]
     log:
-        "log/extract_crispr_array/{batch}.txt"
+        "log/extract_crispr_array/{batch}.txt",
     benchmark:
         "log/benchmark/extract_crispr_array/{batch}.txt"
         ""
