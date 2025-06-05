@@ -365,8 +365,84 @@ def main():
             print("\nCas operon info: %s" % cas_info)
 
             crispr = array[6]
-            crispr_info = annotate_crispr_array(crispr=crispr, work_dir=work_dir)
-            print("\nCRISPR array info: %s" % crispr_info)
+
+            # Note that CCTyper may report CRISPR-Cas with multiple CRISPR arrays.
+            # These are then reported as Python list, that is, separated by commas.
+            if not "," in crispr:
+                crispr_info = annotate_crispr_array(crispr=crispr, work_dir=work_dir)
+                print("\nCRISPR array info: %s" % crispr_info)
+
+            # If a comma occurs in the CRISPR identifier, there are multiple.
+            else:
+                # In which case this script summarises them and ...
+                crisprs = crispr.split(",")
+                crispr_data = []
+                crispr_ids = []
+                for crispr in crisprs:
+                    crispr = crispr.strip("' ")  # remove spaces and single quotes
+                    crispr_ids.append(crispr)  # Store CRISPR IDs to generate custom ID
+                    crispr_data.append(
+                        annotate_crispr_array(crispr=crispr, work_dir=work_dir)
+                    )
+                # ... reports statistics as if they were one.
+
+                # The start position of the first array is used as stard
+                crispr_start = crispr_data[0][0]
+                # The end position of the last array is used as stop
+                crispr_stop = crispr_data[-1][1]
+                # For simplicity, the prediction and consensus repeat are copied from the first array
+                trusted = crispr_data[0][2]
+                repeat_subtype = crispr_data[0][3]
+                # Take the mean of subtype probability scores
+                repeat_subtype_prob = np.mean([sublist[4] for sublist in crispr_data])
+                consensus_repeat = crispr_data[0][5]
+                # The number of repeats is the sum of repeats in all arrays
+                number_of_repeats = sum([sublist[6] for sublist in crispr_data])
+                # For repeat and spacer lengths, calculate means,
+                # #  taking into account number of repeats/spacers
+                repeat_len = sum(
+                    [sublist[7] * sublist[6] for sublist in crispr_data]
+                ) / sum([sublist[6] for sublist in crispr_data])
+                repeat_identity = sum(
+                    [sublist[8] * sublist[6] for sublist in crispr_data]
+                ) / sum([sublist[6] for sublist in crispr_data])
+                spacer_len_avg = sum(
+                    [sublist[9] * sublist[6] for sublist in crispr_data]
+                ) / sum([sublist[6] for sublist in crispr_data])
+                spacer_identity = sum(
+                    [sublist[10] * sublist[6] for sublist in crispr_data]
+                ) / sum([sublist[6] for sublist in crispr_data])
+                spacer_len_sem = sum(
+                    [sublist[11] * sublist[6] for sublist in crispr_data]
+                ) / sum([sublist[6] for sublist in crispr_data])
+
+                # Make a custom crispr name, like 'CRISPR_1-n',
+                # where n is the number of arrays detected.
+                combined_crispr_name = "-".join(
+                    [crispr_ids[0], crispr_ids[-1].split("_")[-1]]
+                )
+                # And overwrite the CRISPR-Cas information list with this
+                # custom name.
+                print("Combined CRISPR name: %s" % combined_crispr_name)
+                cc_info[-1][6] = combined_crispr_name
+
+                crispr_info = [
+                    crispr_start,
+                    crispr_stop,
+                    str(trusted),
+                    repeat_subtype,
+                    repeat_subtype_prob,
+                    consensus_repeat,
+                    number_of_repeats,
+                    repeat_len,
+                    repeat_identity,
+                    spacer_len_avg,
+                    spacer_identity,
+                    spacer_len_sem,
+                ]
+
+                # Note that this also affects BED file generation!
+                print("\nCombined CRISPR array info: %s" % crispr_info)
 
             total_info = (
                 # Sample accession, contig ID, System configuration, CRISPR ID
