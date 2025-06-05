@@ -392,11 +392,11 @@ def main():
                 # The end position of the last array is used as stop
                 crispr_stop = crispr_data[-1][1]
                 # For simplicity, the prediction and consensus repeat are copied from the first array
-                trusted = crispr_data[0][2]
-                repeat_subtype = crispr_data[0][3]
+                trusted = [sublist[2] for sublist in crispr_data]
+                repeat_subtype = [sublist[3] for sublist in crispr_data]
                 # Take the mean of subtype probability scores
-                repeat_subtype_prob = np.mean([sublist[4] for sublist in crispr_data])
-                consensus_repeat = crispr_data[0][5]
+                repeat_subtype_prob = [float(sublist[4]) for sublist in crispr_data]
+                consensus_repeat = [sublist[5] for sublist in crispr_data]
                 # The number of repeats is the sum of repeats in all arrays
                 number_of_repeats = sum([sublist[6] for sublist in crispr_data])
                 # For repeat and spacer lengths, calculate means,
@@ -424,7 +424,7 @@ def main():
                 )
                 # And overwrite the CRISPR-Cas information list with this
                 # custom name.
-                print("Combined CRISPR name: %s" % combined_crispr_name)
+                print("\nCombined CRISPR name: %s" % combined_crispr_name)
                 cc_info[index][6] = combined_crispr_name
 
                 crispr_info = [
@@ -443,7 +443,7 @@ def main():
                 ]
 
                 # Note that this also affects BED file generation!
-                print("\nCombined CRISPR array info: %s" % crispr_info)
+                print("Combined CRISPR array info: %s" % crispr_info)
 
             total_info = (
                 # Sample accession, contig ID, System configuration, CRISPR ID
