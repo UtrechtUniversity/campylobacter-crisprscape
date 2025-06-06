@@ -63,7 +63,7 @@ echo "----------"
 #  search for accession IDs and collect unique (deduplicated) file names, URLs and md5 checksums
 echo "Step 4: Find relevant genome batches"
 zgrep -f ${species_samples_file} ${output_dir}file_list.all.20240805.tsv.gz |\
- cut -f 3-5 | sort | uniq > ${output_dir}batches_to_download.tsv
+ cut -f 5-7 | sort | uniq > ${output_dir}batches_to_download.tsv
 
 echo "Found all relevant batches!"
 ls -lh ${output_dir}batches_to_download.tsv
