@@ -18,6 +18,6 @@ echo -e "Removing $(wc -l data/tmp/other_species.txt) fasta files..."
 while read sample;
 do
     rm data/tmp/ATB/batch_*/${sample}.fa
-done < data/tmp/other_species
+done < data/tmp/other_species.txt
 
 echo "Done!"
