@@ -133,6 +133,27 @@ touch {output}
         """
 
 
+rule extract_sequences:
+    input:
+        OUTPUT_DIR + "cctyper/{batch}/parsed",
+    output:
+        OUTPUT_DIR + "cctyper/{batch}/subseq",
+    conda:
+        "envs/seqkit.yaml"
+    threads: config["extract_sequences"]["threads"]
+    log:
+        "log/extract_sequences/{batch}.txt"
+    benchmark:
+        "log/benchmark/extract_sequences/{batch}.txt"
+    shell:
+        """
+find $(dirname {input}) -mindepth 1 -maxdepth 1 -type d -print0 |\
+parallel -0 --jobs {threads} --retry-failed --halt='now,fail=1'\
+    bash bin/extract_crispr-cas_from_fasta.sh {{}} > {log} 2>&1
+
+touch {output}
+        """
+
 rule collect_cctyper:
     input:
         cctyper = OUTPUT_DIR + "cctyper/{batch}/complete",
