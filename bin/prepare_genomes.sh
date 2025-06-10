@@ -96,5 +96,6 @@ do
     echo "$(basename ${batch}):"
     ls ${batch} | wc -l
 done
+rmdir --ignore-fail-on-non-empty data/tmp/ATB/batch_*
 echo "----------"
 echo "Genome files have been prepared!"
