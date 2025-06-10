@@ -97,3 +97,4 @@ do
     ls ${batch} | wc -l
 done
 echo "----------"
+echo "Genome files have been prepared!"
