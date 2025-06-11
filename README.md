@@ -116,6 +116,7 @@ of 24 CPU threads. The number of threads to use can be configured in:
 In its current state, the workflow:
 
  1. Identifies CRISPR-Cas loci with [CCTyper](https://github.com/Russel88/CRISPRCasTyper) (version 1.8.0)
+    - this includes extra scripts to collect CRISRP-Cas information and extract sequences from the genome fasta files
 
  2. Collects all CRISPR spacers and creates clusters of identical spacers using
 [CD-HIT-EST](https://sites.google.com/view/cd-hit) (version 4.8.1)
@@ -130,21 +131,12 @@ Further steps are added to the workflow after testing!
 
 1. Mash with CRISPR loci, and whole genomes
 
-2. Map (KMA?) CRISPR spacers to all downloaded genomes, metagenome assemblies, other databases?
+2. Map CRISPR spacers to all downloaded genomes (bowtie, and KMA?), metagenome assemblies, other databases?
 
-3. Annotate metagenome contig hits with CAT
+3. Assign MLST sequence types to ATB genomes and do whole-genome MLST
 
-### Files I want to collect and process
-
-1. Complete CRISPR-Cas locus sequences as fasta
- (make a script to extract from contigs using positions listed by CCTyper)
-    - also make one with only CRISPR spacers (concatenate from CCTyper(?))
-    - and make one with flanking regions to infer and compare genomic location
-    - collect all contigs with CRISPR hits to predict chromosome/plasmid/virus origin?
-2. CRISPR input file for SpacerPlacer as defined in https://github.com/fbaumdicker/SpacerPlacer?tab=readme-ov-file#spacer_fasta-input-format
+4. SpacerPlacer (see input file format in https://github.com/fbaumdicker/SpacerPlacer?tab=readme-ov-file#spacer_fasta-input-format
  (also requires an extra conversion script?)
-3. Separate CRISPR spacer sequences (provided by CCTyper)
-4. List of number of CRISPR arrays per genome
 
 ## Problems encountered:
 
