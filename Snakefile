@@ -35,7 +35,7 @@ configfile: Path("config/parameters.yaml")
 # in the input directory as 'BATCHES'
 INPUT_DIR = config["input_directory"]
 
-BATCH_PATHS = list(Path(INPUT_DIR).glob("batch_*"))
+BATCH_PATHS = list(Path(INPUT_DIR).glob("batch_39"))
 for batch in BATCH_PATHS:
     assert Path(batch).is_dir(), f"Batches must be directories, got {batch}"
 
@@ -70,17 +70,13 @@ rule all:
         OUTPUT_DIR + "all_spacers-clustered.clstr",
         # Extracted CRISPR arrays (as fasta)
         expand(OUTPUT_DIR + "arrays/{batch}/complete", batch=BATCHES),
-        # geNomad output
-        expand(
-            OUTPUT_DIR
-            + "genomad/{batch}/{batch}_aggregated_classification/{batch}_aggregated_classification.tsv",
-            batch=BATCHES,
-        ),
-        # Jaeger output
-        expand(
-            OUTPUT_DIR + "jaeger/{batch}/complete",
-            batch=BATCHES,
-        ),
+        #CRISPRidentify output
+        expand(OUTPUT_DIR + "crispridentify/{batch}/complete", batch = BATCHES),
+        #concatenated CRISPRidentify output
+        OUTPUT_DIR + "crispridentify/complete_summary.csv",
+        OUTPUT_DIR + "crispridentify/all_spacers.fa"
+
+
 
 
 ### Step 3: Define processing steps that generate the output ###
@@ -319,45 +315,110 @@ rule create_crispr_cluster_table:
     script:
         "bin/make_cluster_table.py"
 
-
-rule concatenate_batches:
+rule crispridentify:
     input:
-        INPUT_DIR + "{batch}",
+        OUTPUT_DIR + "arrays/{batch}/complete"
     output:
-        temp(OUTPUT_DIR + "{batch}.fasta"),
+        OUTPUT_DIR + "crispridentify/{batch}/complete",
+    params:
+        out_dir=OUTPUT_DIR + "crispridentify/{batch}",
+        spacers=OUTPUT_DIR + "arrays/{batch}"
+    conda:
+        "envs/crispridentify.yml",
+    threads: config["crispridentify"]["threads"]
+    log:
+        "log/crispridentify/{batch}.txt",
+    benchmark:
+        "log/benchmark/crispridentify/{batch}.txt",
+    shell:
+        """
+    cd bin/CRISPRidentify
+    parallel --jobs {threads} --retry-failed --halt='now,fail=1'\
+    python CRISPRidentify.py --file {{}} --result_folder "../../{params.out_dir}/{{/.}}" --fasta_report True > ../../{log} 2>&1 \
+    ::: ../../{params.spacers}/*.fa
+    touch ../../{output}
+    cd ../../
+        """
+rule concatenate_crispridentify_output:
+    input:
+        OUTPUT_DIR + "crispridentify/{batch}/complete"
+    output:
+        spacers=OUTPUT_DIR + "crispridentify/{batch}/all_spacers.fa",
+        summary=OUTPUT_DIR + "crispridentify/{batch}/complete_summary.csv",
+    params:
+        OUTPUT_DIR + "crispridentify/{batch}/*/Complete_Bona-fide_spacer_dataset.fasta",
+        OUTPUT_DIR + "crispridentify/{batch}/*/Complete_summary.csv",
     threads: 1
     log:
-        "log/concatenate_{batch}.txt",
+        "log/concatenate_crispridentif_output_{batch}.txt",
     benchmark:
-        "log/benchmark/concatenate_{batch}.txt"
+        "log/benchmark/concatenate_crispridentify_output_{batch}.txt"
     shell:
         """
-cat {input}/*.fa > {output} 2> {log}
+    cat {params.spacers} > {output.spacers} 2> {log}
+    cat {params.summary} > {output.summary} 2> {log}
         """
 
-
-rule batched_cctyper:
-    input:
-        OUTPUT_DIR + "{batch}.fasta",
+rule merge_crispridentify_batches:
+    input: 
+        expand(OUTPUT_DIR + "crispridentify/{batch}/complete", batch=BATCHES)    
     output:
-        arguments=OUTPUT_DIR + "cctyper/test/{batch}/arguments.tab",
-        putative_operons=OUTPUT_DIR + "cctyper/test/{batch}/cas_operons_putative.tab",
-        genes=OUTPUT_DIR + "cctyper/test/{batch}/genes.tab",
-        hmmer=OUTPUT_DIR + "cctyper/test/{batch}/hmmer.tab",
+        spacers=OUTPUT_DIR + "crispridentify/all_spacers.fa",
+        summary=OUTPUT_DIR + "crispridentify/complete_summary.csv",
     params:
-        out_dir=OUTPUT_DIR + "cctyper/test/{batch}",
-    conda:
-        "envs/cctyper.yaml"
-    threads: config["cctyper"]["threads"]
+        spacers=expand(OUTPUT_DIR + "crispridentify/{batch}/*/Complete_Bona-fide_spacer_dataset.fasta", batch=BATCHES),
+        summary=expand(OUTPUT_DIR + "crispridentify/{batch}/*/Complete_summary.csv", batch=BATCHES)
+    threads: 1
     log:
-        "log/cctyper/{batch}.txt",
+        "log/merge_crispridentify_batches.txt"
     benchmark:
-        "log/benchmark/cctyper/{batch}.txt"
+        "log/benchmark/merge_crispridentify_batches.txt"
     shell:
         """
-rm -rf {params.out_dir}
-cctyper -t {threads} {input} {params.out_dir} > {log} 2>&1
+    cat {params.spacers} > {output.spacers} 2> {log}
+    cat {params.summary} > {output.summary} 2> {log}
         """
+
+rule cluster_unique_spacers_crispridentify:
+    input:
+        OUTPUT_DIR + "crispridentify/all_spacers.fa",
+    output:
+        clusters=OUTPUT_DIR + "crispridentify/all_spacers-clustered.clstr",
+        spacers=OUTPUT_DIR + "crispridentify/all_spacers-clustered",
+        distribution=OUTPUT_DIR + "crispridentify/all_spacers-clustered-distribution.tsv",
+    conda:
+        "envs/cdhit.yaml"
+    threads: 1
+    log:
+        "log/cluster_unique_spacers_identify.txt",
+    benchmark:
+        "log/benchmark/cluster_unique_spacers_identify.txt"
+    shell:
+        """
+cd-hit-est -c 1 -n 8 -r 1 -g 1 -AS 0 -sf 1 -d 0 -T {threads}\
+ -i {input} -o {output.spacers}
+
+plot_len1.pl {output.clusters}\
+ 1,2-4,5-9,10-19,20-49,50-99,100-499,500-99999\
+ 1-10,11-20,21-25,26-30,31-35,36-40,41-50,51-60,61-70,71-999999\
+ > {output.distribution}
+        """
+
+rule create_crispr_cluster_table_identify:
+    input:
+        clstr=OUTPUT_DIR + "crispridentify/all_spacers-clustered.clstr",
+        fasta=OUTPUT_DIR + "crispridentify/all_spacers.fa"
+    output:
+        OUTPUT_DIR + "crispridentify/all_spacers_table.tsv",
+    conda:
+        "envs/pyfaidx.yaml"
+    threads: 1
+    log:
+        "log/create_crispr_cluster_table_identify.txt",
+    benchmark:
+        "log/benchmark/create_crispr_cluster_table_identify.txt"
+    script:
+        "bin/make_cluster_table.py"
 
 
 rule genomad:
