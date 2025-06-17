@@ -35,7 +35,7 @@ configfile: Path("config/parameters.yaml")
 # in the input directory as 'BATCHES'
 INPUT_DIR = config["input_directory"]
 
-BATCH_PATHS = list(Path(INPUT_DIR).glob("batch_39"))
+BATCH_PATHS = list(Path(INPUT_DIR).glob("batch_*"))
 for batch in BATCH_PATHS:
     assert Path(batch).is_dir(), f"Batches must be directories, got {batch}"
 
@@ -336,38 +336,45 @@ rule crispridentify:
     parallel --jobs {threads} --retry-failed --halt='now,fail=1'\
     python CRISPRidentify.py --file {{}} --result_folder "../../{params.out_dir}/{{/.}}" --fasta_report True > ../../{log} 2>&1 \
     ::: ../../{params.spacers}/*.fa
-    touch ../../{output}
     cd ../../
+    touch {output}
+    
         """
 rule concatenate_crispridentify_output:
     input:
         OUTPUT_DIR + "crispridentify/{batch}/complete"
     output:
-        spacers=OUTPUT_DIR + "crispridentify/{batch}/all_spacers.fa",
-        summary=OUTPUT_DIR + "crispridentify/{batch}/complete_summary.csv",
+        spacers=OUTPUT_DIR + "crispridentify/{batch}/all_spacers_{batch}.fa",
+        summary=OUTPUT_DIR + "crispridentify/{batch}/complete_summary_{batch}.csv",
     params:
-        OUTPUT_DIR + "crispridentify/{batch}/*/Complete_Bona-fide_spacer_dataset.fasta",
-        OUTPUT_DIR + "crispridentify/{batch}/*/Complete_summary.csv",
+        spacers=OUTPUT_DIR + "crispridentify/{batch}/*/Complete_Bona-fide_spacer_dataset.fasta",
+        summary=OUTPUT_DIR + "crispridentify/{batch}/*/Complete_summary.csv",
     threads: 1
     log:
-        "log/concatenate_crispridentif_output_{batch}.txt",
+        "log/concatenate_crispridentify_output_{batch}.txt",
     benchmark:
         "log/benchmark/concatenate_crispridentify_output_{batch}.txt"
     shell:
         """
-    cat {params.spacers} > {output.spacers} 2> {log}
-    cat {params.summary} > {output.summary} 2> {log}
+    cat {params.spacers} > {output.spacers}
+    for summary in {params.summary} ; do header=$(head -n 1 "$summary"); if [ "$header" == "No arrays found" ];
+    then
+        continue;
+    else 
+        echo $header > {output.summary};
+        break;
+    fi
+    done
+    for summary in {params.summary} ; do tail -n +2 "$summary" >> {output.summary} ; done
         """
 
 rule merge_crispridentify_batches:
     input: 
-        expand(OUTPUT_DIR + "crispridentify/{batch}/complete", batch=BATCHES)    
+        spacers=expand(OUTPUT_DIR + "crispridentify/{batch}/all_spacers_{batch}.fa", batch=BATCHES),
+        summary=expand(OUTPUT_DIR + "crispridentify/{batch}/complete_summary_{batch}.csv", batch=BATCHES)    
     output:
         spacers=OUTPUT_DIR + "crispridentify/all_spacers.fa",
         summary=OUTPUT_DIR + "crispridentify/complete_summary.csv",
-    params:
-        spacers=expand(OUTPUT_DIR + "crispridentify/{batch}/*/Complete_Bona-fide_spacer_dataset.fasta", batch=BATCHES),
-        summary=expand(OUTPUT_DIR + "crispridentify/{batch}/*/Complete_summary.csv", batch=BATCHES)
     threads: 1
     log:
         "log/merge_crispridentify_batches.txt"
@@ -375,8 +382,16 @@ rule merge_crispridentify_batches:
         "log/benchmark/merge_crispridentify_batches.txt"
     shell:
         """
-    cat {params.spacers} > {output.spacers} 2> {log}
-    cat {params.summary} > {output.summary} 2> {log}
+    cat {input.spacers} > {output.spacers}
+    for summary in {input.summary} ; do header=$(head -n 1 "$summary"); if [ "$header" == "No arrays found" ];
+    then
+        continue;
+    else 
+        echo $header > {output.summary};
+        break;
+    fi
+    done
+    for summary in {input.summary} ; do tail -n +2 "$summary" >> {output.summary} ; done
         """
 
 rule cluster_unique_spacers_crispridentify:
