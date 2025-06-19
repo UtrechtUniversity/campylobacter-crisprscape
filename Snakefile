@@ -49,6 +49,9 @@ OUTPUT_DIR = config["output_directory"]
 
 rule all:
     input:
+        # Multilocus Sequence Types (ST) for Campylobacter
+        expand(OUTPUT_DIR + "mlst/{batch}-concatenated.tsv",
+               batch = BATCHES),
         # Combined CCTyper output as CSV + BED files
         expand(OUTPUT_DIR + "cctyper/{batch}/parsed", batch=BATCHES),
         # Concatenated CCTyper output
@@ -77,10 +80,66 @@ rule all:
         OUTPUT_DIR + "crispridentify/all_spacers.fa"
 
 
-
-
 ### Step 3: Define processing steps that generate the output ###
 
+rule download_mlst_database:
+    output:
+        OUTPUT_DIR + "mlst/campylobacter.db"
+    params:
+        species=config["mlst"]["species"]
+    conda:
+        "envs/pymlst.yaml"
+    threads: 1
+    log:
+        "log/download_mlst_database.txt"
+    benchmark:
+        "log/benchmark/download_mlst_database.txt"
+    shell:
+        """
+claMLST import -r pubmlst --no-prompt {output} {params.species} > {log} 2>&1
+        """
+
+
+rule mlst:
+    input:
+        batch=INPUT_DIR + "{batch}/",
+        db=OUTPUT_DIR + "mlst/campylobacter.db",
+    output:
+        OUTPUT_DIR + "mlst/{batch}/complete"
+    conda:
+        "envs/pymlst.yaml"
+    threads: config["mlst"]["threads"]
+    log:
+        "log/mlst/{batch}.txt"
+    benchmark:
+        "log/benchmark/mlst/{batch}.txt"
+    shell:
+        """
+find {input.batch} -mindepth 1 -maxdepth 1 -type f -name "*.fa" -print0 |\
+ parallel -0 --jobs {threads} --retry-failed --halt='now,fail=1'\
+ claMLST search {input.db} {{}} -o "$(dirname {output})/{{/.}}.txt" > {log} 2>&1
+
+touch {output}
+        """
+
+
+rule concatenate_mlst:
+    input:
+        OUTPUT_DIR + "mlst/{batch}/complete"
+    output:
+        OUTPUT_DIR + "mlst/{batch}-concatenated.tsv"
+    threads: config["mlst"]["threads"]
+    log:
+        "log/concatenate_mlst/{batch}.txt"
+    benchmark:
+        "log/benchmark/concatenate_mlst/{batch}.txt"
+    shell:
+        """
+echo -e "Genome\tST" > {output}
+find $(dirname {input}) -mindepth 1 -maxdepth 1 -type f -name "*.txt" -print0 |\
+ parallel -0 --jobs {threads} --retry-failed --halt='now,fail=1'\
+ 'tail -n 1 {{}} | cut -f 1-2 >> {output}'
+        """
 
 rule crisprcastyper:
     input:

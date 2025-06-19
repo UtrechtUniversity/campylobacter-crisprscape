@@ -1,0 +1,8 @@
+name: pymlst
+
+dependencies:
+ - pymlst=2.2.1
+
+channels:
+ - conda-forge
+ - bioconda

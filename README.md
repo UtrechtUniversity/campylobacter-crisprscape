@@ -115,13 +115,15 @@ of 24 CPU threads. The number of threads to use can be configured in:
 
 In its current state, the workflow:
 
- 1. Identifies CRISPR-Cas loci with [CCTyper](https://github.com/Russel88/CRISPRCasTyper) (version 1.8.0)
+ 1. Determines MultiLocus Sequence Types for _Campylobacter jejuni/coli_ using the public typing scheme from [pubMLST](https://pubmlst.org/organisms/campylobacter-jejunicoli) and [pyMLST](https://pymlst.readthedocs.io/) (version 2.2.1)
+
+ 2. Identifies CRISPR-Cas loci with [CCTyper](https://github.com/Russel88/CRISPRCasTyper) (version 1.8.0)
     - this includes extra scripts to collect CRISRP-Cas information and extract sequences from the genome fasta files
 
- 2. Collects all CRISPR spacers and creates clusters of identical spacers using
+ 3. Collects all CRISPR spacers and creates clusters of identical spacers using
 [CD-HIT-EST](https://sites.google.com/view/cd-hit) (version 4.8.1)
 
- 3. Predicts whether contigs of the species of interest derive from chromosomal DNA,
+ 4. Predicts whether contigs of the species of interest derive from chromosomal DNA,
 plasmids or viruses using both [geNomad](https://portal.nersc.gov/genomad/index.html) (version 1.8.0)
 and [Jaeger](https://github.com/Yasas1994/Jaeger) (version 1.1.26).
 
@@ -133,7 +135,7 @@ Further steps are added to the workflow after testing!
 
 2. Map CRISPR spacers to all downloaded genomes (bowtie, and KMA?), metagenome assemblies, other databases?
 
-3. Assign MLST sequence types to ATB genomes and do whole-genome MLST
+3. Whole-genome MLST
 
 4. SpacerPlacer (see input file format in https://github.com/fbaumdicker/SpacerPlacer?tab=readme-ov-file#spacer_fasta-input-format
  (also requires an extra conversion script?)

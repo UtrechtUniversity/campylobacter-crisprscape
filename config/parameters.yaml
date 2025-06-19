@@ -9,6 +9,10 @@ genomad_database: "data/genomad_db/"
 
 ### 2. Tool-specific parameters ###
 
+mlst:
+  threads: 20
+  species: "campylobacter jejuni/coli"
+
 cctyper:
   threads: 20
 
