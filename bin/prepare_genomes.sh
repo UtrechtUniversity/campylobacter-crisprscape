@@ -50,6 +50,10 @@ ls -lh ${species_samples_file}
 echo "Contains: $(zless ${species_samples_file} | wc -l) entries"
 echo "----------"
 
+# Collect the number of genomes included for each species of interest
+zgrep -f ${species_samples_file} -w ${output_dir}species_calls.tsv.gz |\
+ cut -f 2 | sort | uniq -c | sort -nr > ${output_dir}number_of_genomes_per_species.txt
+
 ## Step 3: Filter metadata to the species of interest
 echo "Step 3: Filtering metadata for species of interest"
 zgrep -w -f ${species_samples_file} ${output_dir}ena_metadata.20240801.tsv.gz |\
