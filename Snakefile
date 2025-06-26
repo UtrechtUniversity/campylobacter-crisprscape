@@ -406,7 +406,7 @@ rule concatenate_crispridentify_output:
         spacers=OUTPUT_DIR + "crispridentify/{batch}/all_spacers_{batch}.fa",
         summary=OUTPUT_DIR + "crispridentify/{batch}/complete_summary_{batch}.csv",
     params:
-        spacers=OUTPUT_DIR + "crispridentify/{batch}/*/Complete_Bona-fide_spacer_dataset.fasta",
+        spacers=OUTPUT_DIR + "crispridentify/{batch}/*/Complete_spacer_dataset.fasta",
         summary=OUTPUT_DIR + "crispridentify/{batch}/*/Complete_summary.csv",
     threads: 1
     log:
