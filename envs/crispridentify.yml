@@ -2,7 +2,7 @@ name: crispr_identify_env
 channels:
   - conda-forge
   - bioconda
-  - nodefaults
+  - defaults
   - biobuilds
   - r
   - axfeh
@@ -18,7 +18,6 @@ dependencies:
   - pandas=1.0.3
   - matplotlib=3.1.3
   - perl=5.26.2
-  - perl-compress-bgzf=0.005
   - perl-threaded=5.26.0
   - perl-yaml=1.29
   - prodigal==2.6.3
@@ -37,17 +36,13 @@ dependencies:
   - pyyaml=5.3.1
   - scikit-learn==0.22.1
   - scipy=1.4.1
-  - anaconda::tensorflow==2.3.0
-  - tensorboard==2.3.0
-  - tensorboard-plugin-wit==1.6.0
+  - requests=2.28.1
   - viennarna==2.4.15
   - pyopenssl=22.0.0
   - certifi=2022.12.7
   - vmatch==2.3.0
   - clustalo==1.2.3
   - blast==2.5.0
-  - keras==2.4.3
   - libffi=3.2.1
-  - spacerplacer
   - pip:
     - python-Levenshtein

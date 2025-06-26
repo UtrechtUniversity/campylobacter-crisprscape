@@ -393,7 +393,7 @@ rule crispridentify:
         """
     cd bin/CRISPRidentify
     parallel --jobs {threads} --retry-failed --halt='now,fail=1'\
-    python CRISPRidentify.py --file {{}} --result_folder "../../{params.out_dir}/{{/.}}" --fasta_report True > ../../{log} 2>&1 \
+    python CRISPRidentify.py --file {{}} --result_folder "../../{params.out_dir}/{{/.}}" --fasta_report True --strand False > ../../{log} 2>&1 \
     ::: ../../{params.spacers}/*.fa
     cd ../../
     touch {output}
@@ -478,21 +478,6 @@ plot_len1.pl {output.clusters}\
  > {output.distribution}
         """
 
-rule create_crispr_cluster_table_identify:
-    input:
-        clstr=OUTPUT_DIR + "crispridentify/all_spacers-clustered.clstr",
-        fasta=OUTPUT_DIR + "crispridentify/all_spacers.fa"
-    output:
-        OUTPUT_DIR + "crispridentify/all_spacers_table.tsv",
-    conda:
-        "envs/pyfaidx.yaml"
-    threads: 1
-    log:
-        "log/create_crispr_cluster_table_identify.txt",
-    benchmark:
-        "log/benchmark/create_crispr_cluster_table_identify.txt"
-    script:
-        "bin/make_cluster_table.py"
 
 
 rule genomad:
