@@ -16,6 +16,9 @@ mlst:
 cctyper:
   threads: 20
 
+padloc:
+  threads: 20
+
 parse_cctyper:
   threads: 20
 
