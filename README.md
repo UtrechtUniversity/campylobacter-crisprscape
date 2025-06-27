@@ -178,6 +178,8 @@ Further steps are added to the workflow after testing!
 2025-02-21:
  - Spacepharer databases are best created using the example names "querysetDB" and "targetsetDB" as other names such as "spacersetDB" causes weird errors.
 
+2025-06-27:
+ - The yml file provided by CRISPRidentify is only solveable using flexible or disabled channel priority in conda. As of now an adjusted yml file is used that is solveable in strict priority mode, but does make strand prediction in CRISPRidentify non-functional.
 ## Project organisation
 
 ```
