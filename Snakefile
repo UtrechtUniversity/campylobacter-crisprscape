@@ -166,6 +166,46 @@ touch {output}
         """
 
 
+rule download_padloc_database:
+	output:
+		OUTPUT_DIR + "padloc/database",
+	conda:
+		"envs/padloc.yaml"
+	threads: 1
+	log:
+		"log/download_padloc_database.txt"
+	benchmark:
+		"log/benchmark/download_padloc_database.txt"
+	shell:
+		"""
+padloc --db-install v2.0.0
+touch {output}
+		"""
+
+
+rule padloc:
+	input:
+		batch=INPUT_DIR + "{batch}/",
+		db=OUTPUT_DIR + "padloc/database",
+	output:
+		OUTPUT_DIR + "padloc/{batch}/complete",
+	conda:
+		"envs/padloc.yaml"
+	threads: config["padloc"]["threads"]
+	log:
+		"log/padloc/{batch}.txt"
+	benchmark:
+		"log/benchmark/padloc/{batch}.txt"
+	shell:
+		"""
+find {input.batch} -mindepth 1 -maxdepth 1 -type f -name "*.fa" -print0 |\
+ parallel -0 --jobs {threads} --retry-failed --halt='now,fail=1'\
+ 'mkdir -p "$(dirname {output})/{{/.}}" && padloc --cpu 1 --fna {{}} --outdir "$(dirname {output})/{{/.}}"' > {log} 2>&1
+
+touch {output}
+		"""
+
+
 rule parse_cctyper:
     input:
         OUTPUT_DIR + "cctyper/{batch}/complete",
