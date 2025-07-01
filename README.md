@@ -117,7 +117,7 @@ In its current state, the workflow:
 
  1. Determines MultiLocus Sequence Types for _Campylobacter jejuni/coli_ using the public typing scheme from [pubMLST](https://pubmlst.org/organisms/campylobacter-jejunicoli) and [pyMLST](https://pymlst.readthedocs.io/) (version 2.2.1)
 
- 2. Identifies CRISPR-Cas loci with [CCTyper](https://github.com/Russel88/CRISPRCasTyper) (version 1.8.0)
+ 2. Identifies CRISPR-Cas loci with [CCTyper](https://github.com/Russel88/CRISPRCasTyper) (version 1.8.0) and resulting loci are processed with [CRISPRidentify](https://github.com/BackofenLab/CRISPRidentify) ([forked](https://github.com/Necopy-byte/CRISPRidentify) from version 1.2.1) to reduce false positives.
     - this includes extra scripts to collect CRISRP-Cas information and extract sequences from the genome fasta files
 
  3. Collects all CRISPR spacers and creates clusters of identical spacers using
@@ -126,6 +126,8 @@ In its current state, the workflow:
  4. Predicts whether contigs of the species of interest derive from chromosomal DNA,
 plasmids or viruses using both [geNomad](https://portal.nersc.gov/genomad/index.html) (version 1.8.0)
 and [Jaeger](https://github.com/Yasas1994/Jaeger) (version 1.1.26).
+
+5. Predicts the potential targets of spacers and whether they target chromosomal DNA (of input genomes), plasmid or viruses using [Spacepharer](https://github.com/fbaumdicker/SpacerPlacer) (version 1.0.1) and [kma](https://github.com/genomicepidemiology/kma). 
 
 Further steps are added to the workflow after testing!
 
