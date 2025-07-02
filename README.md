@@ -17,14 +17,14 @@ Test a CRISPR analysis workflow for the PINNACLE project
 3. [Project (file) organisation](#project-organisation)
 4. [Licence](#licence)
 5. [Citation](#citation)
- 
+
 ---
 
 ## Workflow description
 
-### Input files to prepare:
+### Input files to prepare
 
- - _Campylobacter jujuni_ and _coli_ genomes from [AllTheBacteria](https://allthebacteria.readthedocs.io/en/latest/)
+- _Campylobacter jujuni_ and _coli_ genomes from [AllTheBacteria](https://allthebacteria.readthedocs.io/en/latest/)
 
 As of 2024-09-19 this includes 129,080 genomes!
 (Up from 104,146 before the incremental update.
@@ -33,12 +33,12 @@ That means there are 24,934 extra genomes now.)
 _Note: AllTheBacteria has its own [quality criteria](https://allthebacteria.readthedocs.io/en/latest/sample_metadata.html#high-quality-dataset) for inclusion._
 _This includes:_
 
- - \>=99% species abundance (practically pure)
- - \>= 90% completeness (CheckM2)
- - \<= 5% contaminated (CheckM2)
- - total length between 100 kbp and 15 Mbp
- - \<= 2,000 contigs
- - \>= N50 2,000
+- \>=99% species abundance (practically pure)
+- \>= 90% completeness (CheckM2)
+- \<= 5% contaminated (CheckM2)
+- total length between 100 kbp and 15 Mbp
+- \<= 2,000 contigs
+- \>= N50 2,000
 
 ### Download genomes
 
@@ -87,10 +87,10 @@ The analysis itself is recorded as a [Snakemake](https://snakemake.readthedocs.i
 Its dependencies (bioinformatics tools) are handled by Snakemake using the conda
 package manager, or rather its successor [mamba](https://mamba.readthedocs.io/en/latest/).
 If you have not yet done so, please install mamba following the instructions
-found here: https://mamba.readthedocs.io/en/latest/installation/mamba-installation.html.
+found here: <https://mamba.readthedocs.io/en/latest/installation/mamba-installation.html>.
 
 After installing mamba, snakemake can be installed using their instructions:
-https://snakemake.readthedocs.io/en/stable/getting_started/installation.html#full-installation
+<https://snakemake.readthedocs.io/en/stable/getting_started/installation.html#full-installation>
 (Note: the workflow was tested with Snakemake version 8.20.3 and is expected
 to work with any version since 5.)
 
@@ -127,7 +127,7 @@ In its current state, the workflow:
 plasmids or viruses using both [geNomad](https://portal.nersc.gov/genomad/index.html) (version 1.8.0)
 and [Jaeger](https://github.com/Yasas1994/Jaeger) (version 1.1.26).
 
-5. Predicts the potential targets of spacers and whether they target chromosomal DNA (of input genomes), plasmid or viruses using [Spacepharer](https://github.com/fbaumdicker/SpacerPlacer) (version 1.0.1) and [kma](https://github.com/genomicepidemiology/kma). 
+ 5. Predicts the potential targets of spacers and whether they target chromosomal DNA (of input genomes), plasmid or viruses using [Spacepharer](https://github.com/fbaumdicker/SpacerPlacer) (version 1.0.1) and [kma](https://github.com/genomicepidemiology/kma).
 
 Further steps are added to the workflow after testing!
 
@@ -139,28 +139,30 @@ Further steps are added to the workflow after testing!
 
 3. Whole-genome MLST
 
-4. SpacerPlacer (see input file format in https://github.com/fbaumdicker/SpacerPlacer?tab=readme-ov-file#spacer_fasta-input-format
+4. SpacerPlacer (see input file format in <https://github.com/fbaumdicker/SpacerPlacer?tab=readme-ov-file#spacer_fasta-input-format>
  (also requires an extra conversion script?)
 
-## Problems encountered:
+## Problems encountered
 
 2024-09-12:
-  - CCTyper does not work from conda installation
-    (https://github.com/Russel88/CRISPRCasTyper/issues/55)
 
-  - CCTyper cannot handle gzipped fasta files as input,
+- CCTyper does not work from conda installation
+    (<https://github.com/Russel88/CRISPRCasTyper/issues/55>)
+
+- CCTyper cannot handle gzipped fasta files as input,
     so the input files need to be uncompressed
 
-  - RFPlasmid does not work from local install (file not found, permission denied)
+- RFPlasmid does not work from local install (file not found, permission denied)
      or conda installation (`rfplasmid --initialize` fails to download database files)
 
-  - 'hybrid' RFPlasmid install works: activate conda environment and then run the
+- 'hybrid' RFPlasmid install works: activate conda environment and then run the
      shared executable using the absolute path
      (/mnt/DGK_KLIF/data/rfplasmidweb/pip_package/package_files/RFPlasmid/rfplasmid.py)
      but it seems not to work when only one genome is present in the input directory.
 
 2024-12-10:
-  - CCTyper returns different output when running single genomes as
+
+- CCTyper returns different output when running single genomes as
     compared to running one concatenated fasta file with contigs of
     many genomes. (See `data/tmp/cctyper/batch_22/CRISPR_Cas-batch_22.tab`
     vs `data/tmp/cctyper/test/batch_22/CRISPR_Cas.tab` - difference is 1KB.)
@@ -170,21 +172,25 @@ Further steps are added to the workflow after testing!
     with the separate method.
 
 2025-02-11:
- - Spacepharer wants to run locally within the same folder that you designate the tmpfolder and where the created
+
+- Spacepharer wants to run locally within the same folder that you designate the tmpfolder and where the created
    databases are located. Following the easy-predict workflow is not recommended as created .fasta files are
    inconsistently recognized as actual fasta files.
- - Phagescope database says that it can filter genomes based on criteria, but actually downloading these fastas is
+- Phagescope database says that it can filter genomes based on criteria, but actually downloading these fastas is
    impossible through an error. Additionally wget and curl do not properly download the databases in a way that
    spacepharer can identify, requiring a manual upload.
 
 2025-02-21:
- - Spacepharer databases are best created using the example names "querysetDB" and "targetsetDB" as other names such as "spacersetDB" causes weird errors.
+
+- Spacepharer databases are best created using the example names "querysetDB" and "targetsetDB" as other names such as "spacersetDB" causes weird errors.
 
 2025-06-27:
- - The yml file provided by CRISPRidentify is only solveable using flexible or disabled channel priority in conda. As of now an adjusted yml file is used that is solveable in strict priority mode, but does make strand prediction in CRISPRidentify non-functional.
+
+- The yml file provided by CRISPRidentify is only solveable using flexible or disabled channel priority in conda. As of now an adjusted yml file is used that is solveable in strict priority mode, but does make strand prediction in CRISPRidentify non-functional.
+
 ## Project organisation
 
-```
+```bash
 .
 ├── .gitignore
 ├── CITATION.cff
@@ -213,4 +219,4 @@ This project is licensed under the terms of the [New BSD licence](LICENSE).
 
 ## Citation
 
-Please cite this project as described [here](CITATION.cff).
+Please cite this project as described in the [citation file](CITATION.cff).
