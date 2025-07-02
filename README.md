@@ -13,10 +13,11 @@ Test a CRISPR analysis workflow for the PINNACLE project
    - [download genomes](#download-genomes)
    - [analysis workflow](#analysis-workflow)
    - [future suggestions](#suggestions-of-programsanalyses-to-test)
-2. [Problems encountered](#problems-encountered)
-3. [Project (file) organisation](#project-organisation)
-4. [Licence](#licence)
-5. [Citation](#citation)
+2. [Output files](#output-files)
+3. [Problems encountered](#problems-encountered)
+4. [Project (file) organisation](#project-organisation)
+5. [Licence](#licence)
+6. [Citation](#citation)
 
 ---
 
@@ -141,6 +142,36 @@ Further steps are added to the workflow after testing!
 
 4. SpacerPlacer (see input file format in <https://github.com/fbaumdicker/SpacerPlacer?tab=readme-ov-file#spacer_fasta-input-format>
  (also requires an extra conversion script?)
+
+## Output files
+
+(Unticked boxes indicate that documentation has not been written yet.)
+
+- [ ] ENA metadata
+  - Cleaned-up and filtered metadata of included genomes
+
+- [ ] Species classifications
+  - Taxonomic classification by Sylph, as collected from AllTheBacteria
+
+- [ ] Contig chromosome/plasmid/virus predictions
+
+- [ ] CRISPR-Cas overview table
+  - Output from CCTyper, collected and combined in one CSV file
+  - Combine with CRISPRidentify(?)
+
+- [ ] CRISPR spacer table
+
+- [ ] MLST
+  - Sequence Types (ST) of all included genomes
+
+- [ ] List of spacer-putative targets
+  - Output from mapping unique spacers to possible targets
+
+- [ ] List of anti-phage systems per genome
+  - Output from PADLOC, combined in single CSV file
+
+- [ ] Genome comparison all-vs-all
+  - by whole-genome MLST, average nucleotide identity (ANI) or similar(?)
 
 ## Problems encountered
 
