@@ -21,6 +21,26 @@ Test a CRISPR analysis workflow for the PINNACLE project
 
 ---
 
+## To do
+
+- [ ] Add CRISPRidentify to workflow
+
+- [ ] Combine results from CCTyper with CRISPRidentify
+
+- [ ] Make and/or correct scripts for combining results into 'Output files'
+
+- [ ] Collect and combine results from geNomad and Jaeger
+
+- [ ] Map spacers to genomes and phage/plasmid databases
+
+- [ ] Add PADLOC for identifying other anti-phage systems
+
+- [ ] Write documentation for output files
+
+- [ ] Rewrite 'Problems encountered' into a rationale for our tool selection (as separate document)
+
+(_Note to self: Add to this list when other ideas come to mind!_)
+
 ## Workflow description
 
 ### Input files to prepare
@@ -145,7 +165,7 @@ Further steps are added to the workflow after testing!
 
 ## Output files
 
-(Unticked boxes indicate that documentation has not been written yet.)
+Unticked boxes indicate that documentation has not been written yet.
 
 - [ ] ENA metadata
   - Cleaned-up and filtered metadata of included genomes
