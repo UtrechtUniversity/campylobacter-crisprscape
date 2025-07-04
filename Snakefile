@@ -41,6 +41,8 @@ for batch in BATCH_PATHS:
 
 BATCHES = [batch.stem for batch in BATCH_PATHS]
 
+TYPES = ["CRISPR_arrays", "Cas_operons", "CRISPR-Cas"]
+
 OUTPUT_DIR = config["output_directory"]
 
 
@@ -76,8 +78,12 @@ rule all:
         #CRISPRidentify output
         expand(OUTPUT_DIR + "crispridentify/{batch}/complete", batch = BATCHES),
         #concatenated CRISPRidentify output
-        OUTPUT_DIR + "crispridentify/complete_summary.csv",
-        OUTPUT_DIR + "crispridentify/all_spacers.fa"
+        expand(OUTPUT_DIR + "crispridentify/complete_{type}_summary.csv", type= TYPES),
+        expand(OUTPUT_DIR + "crispridentify/all_{type}_spacers.fa", type = TYPES),
+        #spacepharer output
+        expand(OUTPUT_DIR + "spacepharer/predicted_{type}_phage_matches.tsv", type = TYPES),
+        expand(OUTPUT_DIR + "spacepharer/predicted_{type}_plasmid_matches.tsv", type = TYPES),
+
 
 
 ### Step 3: Define processing steps that generate the output ###
@@ -416,12 +422,12 @@ rule create_crispr_cluster_table:
 
 rule crispridentify:
     input:
-        OUTPUT_DIR + "arrays/{batch}/complete"
+        OUTPUT_DIR + "cctyper/{batch}/subseq"
     output:
         OUTPUT_DIR + "crispridentify/{batch}/complete",
     params:
         out_dir=OUTPUT_DIR + "crispridentify/{batch}",
-        spacers=OUTPUT_DIR + "arrays/{batch}"
+        arrays=OUTPUT_DIR + "cctyper/{batch}"
     conda:
         "envs/crispridentify.yml",
     threads: config["crispridentify"]["threads"]
@@ -431,49 +437,41 @@ rule crispridentify:
         "log/benchmark/crispridentify/{batch}.txt",
     shell:
         """
-    cd bin/CRISPRidentify
-    parallel --jobs {threads} --retry-failed --halt='now,fail=1'\
-    python CRISPRidentify.py --file {{}} --result_folder "../../{params.out_dir}/{{/.}}" --fasta_report True --strand False > ../../{log} 2>&1 \
-    ::: ../../{params.spacers}/*.fa
-    cd ../../
-    touch {output}
     
-        """
-rule concatenate_crispridentify_output:
-    input:
-        OUTPUT_DIR + "crispridentify/{batch}/complete"
-    output:
-        spacers=OUTPUT_DIR + "crispridentify/{batch}/all_spacers_{batch}.fa",
-        summary=OUTPUT_DIR + "crispridentify/{batch}/complete_summary_{batch}.csv",
-    params:
-        spacers=OUTPUT_DIR + "crispridentify/{batch}/*/Complete_spacer_dataset.fasta",
-        summary=OUTPUT_DIR + "crispridentify/{batch}/*/Complete_summary.csv",
-    threads: 1
-    log:
-        "log/concatenate_crispridentify_output_{batch}.txt",
-    benchmark:
-        "log/benchmark/concatenate_crispridentify_output_{batch}.txt"
-    shell:
-        """
-    cat {params.spacers} > {output.spacers}
-    for summary in {params.summary} ; do header=$(head -n 1 "$summary"); if [ "$header" == "No arrays found" ];
-    then
-        continue;
-    else 
-        echo $header > {output.summary};
-        break;
-    fi
-    done
-    for summary in {params.summary} ; do tail -n +2 "$summary" >> {output.summary} ; done
+    cd bin/CRISPRidentify
+    find ../../{params.arrays}/*/fasta/CRISPR-Cas-with_flanks.fasta -size +0c -print0 | \
+    parallel -0 --jobs {threads} --retry-failed --halt='now,fail=1'\
+    python CRISPRidentify.py --file {{}} --result_folder "../../{params.out_dir}/{{/.}}" --fasta_report True --strand False > ../../{log} 2>&1   
+    
+    find ../../{params.arrays}/*/fasta/Cas_operons-with_flanks.fasta -size +0c -print0 | \
+    parallel -0 --jobs {threads} --retry-failed --halt='now,fail=1'\
+    python CRISPRidentify.py --file {{}} --result_folder "../../{params.out_dir}/{{/.}}" --fasta_report True --strand False >> ../../{log} 2>&1 \
+
+    find ../../{params.arrays}/*/fasta/CRISPR_arrays-with_flanks.fasta -size +0c -print0 | \
+    parallel -0 --jobs {threads} --retry-failed --halt='now,fail=1'\
+    python CRISPRidentify.py --file {{}} --result_folder "../../{params.out_dir}/{{/.}}" --fasta_report True --strand False >> ../../{log} 2>&1 \
+
+    touch ../../{output}
+    
         """
 
 rule merge_crispridentify_batches:
-    input: 
-        spacers=expand(OUTPUT_DIR + "crispridentify/{batch}/all_spacers_{batch}.fa", batch=BATCHES),
-        summary=expand(OUTPUT_DIR + "crispridentify/{batch}/complete_summary_{batch}.csv", batch=BATCHES)    
+    input:
+        expand(OUTPUT_DIR + "crispridentify/{batch}/complete", batch=BATCHES),
+    params: 
+        spacers_array=expand(OUTPUT_DIR + "crispridentify/{batch}/CRISPR_arrays-with_flanks/Complete_spacer_dataset.fasta", batch=BATCHES),
+        summary_array=expand(OUTPUT_DIR + "crispridentify/{batch}/CRISPR_arrays-with_flanks/Complete_summary.csv", batch=BATCHES),
+        spacers_cas=expand(OUTPUT_DIR + "crispridentify/{batch}/Cas_operons-with_flanks/Complete_spacer_dataset.fasta", batch=BATCHES),
+        summary_cas=expand(OUTPUT_DIR + "crispridentify/{batch}/Cas_operons-with_flanks/Complete_summary.csv", batch=BATCHES),    
+        spacers_crispr=expand(OUTPUT_DIR + "crispridentify/{batch}/CRISPR-Cas-with_flanks/Complete_spacer_dataset.fasta", batch=BATCHES),
+        summary_crispr=expand(OUTPUT_DIR + "crispridentify/{batch}/CRISPR-Cas-with_flanks/Complete_summary.csv", batch=BATCHES),        
     output:
-        spacers=OUTPUT_DIR + "crispridentify/all_spacers.fa",
-        summary=OUTPUT_DIR + "crispridentify/complete_summary.csv",
+        spacers_array=OUTPUT_DIR + "crispridentify/all_CRISPR_arrays_spacers.fa",
+        summary_array=OUTPUT_DIR + "crispridentify/complete_CRISPR_arrays_summary.csv",
+        spacers_cas=OUTPUT_DIR + "crispridentify/all_Cas_operons_spacers.fa",
+        summary_cas=OUTPUT_DIR + "crispridentify/complete_Cas_operons_summary.csv",
+        spacers_crispr=OUTPUT_DIR + "crispridentify/all_CRISPR-Cas_spacers.fa",
+        summary_crispr=OUTPUT_DIR + "crispridentify/complete_CRISPR-Cas_summary.csv",
     threads: 1
     log:
         "log/merge_crispridentify_batches.txt"
@@ -481,32 +479,36 @@ rule merge_crispridentify_batches:
         "log/benchmark/merge_crispridentify_batches.txt"
     shell:
         """
-    cat {input.spacers} > {output.spacers}
-    for summary in {input.summary} ; do header=$(head -n 1 "$summary"); if [ "$header" == "No arrays found" ];
+    cat {params.spacers_array} > {output.spacers_array}
+    cat {params.spacers_cas} > {output.spacers_cas}
+    cat {params.spacers_crispr} > {output.spacers_crispr}
+    for summary in {params.summary_array} ; do header=$(head -n 1 "$summary"); if [ "$header" == "No arrays found" ];
     then
         continue;
     else 
-        echo $header > {output.summary};
+        echo $header | tee {output.summary_array} {output.summary_cas} {output.summary_crispr};
         break;
     fi
     done
-    for summary in {input.summary} ; do tail -n +2 "$summary" >> {output.summary} ; done
+    for summary in {params.summary_array} ; do tail -n +2 "$summary" >> {output.summary_array} ; done
+    for summary in {params.summary_cas} ; do tail -n +2 "$summary" >> {output.summary_cas} ; done
+    for summary in {params.summary_crispr} ; do tail -n +2 "$summary" >> {output.summary_crispr} ; done
         """
 
 rule cluster_unique_spacers_crispridentify:
     input:
-        OUTPUT_DIR + "crispridentify/all_spacers.fa",
+        OUTPUT_DIR + "crispridentify/all_{type}_spacers.fa",
     output:
-        clusters=OUTPUT_DIR + "crispridentify/all_spacers-clustered.clstr",
-        spacers=OUTPUT_DIR + "crispridentify/all_spacers-clustered",
-        distribution=OUTPUT_DIR + "crispridentify/all_spacers-clustered-distribution.tsv",
+        clusters=OUTPUT_DIR + "crispridentify/all_{type}_spacers-clustered.clstr",
+        spacers=OUTPUT_DIR + "crispridentify/all_{type}_spacers-clustered",
+        distribution=OUTPUT_DIR + "crispridentify/all_{type}_spacers-clustered-distribution.tsv",
     conda:
         "envs/cdhit.yaml"
     threads: 1
     log:
-        "log/cluster_unique_spacers_identify.txt",
+        "log/cluster_unique_spacers_{type}_identify.txt",
     benchmark:
-        "log/benchmark/cluster_unique_spacers_identify.txt"
+        "log/benchmark/cluster_unique_spacers_{type}_identify.txt"
     shell:
         """
 cd-hit-est -c 1 -n 8 -r 1 -g 1 -AS 0 -sf 1 -d 0 -T {threads}\
