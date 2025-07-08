@@ -1,0 +1,7 @@
+name: spacepharer_env
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - spacepharer>=1.56925d2

@@ -83,6 +83,8 @@ rule all:
         #spacepharer output
         expand(OUTPUT_DIR + "spacepharer/predicted_{type}_phage_matches.tsv", type = TYPES),
         expand(OUTPUT_DIR + "spacepharer/predicted_{type}_plasmid_matches.tsv", type = TYPES),
+        #KMA output
+        expand(OUTPUT_DIR + "kma/output/{type}.aln", type = TYPES)
 
 
 
@@ -570,4 +572,113 @@ parallel --jobs {threads} --retry-failed --halt='now,fail=1'\
  > {log} 2>&1 ::: {input.batch}/*.fa
 
 touch {output}
+        """
+
+rule spacepharer_spacer_setup:
+    input:
+        spacers=OUTPUT_DIR + "crispridentify/all_{type}_spacers.fa",        
+    output:
+        spacer_DB=OUTPUT_DIR + "spacepharer/DB_{type}/querysetDB"
+    params:
+        tmp_folder=OUTPUT_DIR + "spacepharer/tmpFolder"
+    threads: 48
+    log:
+        "log/spacepharer/spacepharer_spacer_{type}_setup.txt"
+    benchmark:
+        "log/benchmark/spacepharer/spacepharer_spacer_{type}_setup.txt"
+    shell:
+        """
+        spacer_DB=$(dirname {output.spacer_DB})
+        rm -rf $spacer_DB/* > {log} 2>&1 
+        spacepharer createsetdb {input.spacers} {output.spacer_DB} {params.tmp_folder} --extractorf-spacer 1 --threads {threads} >> {log} 2>&1
+        """
+
+rule spacepharer_phage_setup:
+    input: 
+        DB=config["spacepharer_phage_database"],
+    output:
+        phage_DB=OUTPUT_DIR + "spacepharer/phage_DB/targetsetDB",
+        phage_control_DB=OUTPUT_DIR + "spacepharer/phage_DB/controlsetDB"
+    params:
+        tmp_folder=OUTPUT_DIR + "spacepharer/tmpFolder"
+    conda:
+        "envs/spacepharer.yml"
+    threads: 48
+    log:
+        "log/spacepharer/spacepharer_phage_setup.txt"
+    benchmark:
+        "log/benchmark/spacepharer/spacepharer_setup.txt"
+    shell:
+        """
+        phage_DB=$(dirname {output.phage_DB})
+        rm -rf $phage_DB/* > {log} 2>&1
+        spacepharer createsetdb {input.DB} {output.phage_DB} {params.tmp_folder} --threads {threads} >> {log} 2>&1
+        spacepharer createsetdb {input.DB} {output.phage_control_DB} {params.tmp_folder} --reverse-fragments 1 --threads {threads} >> {log} 2>&1
+        """
+
+rule spacepharer_phage:
+    input:
+        spacer_DB=OUTPUT_DIR + "spacepharer/DB_{type}/querysetDB",
+        phage_DB=OUTPUT_DIR + "spacepharer/phage_DB/targetsetDB",
+        phage_control_DB=OUTPUT_DIR + "spacepharer/phage_DB/controlsetDB"
+    output:
+        result=OUTPUT_DIR + "spacepharer/predicted_{type}_phage_matches.tsv",
+    params:
+        tmp_folder=OUTPUT_DIR + "spacepharer/tmpFolder"
+    conda:
+        "envs/spacepharer.yml"
+    threads: 48
+    log:
+        "log/spacepharer/spacepharer_{type}_phage.txt"
+    benchmark:
+        "log/benchmark/spacepharer/spacepharer_{type}_phage.txt"
+    shell:
+        """
+        spacepharer predictmatch {input.spacer_DB} {input.phage_DB} {input.phage_control_DB} {output.result} {params.tmp_folder} --threads {threads} > {log} 2>&1
+        rm -r {params.tmp_folder} >> {log} 2>&1
+        """
+
+rule spacepharer_plasmid_setup:
+    input: 
+        DB=config["spacepharer_plasmid_database"]
+    output:
+        DB=OUTPUT_DIR + "spacepharer/plasmid_DB/targetsetDB",
+        control_DB=OUTPUT_DIR + "spacepharer/plasmid_DB/controlsetDB"
+    params:
+        tmp_folder=OUTPUT_DIR + "spacepharer/tmpFolder"
+    conda:
+        "envs/spacepharer.yml"
+    threads: 48
+    log:
+        "log/spacepharer/spacepharer_plasmid_setup.txt"
+    benchmark:
+        "log/benchmark/spacepharer/spacepharer_plasmid_setup.txt"
+    shell:
+        """
+        plasmid_DB=$(dirname {output.DB})
+        rm -f $plasmid_DB/* > {log} 2>&1
+        spacepharer createsetdb {input.DB} {output.DB} {params.tmp_folder} --threads {threads} >> {log} 2>&1
+        spacepharer createsetdb {input.DB} {output.control_DB} {params.tmp_folder} --reverse-fragments 1 --threads {threads} >> {log} 2>&1
+        """
+
+rule spacepharer_plasmid:
+    input:
+        phage_DB=OUTPUT_DIR + "spacepharer/plasmid_DB/targetsetDB",
+        phage_control_DB=OUTPUT_DIR + "spacepharer/plasmid_DB/controlsetDB",
+        spacer_DB=OUTPUT_DIR + "spacepharer/DB_{type}/querysetDB"
+    output:
+        result=OUTPUT_DIR + "spacepharer/predicted_{type}_plasmid_matches.tsv",
+    params:
+        tmp_folder=OUTPUT_DIR + "spacepharer/tmpFolder"
+    conda:
+        "envs/spacepharer.yml"
+    threads: 48
+    log:
+        "log/spacepharer/spacepharer_{type}_phage.txt"
+    benchmark:
+        "log/benchmark/spacepharer/spacepharer_{type}_phage.txt"
+    shell:
+        """
+        spacepharer predictmatch {input.spacer_DB} {input.phage_DB} {input.phage_control_DB} {output.result} {params.tmp_folder} --threads {threads} > {log} 2>&1
+        rm -r {params.tmp_folder} >> {log} 2>&1
         """
