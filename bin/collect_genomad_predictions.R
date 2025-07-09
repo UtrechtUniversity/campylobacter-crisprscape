@@ -5,10 +5,9 @@
 library(tidyverse)
 library(here)
 
-# Use '??' in the final part to match only 2 characters, not e.g. '22_provirus'
-genomad_scores_files <- snakemake@input[["aggregated_classification"]] #Sys.glob(paths = here("data", "tmp", "genomad", "batch_*", "batch_*_aggregated_classification", "batch_??_aggregated_classification.tsv"))
-genomad_plasmid_files <- snakemake@input[["plasmid_summary"]] #Sys.glob(paths = here("data", "tmp", "genomad", "batch_*", "batch_*_summary", "batch_*_plasmid_summary.tsv"))
-genomad_virus_files <- snakemake@input[["virus_summary"]] #Sys.glob(paths = here("data", "tmp", "genomad", "batch_*", "batch*_summary", "batch_*_virus_summary.tsv"))
+genomad_scores_files <- snakemake@input[["aggregated_classification"]]
+genomad_plasmid_files <- snakemake@input[["plasmid_summary"]]
+genomad_virus_files <- snakemake@input[["virus_summary"]]
 
 read_stats <- function(filename, name_position) {
   # Cut the sample name from the file path using the name's position in the
