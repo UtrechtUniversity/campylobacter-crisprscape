@@ -29,7 +29,7 @@ Test a CRISPR analysis workflow for the PINNACLE project
 
 - [ ] Make and/or correct scripts for combining results into 'Output files'
 
-- [ ] Collect and combine results from geNomad and Jaeger
+- [x] Collect and combine results from geNomad and Jaeger
 
 - [x] Map spacers to genomes and phage/plasmid databases
 
