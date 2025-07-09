@@ -102,6 +102,17 @@ or all of the genomes at once using command-line options 'all', 'original', or
 The genomes are downloaded to the `data/tmp/ATB/` subdirectory. This is also the
 default input directory for the analysis workflow.
 
+### Download Databases
+
+The bin folder also includes scripts to download and extract pre-selected databases for use in Spacepharer. 
+These include [Phagescope](https://phagescope.deepomics.org/) for annotated phage sequences and [PLSDB](https://ccb-microbe.cs.uni-saarland.de/plsdb2025/) for annotated plasmid sequences which have been chosen for their broad taxonomy selection. 
+By running:
+```bash
+bash bin/download_spacepharer_database.sh
+```
+Both databases are downloaded, extracted and then merged for use in Spacepharer. If you wish to use a different database or add to them, `config/parameters.yaml` contain the expected database locations after running download_spacepharer_database.sh and can be adjusted as desired. Do note that the file extensions of the database FASTA files SHOULD have the .fasta extension.
+
+
 ### Analysis workflow
 
 The analysis itself is recorded as a [Snakemake](https://snakemake.readthedocs.io/en/stable/) workflow.
@@ -177,7 +188,7 @@ Unticked boxes indicate that documentation has not been written yet.
 
 - [ ] CRISPR-Cas overview table
   - Output from CCTyper, collected and combined in one CSV file
-  - Combine with CRISPRidentify(?)
+  - Combine with CRISPRidentify, create filtered crispr by adding Cas and orientation data onto crispridentify csv 
 
 - [ ] CRISPR spacer table
 
@@ -185,7 +196,7 @@ Unticked boxes indicate that documentation has not been written yet.
   - Sequence Types (ST) of all included genomes
 
 - [ ] List of spacer-putative targets
-  - Output from mapping unique spacers to possible targets
+  - Output from mapping unique spacers to possible targets seperated by plasmid or phage and merged with database metadata
 
 - [ ] List of anti-phage systems per genome
   - Output from PADLOC, combined in single CSV file
