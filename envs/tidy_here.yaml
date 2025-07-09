@@ -1,0 +1,8 @@
+name: tidy_here
+
+dependencies:
+ - r-here=1.0.1
+ - r-tidyverse=2.0.0
+
+channels:
+ - conda-forge

@@ -583,6 +583,29 @@ genomad end-to-end -t {threads} --cleanup --enable-score-calibration\
         """
 
 
+rule collect_genomad_predictions:
+    input:
+        aggregated_classification=expand(OUTPUT_DIR
+        + "genomad/{batch}/{batch}_aggregated_classification/{batch}_aggregated_classification.tsv",
+        batch = BATCHES),
+        plasmid_summary=expand(OUTPUT_DIR
+        + "genomad/{batch}/{batch}_summary/{batch}_plasmid_summary.tsv",
+        batch = BATCHES),
+        virus_summary=expand(OUTPUT_DIR
+        + "genomad/{batch}/{batch}_summary/{batch}_virus_summary.tsv",
+        batch = BATCHES),
+    output:
+        "data/processed/genomad_predictions.csv"
+    conda:
+        "envs/tidy_here.yaml"
+    threads: 1
+    log:
+        "log/collect_genomad_predictions.txt"
+    benchmark:
+        "log/benchmark/collect_genomad_predictions.txt"
+    script: "bin/collect_genomad_predictions.R"
+
+
 rule jaeger:
     input:
         batch=INPUT_DIR + "{batch}/",
