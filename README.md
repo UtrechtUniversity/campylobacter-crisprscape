@@ -23,7 +23,7 @@ Test a CRISPR analysis workflow for the PINNACLE project
 
 ## To do
 
-- [ ] Add CRISPRidentify to workflow
+- [x] Add CRISPRidentify to workflow
 
 - [ ] Combine results from CCTyper with CRISPRidentify
 
@@ -31,9 +31,9 @@ Test a CRISPR analysis workflow for the PINNACLE project
 
 - [ ] Collect and combine results from geNomad and Jaeger
 
-- [ ] Map spacers to genomes and phage/plasmid databases
+- [x] Map spacers to genomes and phage/plasmid databases
 
-- [ ] Add PADLOC for identifying other anti-phage systems
+- [x] Add PADLOC for identifying other anti-phage systems
 
 - [ ] Write documentation for output files
 
