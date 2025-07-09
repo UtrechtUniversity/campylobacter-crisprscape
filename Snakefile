@@ -53,8 +53,9 @@ rule all:
     input:
         # Multilocus Sequence Types (ST) for Campylobacter
         expand(OUTPUT_DIR + "mlst/{batch}-concatenated.tsv", batch=BATCHES),
-        # Combined CCTyper output as CSV + BED files
-        expand(OUTPUT_DIR + "cctyper/{batch}/parsed", batch=BATCHES),
+        # Virus and plasmid predictions per contig
+        "data/processed/genomad_predictions.csv",
+        "data/processed/jaeger_predictions.csv",
         # Concatenated CCTyper output
         expand(
             OUTPUT_DIR + "cctyper/{batch}/{filename}-{batch}.tab",
@@ -68,6 +69,8 @@ rule all:
             ],
         ),
         expand(OUTPUT_DIR + "cctyper/{batch}/all_spacers-{batch}.fa", batch=BATCHES),
+        # Combined CCTyper output as CSV + BED files
+        expand(OUTPUT_DIR + "cctyper/{batch}/parsed", batch=BATCHES),
         # CCTyper CRISPR spacer cluster analysis report
         OUTPUT_DIR + "cctyper/spacer_cluster_summary.tsv",
         # Cluster unique CRISPR spacers
@@ -628,6 +631,37 @@ parallel --jobs {threads} --retry-failed --halt='now,fail=1'\
 
 touch {output}
         """
+
+
+rule collect_jaeger_batch:
+    input:
+        OUTPUT_DIR + "jaeger/{batch}/complete"
+    output:
+        OUTPUT_DIR + "jaeger/{batch}/jaeger-{batch}.csv"
+    params:
+        batch="{batch}"
+    conda:
+        "envs/tidy_here.yaml"
+    threads: 1
+    log:
+        "log/collect_jaeger_{batch}.txt"
+    benchmark:
+        "log/benchmark/collect_jaeger_{batch}.txt"
+    script: "bin/collect_jaeger_batch.R"
+
+
+rule collect_jaeger_predictions:
+    input:
+        expand(OUTPUT_DIR + "jaeger/{batch}/jaeger-{batch}.csv",
+        batch = BATCHES),
+    output:
+        "data/processed/jaeger_predictions.csv"
+    threads: 1
+    log:
+        "log/collect_jaeger_predictions.txt"
+    benchmark:
+        "log/benchmark/collect_jaeger_predictions.txt"
+    script: "bin/collect_jaeger_predictions.sh"
 
 
 rule spacepharer_spacer_setup:
