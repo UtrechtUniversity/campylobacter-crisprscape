@@ -559,6 +559,21 @@ plot_len1.pl {output.clusters}\
         """
 
 
+rule concatenate_batches:
+    input:
+        INPUT_DIR + "{batch}"
+    output:
+        temp(OUTPUT_DIR + "{batch}.fasta")
+    threads: 1
+    log:
+        "log/concatenate_{batch}.txt"
+    benchmark:
+        "log/benchmark/concatenate_{batch}.txt"
+    shell:
+        """
+cat {input}/*.fa > {output} 2> {log}
+        """
+
 rule genomad:
     input:
         fasta=OUTPUT_DIR + "{batch}.fasta",
