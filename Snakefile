@@ -291,7 +291,7 @@ bash bin/concatenate_cctyper_output.sh $(dirname {input.cctyper}) > {log} 2>&1
 echo "\n========================" >> {log}
 bash bin/concatenate_cctyper_csv.sh $(dirname {input.parser}) >> {log} 2>&1
 
-find $(dirname {input}) -mindepth 3 -maxdepth 3 -name "*.fa" -exec cat {{}} + > {output.spacers} 2>> {log}
+find $(dirname {input.cctyper}) -mindepth 3 -maxdepth 3 -name "*.fa" -exec cat {{}} + > {output.spacers} 2>> {log}
         """
 
 
