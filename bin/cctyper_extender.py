@@ -22,11 +22,17 @@
 ## 5. score (must be between 0 and 1000: number of CRISPR repeats or cas genes)
 ## 6. strand (+, - or .)
 
-### Algorithm suggestion:
-# 1. 'find properties'? (look for crispr and/or cas)
-# 2. look up info (as complete as possible)
-# 3. write to CRISPR-Cas overview table
-# 4. extract data for BED files and write to BED
+### Algorithm overview:
+#   For each genome screened:
+# 1. Read the CRISPR_Cas.tab file, collecting info on complete arrays/loci
+#   - If CRISPR-Cas is present, look up additional CRISPR repeat and
+#     spacer info, and cas gene info.
+# 2. Look for cas operons (without CRISPR array).
+#   - and collect all info
+# 3. And look for CRISPR arrays without cas genes ('orphan arrays')
+#   - collect all info
+# 4. Write the gathered information to CSV and BED files.
+# (Also refer to these number in the function `main()` at the bottom!)
 
 import argparse
 from pathlib import Path
