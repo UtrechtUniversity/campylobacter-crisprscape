@@ -751,3 +751,67 @@ rule spacepharer_plasmid:
         spacepharer predictmatch {input.spacer_DB} {input.phage_DB} {input.phage_control_DB} {output.result} {params.tmp_folder} --threads {threads} > {log} 2>&1
         rm -r {params.tmp_folder} >> {log} 2>&1
         """
+
+rule kma_indexing:
+    input:
+        spacers=OUTPUT_DIR + "crispridentify/all_CRISPR-Cas_spacers.fa"
+    output:
+        indexed_spacers=OUTPUT_DIR + "kma/spacer_DB/spacers.name"
+    params:
+        OUTPUT_DIR + "kma/spacer_DB/spacers"
+    conda:
+        "envs/kma.yaml"
+    threads: 12
+    log: "log/kma/kma_index.txt"
+    benchmark:
+        "log/benchmark/kma/kma_index.txt"
+    shell:
+        """
+        kma index -i {input.spacers} -o {params} > {log} 2>&1
+        """
+
+rule kma:
+    input:
+        genomes=expand(INPUT_DIR + "{batch}/", batch=BATCHES),
+        indexed_spacers=OUTPUT_DIR + "kma/spacer_DB/spacers.name"
+    output:
+        OUTPUT_DIR + "kma/output/CRISPR-Cas.frag.gz"
+    params:
+        output=OUTPUT_DIR + "kma/output/CRISPR-Cas",
+        indexed_spacers=OUTPUT_DIR + "kma/spacer_DB/spacers",
+        spacers=OUTPUT_DIR + "crispridentify/all_spacers.fa"      
+    conda:
+        "envs/kma.yaml"
+    threads: 24
+    log:
+        "log/kma/kma.txt"
+    benchmark:
+        "log/benchmark/kma/kma.txt"
+    shell:
+        """     
+        grep ">" {params.spacers} | cut -f 2 -d ">" | cut -f 1 -d "-" | sort -u > tmp_file
+        find {input.genomes} -mindepth 1 -maxdepth 1 -type f -name "*.fa" > all_genomes.txt
+        genomes=$(grep -x ".*[0-9]\\.fa" all_genomes.txt | grep -v -f tmp_file)
+        kma -hmm -ID 100 -i $genomes -o {params.output} -t_db {params.indexed_spacers} > {log} 2>&1
+        rm tmp_file all_genomes.txt
+        """
+
+rule collect_kma:
+    input: 
+        OUTPUT_DIR + "kma/output/CRISPR-Cas.frag.gz"
+    output:
+        OUTPUT_DIR + "kma/CRISPR-Cas_alignment.tsv"
+    log:
+        "log/kma/collect_kma.txt"
+    benchmark:
+        "log/benchmark/kma/collect_kma.txt"
+    shell:
+        """
+        > {output}
+        while read line; do
+            input=$(echo "$line" | cut -f 6,7 | cut -f 1 -d " ")
+            crispr=$(echo $input | cut -f 1 | cut -f 1,6,7,10,11 -d "_")
+            echo "$crispr" >> {output}
+        done < <(zcat "{input}")
+
+        """
