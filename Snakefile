@@ -41,8 +41,6 @@ for batch in BATCH_PATHS:
 
 BATCHES = [batch.stem for batch in BATCH_PATHS]
 
-TYPES = ["CRISPR_arrays", "Cas_operons", "CRISPR-Cas"]
-
 OUTPUT_DIR = config["output_directory"]
 
 
@@ -52,10 +50,10 @@ OUTPUT_DIR = config["output_directory"]
 rule all:
     input:
         # Multilocus Sequence Types (ST) for Campylobacter
-        expand(OUTPUT_DIR + "mlst/{batch}-concatenated.tsv", batch=BATCHES),
+        #expand(OUTPUT_DIR + "mlst/{batch}-concatenated.tsv", batch=BATCHES),
         # Virus and plasmid predictions per contig
-        "data/processed/genomad_predictions.csv",
-        "data/processed/jaeger_predictions.csv",
+        #"data/processed/genomad_predictions.csv",
+        #"data/processed/jaeger_predictions.csv",
         # Concatenated CCTyper output
         expand(
             OUTPUT_DIR + "cctyper/{batch}/{filename}-{batch}.tab",
@@ -80,17 +78,14 @@ rule all:
         #CRISPRidentify output
         expand(OUTPUT_DIR + "crispridentify/{batch}/complete", batch=BATCHES),
         #concatenated CRISPRidentify output
-        expand(OUTPUT_DIR + "crispridentify/complete_{type}_summary.csv", type=TYPES),
-        expand(OUTPUT_DIR + "crispridentify/all_{type}_spacers.fa", type=TYPES),
+        OUTPUT_DIR + "crispridentify/complete_summary.csv",
+        OUTPUT_DIR + "crispridentify/all_spacers.fa",
         #spacepharer output
-        expand(
-            OUTPUT_DIR + "spacepharer/predicted_{type}_phage_matches.tsv", type=TYPES
-        ),
-        expand(
-            OUTPUT_DIR + "spacepharer/predicted_{type}_plasmid_matches.tsv", type=TYPES
-        ),
+        OUTPUT_DIR + "spacepharer/predicted_phage_matches.tsv",
+        OUTPUT_DIR + "spacepharer/predicted_plasmid_matches.tsv",
         #KMA output
-        expand(OUTPUT_DIR + "kma/output/{type}.aln", type=TYPES),
+        OUTPUT_DIR + "kma/output/CRISPR-Cas.frag.gz",
+        OUTPUT_DIR + "kma/CRISPR-Cas_alignment.tsv"
 
 
 ### Step 3: Define processing steps that generate the output ###
@@ -453,14 +448,6 @@ rule crispridentify:
     find ../../{params.arrays}/*/fasta/CRISPR-Cas-with_flanks.fasta -size +0c -print0 | \
     parallel -0 --jobs {threads} --retry-failed --halt='now,fail=1'\
     python CRISPRidentify.py --file {{}} --result_folder "../../{params.out_dir}/{{/.}}" --fasta_report True --strand False > ../../{log} 2>&1   
-    
-    find ../../{params.arrays}/*/fasta/Cas_operons-with_flanks.fasta -size +0c -print0 | \
-    parallel -0 --jobs {threads} --retry-failed --halt='now,fail=1'\
-    python CRISPRidentify.py --file {{}} --result_folder "../../{params.out_dir}/{{/.}}" --fasta_report True --strand False >> ../../{log} 2>&1 \
-
-    find ../../{params.arrays}/*/fasta/CRISPR_arrays-with_flanks.fasta -size +0c -print0 | \
-    parallel -0 --jobs {threads} --retry-failed --halt='now,fail=1'\
-    python CRISPRidentify.py --file {{}} --result_folder "../../{params.out_dir}/{{/.}}" --fasta_report True --strand False >> ../../{log} 2>&1 \
 
     touch ../../{output}
     
@@ -471,26 +458,6 @@ rule merge_crispridentify_batches:
     input:
         expand(OUTPUT_DIR + "crispridentify/{batch}/complete", batch=BATCHES),
     params:
-        spacers_array=expand(
-            OUTPUT_DIR
-            + "crispridentify/{batch}/CRISPR_arrays-with_flanks/Complete_spacer_dataset.fasta",
-            batch=BATCHES,
-        ),
-        summary_array=expand(
-            OUTPUT_DIR
-            + "crispridentify/{batch}/CRISPR_arrays-with_flanks/Complete_summary.csv",
-            batch=BATCHES,
-        ),
-        spacers_cas=expand(
-            OUTPUT_DIR
-            + "crispridentify/{batch}/Cas_operons-with_flanks/Complete_spacer_dataset.fasta",
-            batch=BATCHES,
-        ),
-        summary_cas=expand(
-            OUTPUT_DIR
-            + "crispridentify/{batch}/Cas_operons-with_flanks/Complete_summary.csv",
-            batch=BATCHES,
-        ),
         spacers_crispr=expand(
             OUTPUT_DIR
             + "crispridentify/{batch}/CRISPR-Cas-with_flanks/Complete_spacer_dataset.fasta",
@@ -502,10 +469,6 @@ rule merge_crispridentify_batches:
             batch=BATCHES,
         ),
     output:
-        spacers_array=OUTPUT_DIR + "crispridentify/all_CRISPR_arrays_spacers.fa",
-        summary_array=OUTPUT_DIR + "crispridentify/complete_CRISPR_arrays_summary.csv",
-        spacers_cas=OUTPUT_DIR + "crispridentify/all_Cas_operons_spacers.fa",
-        summary_cas=OUTPUT_DIR + "crispridentify/complete_Cas_operons_summary.csv",
         spacers_crispr=OUTPUT_DIR + "crispridentify/all_CRISPR-Cas_spacers.fa",
         summary_crispr=OUTPUT_DIR + "crispridentify/complete_CRISPR-Cas_summary.csv",
     threads: 1
@@ -515,38 +478,34 @@ rule merge_crispridentify_batches:
         "log/benchmark/merge_crispridentify_batches.txt"
     shell:
         """
-    cat {params.spacers_array} > {output.spacers_array}
-    cat {params.spacers_cas} > {output.spacers_cas}
     cat {params.spacers_crispr} > {output.spacers_crispr}
-    for summary in {params.summary_array} ; do header=$(head -n 1 "$summary"); if [ "$header" == "No arrays found" ];
+    for summary in {params.summary_crispr} ; do header=$(head -n 1 "$summary"); if [ "$header" == "No arrays found" ];
     then
         continue;
     else 
-        echo $header | tee {output.summary_array} {output.summary_cas} {output.summary_crispr};
+        echo $header | tee {output.summary_crispr};
         break;
     fi
     done
-    for summary in {params.summary_array} ; do tail -n +2 "$summary" >> {output.summary_array} ; done
-    for summary in {params.summary_cas} ; do tail -n +2 "$summary" >> {output.summary_cas} ; done
     for summary in {params.summary_crispr} ; do tail -n +2 "$summary" >> {output.summary_crispr} ; done
         """
 
 
 rule cluster_unique_spacers_crispridentify:
     input:
-        OUTPUT_DIR + "crispridentify/all_{type}_spacers.fa",
+        OUTPUT_DIR + "crispridentify/all_CRISPR-Cas_spacers.fa",
     output:
-        clusters=OUTPUT_DIR + "crispridentify/all_{type}_spacers-clustered.clstr",
-        spacers=OUTPUT_DIR + "crispridentify/all_{type}_spacers-clustered",
+        clusters=OUTPUT_DIR + "crispridentify/all_spacers-clustered.clstr",
+        spacers=OUTPUT_DIR + "crispridentify/all_spacers-clustered",
         distribution=OUTPUT_DIR
-        + "crispridentify/all_{type}_spacers-clustered-distribution.tsv",
+        + "crispridentify/all_spacers-clustered-distribution.tsv",
     conda:
         "envs/cdhit.yaml"
     threads: 1
     log:
-        "log/cluster_unique_spacers_{type}_identify.txt",
+        "log/cluster_unique_spacers_identify.txt",
     benchmark:
-        "log/benchmark/cluster_unique_spacers_{type}_identify.txt"
+        "log/benchmark/cluster_unique_spacers_identify.txt"
     shell:
         """
 cd-hit-est -c 1 -n 8 -r 1 -g 1 -AS 0 -sf 1 -d 0 -T {threads}\
@@ -681,16 +640,18 @@ rule collect_jaeger_predictions:
 
 rule spacepharer_spacer_setup:
     input:
-        spacers=OUTPUT_DIR + "crispridentify/all_{type}_spacers.fa",
+        spacers=OUTPUT_DIR + "crispridentify/all_CRISPR-Cas_spacers.fa",
     output:
-        spacer_DB=OUTPUT_DIR + "spacepharer/DB_{type}/querysetDB",
+        spacer_DB=OUTPUT_DIR + "spacepharer/DB_CRISPR-Cas/querysetDB",
     params:
         tmp_folder=OUTPUT_DIR + "spacepharer/tmpFolder",
+    conda:
+        "envs/spacepharer.yml"
     threads: 48
     log:
-        "log/spacepharer/spacepharer_spacer_{type}_setup.txt",
+        "log/spacepharer/spacepharer_spacer_setup.txt",
     benchmark:
-        "log/benchmark/spacepharer/spacepharer_spacer_{type}_setup.txt"
+        "log/benchmark/spacepharer/spacepharer_spacer_setup.txt"
     shell:
         """
         spacer_DB=$(dirname {output.spacer_DB})
@@ -700,13 +661,12 @@ rule spacepharer_spacer_setup:
 
 
 rule spacepharer_phage_setup:
-    input:
-        DB=config["spacepharer_phage_database"],
     output:
         phage_DB=OUTPUT_DIR + "spacepharer/phage_DB/targetsetDB",
         phage_control_DB=OUTPUT_DIR + "spacepharer/phage_DB/controlsetDB",
     params:
         tmp_folder=OUTPUT_DIR + "spacepharer/tmpFolder",
+        DB=config["spacepharer_phage_database"],
     conda:
         "envs/spacepharer.yml"
     threads: 48
@@ -718,30 +678,30 @@ rule spacepharer_phage_setup:
         """
         phage_DB=$(dirname {output.phage_DB})
         rm -rf $phage_DB/* > {log} 2>&1
-        spacepharer createsetdb {input.DB} {output.phage_DB} {params.tmp_folder} --threads {threads} >> {log} 2>&1
-        spacepharer createsetdb {input.DB} {output.phage_control_DB} {params.tmp_folder} --reverse-fragments 1 --threads {threads} >> {log} 2>&1
+        spacepharer createsetdb {params.DB} {output.phage_DB} {params.tmp_folder} --threads {threads} >> {log} 2>&1
+        spacepharer createsetdb {params.DB} {output.phage_control_DB} {params.tmp_folder} --reverse-fragments 1 --threads {threads} >> {log} 2>&1
         """
 
 
 rule spacepharer_phage:
     input:
-        spacer_DB=OUTPUT_DIR + "spacepharer/DB_{type}/querysetDB",
+        spacer_DB=OUTPUT_DIR + "spacepharer/DB_CRISPR-Cas/querysetDB",
         phage_DB=OUTPUT_DIR + "spacepharer/phage_DB/targetsetDB",
         phage_control_DB=OUTPUT_DIR + "spacepharer/phage_DB/controlsetDB",
     output:
-        result=OUTPUT_DIR + "spacepharer/predicted_{type}_phage_matches.tsv",
+        result=OUTPUT_DIR + "spacepharer/predicted_phage_matches.tsv",
     params:
         tmp_folder=OUTPUT_DIR + "spacepharer/tmpFolder",
     conda:
         "envs/spacepharer.yml"
     threads: 48
     log:
-        "log/spacepharer/spacepharer_{type}_phage.txt",
+        "log/spacepharer/spacepharer_phage.txt",
     benchmark:
-        "log/benchmark/spacepharer/spacepharer_{type}_phage.txt"
+        "log/benchmark/spacepharer/spacepharer_phage.txt"
     shell:
         """
-        spacepharer predictmatch {input.spacer_DB} {input.phage_DB} {input.phage_control_DB} {output.result} {params.tmp_folder} --threads {threads} > {log} 2>&1
+        spacepharer predictmatch {input.spacer_DB} {input.phage_DB} {input.phage_control_DB} {output.result} {params.tmp_folder} --fmt 2 --threads {threads} > {log} 2>&1
         rm -r {params.tmp_folder} >> {log} 2>&1
         """
 
@@ -774,18 +734,18 @@ rule spacepharer_plasmid:
     input:
         phage_DB=OUTPUT_DIR + "spacepharer/plasmid_DB/targetsetDB",
         phage_control_DB=OUTPUT_DIR + "spacepharer/plasmid_DB/controlsetDB",
-        spacer_DB=OUTPUT_DIR + "spacepharer/DB_{type}/querysetDB",
+        spacer_DB=OUTPUT_DIR + "spacepharer/DB_CRISPR-Cas/querysetDB",
     output:
-        result=OUTPUT_DIR + "spacepharer/predicted_{type}_plasmid_matches.tsv",
+        result=OUTPUT_DIR + "spacepharer/predicted_plasmid_matches.tsv",
     params:
         tmp_folder=OUTPUT_DIR + "spacepharer/tmpFolder",
     conda:
         "envs/spacepharer.yml"
     threads: 48
     log:
-        "log/spacepharer/spacepharer_{type}_phage.txt",
+        "log/spacepharer/spacepharer_phage.txt",
     benchmark:
-        "log/benchmark/spacepharer/spacepharer_{type}_phage.txt"
+        "log/benchmark/spacepharer/spacepharer_phage.txt"
     shell:
         """
         spacepharer predictmatch {input.spacer_DB} {input.phage_DB} {input.phage_control_DB} {output.result} {params.tmp_folder} --threads {threads} > {log} 2>&1
