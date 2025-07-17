@@ -50,10 +50,10 @@ OUTPUT_DIR = config["output_directory"]
 rule all:
     input:
         # Multilocus Sequence Types (ST) for Campylobacter
-        #expand(OUTPUT_DIR + "mlst/{batch}-concatenated.tsv", batch=BATCHES),
+        expand(OUTPUT_DIR + "mlst/{batch}-concatenated.tsv", batch=BATCHES),
         # Virus and plasmid predictions per contig
-        #"data/processed/genomad_predictions.csv",
-        #"data/processed/jaeger_predictions.csv",
+        "data/processed/genomad_predictions.csv",
+        "data/processed/jaeger_predictions.csv",
         # Concatenated CCTyper output
         expand(
             OUTPUT_DIR + "cctyper/{batch}/{filename}-{batch}.tab",
