@@ -1,4 +1,4 @@
-# Prepare genomes :material-database-arrow-down
+# Prepare genomes :material-database-arrow-down:
 
 A step-by-step explanation of the `bin/prepare_genomes.sh` script that
 downloads genomes of interest from [AllTheBacteria](https://allthebacteria.readthedocs.io/en/latest/)
@@ -34,14 +34,14 @@ By default, these are all downloaded to the directory `data/ATB/`.
 You then get:
 
 ``` bash
-ena_metadata.0.2.20240606.tsv.gz
-ena_metadata.20240801.tsv.gz
-sample_list.txt.gz
-sylph.tsv.gz
-assembly-stats.tsv.gz
-checkm2.tsv.gz
-species_calls.tsv.gz
-file_list.all.20240805.tsv.gz
+1   ena_metadata.0.2.20240606.tsv.gz
+2   ena_metadata.20240801.tsv.gz
+3   sample_list.txt.gz
+4   sylph.tsv.gz
+5   assembly-stats.tsv.gz
+6   checkm2.tsv.gz
+7   species_calls.tsv.gz
+8   file_list.all.20240805.tsv.gz
 ```
 
 ## 2. Look up accession IDs of species of interest
