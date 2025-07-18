@@ -814,6 +814,46 @@ The differences are less dramatic when viewed on a logarithmic Y-axis.
 Also, there are very few arrays with over 30 spacers (4 according to
 @fig-spacers_per_genome), so the X-axis can be limited to 30.
 
+Summarise the number of spacers per species:
+
+```{r spacers_per_species_summary}
+crispr_cas_annotated %>%
+  mutate(spacers = N_repeats - 1) %>%
+  group_by(simple_species) %>%
+  summarise(
+    min = min(spacers),
+    first_quartile = quantile(spacers, prob = 0.25),
+    mean = mean(spacers),
+    median = median(spacers),
+    third_quartile = quantile(spacers, prob = 0.75),
+    max = max(spacers))
+```
+
+And now check for statistical differences between the species using
+t-tests:
+
+```{r test_repeats_per_species}
+t_test(
+  data = crispr_cas_annotated %>%
+    filter(Orientation == "near_cas"),
+  formula = N_repeats ~ simple_species,
+  alternative = "greater",
+  detailed = T)
+
+t_test(
+  data = crispr_cas_annotated %>%
+    filter(Orientation == "orphan"),
+  formula = N_repeats ~ simple_species,
+  alternative = "greater",
+  detailed = T)
+```
+
+The above one-sided T-test indicates that *C. coli* genomes have more
+CRISPR repeats (and therefore spacers) than *C. jejuni* (p \< 1 ×
+10^-200^) in their CRISPR arrays that are near *cas* genes. This also
+holds true for orphan arrays (p = 4.23 × 10^-10^). In short, *C. coli*
+has longer CRISPR arrays, more spacers, than *C. jejuni*.
+
 # Length of spacers and repeats {#length-of-spacers-and-repeats}
 
 CCTyper reports for each array the length of the repeats and the mean
