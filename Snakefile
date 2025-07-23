@@ -78,8 +78,8 @@ rule all:
         #CRISPRidentify output
         expand(OUTPUT_DIR + "crispridentify/{batch}/complete", batch=BATCHES),
         #concatenated CRISPRidentify output
-        OUTPUT_DIR + "crispridentify/complete_summary.csv",
-        OUTPUT_DIR + "crispridentify/all_spacers.fa",
+        OUTPUT_DIR + "crispridentify/complete_CRISPR-Cas_summary.csv",
+        OUTPUT_DIR + "crispridentify/all_CRISPR-Cas_spacers.fa",
         #spacepharer output
         OUTPUT_DIR + "spacepharer/predicted_phage_matches.tsv",
         OUTPUT_DIR + "spacepharer/predicted_plasmid_matches.tsv",
