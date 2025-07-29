@@ -25,6 +25,9 @@ fi
 echo "Unzipping sequences"
 bzip2 -d data/raw/PLSDB/sequences.fasta.bz2
 
+echo "correcting metadata delims"
+sed -i -E ':a;s/"([^"]*),([^"]*)"/"\1\2"/g;ta' nuccore.csv
+
 #Phagescope download
 mkdir -p data/raw/phagescope
 
