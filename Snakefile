@@ -81,11 +81,11 @@ rule all:
         OUTPUT_DIR + "crispridentify/complete_CRISPR-Cas_summary.csv",
         OUTPUT_DIR + "crispridentify/all_CRISPR-Cas_spacers.fa",
         #spacepharer output
-        OUTPUT_DIR + "spacepharer/predicted_phage_matches.tsv",
-        OUTPUT_DIR + "spacepharer/predicted_plasmid_matches.tsv",
+        "data/processed/phage_matches.tsv",
+        "data/processed/plasmid_matches.tsv",
         #KMA output
-        OUTPUT_DIR + "kma/output/CRISPR-Cas.frag.gz",
-        OUTPUT_DIR + "kma/CRISPR-Cas_alignment.tsv"
+        OUTPUT_DIR + "kma/output/CRISPR.frag.gz",
+        OUTPUT_DIR + "kma/CRISPR_alignment"
 
 
 ### Step 3: Define processing steps that generate the output ###
@@ -445,7 +445,7 @@ rule crispridentify:
         """
     
     cd bin/CRISPRidentify
-    find ../../{params.arrays}/*/fasta/CRISPR-Cas-with_flanks.fasta -size +0c -print0 | \
+    find ../../{params.arrays}/*/fasta/CRISPR_arrays-with_flanks.fasta -size +0c -print0 | \
     parallel -0 --jobs {threads} --retry-failed --halt='now,fail=1'\
     python CRISPRidentify.py --file {{}} --result_folder "../../{params.out_dir}/{{/.}}" --fasta_report True --strand False > ../../{log} 2>&1   
 
@@ -460,17 +460,17 @@ rule merge_crispridentify_batches:
     params:
         spacers_crispr=expand(
             OUTPUT_DIR
-            + "crispridentify/{batch}/CRISPR-Cas-with_flanks/Complete_spacer_dataset.fasta",
+            + "crispridentify/{batch}/CRISPR_arrays-with_flanks/Complete_spacer_dataset.fasta",
             batch=BATCHES,
         ),
         summary_crispr=expand(
             OUTPUT_DIR
-            + "crispridentify/{batch}/CRISPR-Cas-with_flanks/Complete_summary.csv",
+            + "crispridentify/{batch}/CRISPR_arrays-with_flanks/Complete_summary.csv",
             batch=BATCHES,
         ),
     output:
-        spacers_crispr=OUTPUT_DIR + "crispridentify/all_CRISPR-Cas_spacers.fa",
-        summary_crispr=OUTPUT_DIR + "crispridentify/complete_CRISPR-Cas_summary.csv",
+        spacers_crispr=OUTPUT_DIR + "crispridentify/all_spacers.fa",
+        summary_crispr=OUTPUT_DIR + "crispridentify/complete_summary.csv",
     threads: 1
     log:
         "log/merge_crispridentify_batches.txt",
@@ -491,9 +491,54 @@ rule merge_crispridentify_batches:
         """
 
 
+rule merge_cctyper_identify:
+    input:
+        identify=OUTPUT_DIR + "crispridentify/complete_summary.csv",
+        cctyper=expand(OUTPUT_DIR + "cctyper/{batch}/crisprs_all-{batch}.tab", batch=BATCHES)
+    output: 
+        OUTPUT_DIR + "../processed/all_CRISPRS.tab"
+    params:
+        temp1="tmp_file1",
+        temp2="tmp_file2"
+    threads: 1
+    log:
+        "log/merge_cctyper_identify"
+    shell:
+        """
+    first=True
+    for summary in {input.cctyper} ; do
+        if [ $first == True ];
+        then
+            cat $summary > {params.tmp1}
+            first=False
+        else
+            tail -n +2 $summary >> {params.tmp1}
+        fi
+    done
+
+    header=$(head -n 1 {input.identify} | cut -f 1,5,6,7,8,9,10,11,14 -d "," | tr "," "\t")
+    tail -n +2 {input.identify} | cut -f 1,5,6,7,8,9,10,11,14 -d "," | tr "," "\t" > {params.tmp2}
+    first=True
+    while read line;
+        if [ $first == True ];
+        then
+            first=False
+            echo -e "$line\t$header" > {output}
+        else
+            sample=$(cut -f 1 $line)
+            start=$(cut -f 3 $line)
+            start=$(expr $start + 1)
+            match=$(grep "$sample_$start" {tmp2})
+            echo -e "$line\t$match" >> {output}
+        fi
+    done < {params.tmp1}
+    rm {tmp1} {tmp2}
+        """
+
+
 rule cluster_unique_spacers_crispridentify:
     input:
-        OUTPUT_DIR + "crispridentify/all_CRISPR-Cas_spacers.fa",
+        OUTPUT_DIR + "crispridentify/all_spacers.fa",
     output:
         clusters=OUTPUT_DIR + "crispridentify/all_spacers-clustered.clstr",
         spacers=OUTPUT_DIR + "crispridentify/all_spacers-clustered",
@@ -640,9 +685,9 @@ rule collect_jaeger_predictions:
 
 rule spacepharer_spacer_setup:
     input:
-        spacers=OUTPUT_DIR + "crispridentify/all_CRISPR-Cas_spacers.fa",
+        spacers=OUTPUT_DIR + "crispridentify/all_spacers.fa",
     output:
-        spacer_DB=OUTPUT_DIR + "spacepharer/DB_CRISPR-Cas/querysetDB",
+        spacer_DB=OUTPUT_DIR + "spacepharer/DB_CRISPR/querysetDB",
     params:
         tmp_folder=OUTPUT_DIR + "spacepharer/tmpFolder",
     conda:
@@ -666,7 +711,7 @@ rule spacepharer_phage_setup:
         phage_control_DB=OUTPUT_DIR + "spacepharer/phage_DB/controlsetDB",
     params:
         tmp_folder=OUTPUT_DIR + "spacepharer/tmpFolder",
-        DB=config["spacepharer_phage_database"],
+        DB=config["spacepharer_phage_database"] + "*.fasta",
     conda:
         "envs/spacepharer.yml"
     threads: 48
@@ -685,11 +730,12 @@ rule spacepharer_phage_setup:
 
 rule spacepharer_phage:
     input:
-        spacer_DB=OUTPUT_DIR + "spacepharer/DB_CRISPR-Cas/querysetDB",
+        spacer_DB=OUTPUT_DIR + "spacepharer/DB_CRISPR/querysetDB",
         phage_DB=OUTPUT_DIR + "spacepharer/phage_DB/targetsetDB",
         phage_control_DB=OUTPUT_DIR + "spacepharer/phage_DB/controlsetDB",
     output:
         result=OUTPUT_DIR + "spacepharer/predicted_phage_matches.tsv",
+        result_sanitised=OUTPUT_DIR + "spacepharer/predicted_phage_matches_san.tsv",
     params:
         tmp_folder=OUTPUT_DIR + "spacepharer/tmpFolder",
     conda:
@@ -701,14 +747,15 @@ rule spacepharer_phage:
         "log/benchmark/spacepharer/spacepharer_phage.txt"
     shell:
         """
-        spacepharer predictmatch {input.spacer_DB} {input.phage_DB} {input.phage_control_DB} {output.result} {params.tmp_folder} --fmt 2 --threads {threads} > {log} 2>&1
+        spacepharer predictmatch {input.spacer_DB} {input.phage_DB} {input.phage_control_DB} {output.result} {params.tmp_folder} --threads {threads} > {log} 2>&1
+        grep -v "#" {output.result} > {output.result_sanitised} 
         rm -r {params.tmp_folder} >> {log} 2>&1
         """
 
 
 rule spacepharer_plasmid_setup:
     input:
-        DB=config["spacepharer_plasmid_database"],
+        DB=config["spacepharer_plasmid_database"] + "sequences.fasta",
     output:
         DB=OUTPUT_DIR + "spacepharer/plasmid_DB/targetsetDB",
         control_DB=OUTPUT_DIR + "spacepharer/plasmid_DB/controlsetDB",
@@ -734,9 +781,10 @@ rule spacepharer_plasmid:
     input:
         phage_DB=OUTPUT_DIR + "spacepharer/plasmid_DB/targetsetDB",
         phage_control_DB=OUTPUT_DIR + "spacepharer/plasmid_DB/controlsetDB",
-        spacer_DB=OUTPUT_DIR + "spacepharer/DB_CRISPR-Cas/querysetDB",
+        spacer_DB=OUTPUT_DIR + "spacepharer/DB_CRISPR/querysetDB",
     output:
         result=OUTPUT_DIR + "spacepharer/predicted_plasmid_matches.tsv",
+        result_sanitised=OUTPUT_DIR + "spacepharer/predicted_plasmid_matches_san.tsv",
     params:
         tmp_folder=OUTPUT_DIR + "spacepharer/tmpFolder",
     conda:
@@ -749,12 +797,47 @@ rule spacepharer_plasmid:
     shell:
         """
         spacepharer predictmatch {input.spacer_DB} {input.phage_DB} {input.phage_control_DB} {output.result} {params.tmp_folder} --threads {threads} > {log} 2>&1
+        grep -v "#" {output.result} > {output.result_sanitised} 
         rm -r {params.tmp_folder} >> {log} 2>&1
+        """
+
+rule create_spacepharer_table:
+    input:
+        phage=OUTPUT_DIR + "spacepharer/predicted_phage_matches_san.tsv",
+        meta_phage=config["spacepharer_phage_database"],
+        plasmid=OUTPUT_DIR + "spacepharer/predicted_plasmid_matches_san.tsv",
+        meta_plasmid=config["spacepharer_plasmid_database"]
+    output:
+        phage="data/processed/phage_matches.tsv",
+        plasmid="data/processed/plasmid_matches.tsv"
+    threads: 1
+    log:
+        "log/create_spacepharer_table.txt"
+    shell:
+        """
+        echo -e "sample_accession\tphage_accession\tp_best_hit\tspacer_start\tspacer_end\tphage_start\tphage_end\t5_3_PAM\t3_5_PAM\tLength\tGC_content\ttaxonomy\tcompleteness\thost\tlifestyle" > {output.phage}
+        while read line; do
+            ID=$(echo $line | cut -f 2 -d " ")
+            metadata_match=$(grep -w "$ID" {input.meta_phage}/merged_metadata.tsv | cut -f 2-7)
+            echo -e "$line $metadata_match" >> {output.phage}
+        done < {input.phage}
+        
+        echo "starting plasmid"
+        echo -e "sample_accession\tphage_accession\tp_best_hit\tspacer_start\tspacer_end\tphage_start\tphage_end\t5_3_PAM\t3_5_PAM\ttaxonomy" > {output.plasmid}
+        while read line; do
+            ID=$(echo $line | cut -f 2 -d " ")
+            echo $ID
+            nuccore_match=$(grep -w "$ID" {input.meta_plasmid}/nuccore.csv | cut -f 13 -d ",")
+            echo $nuccore_match
+            taxonomy_match=$(grep -w "^$nuccore_match" {input.meta_plasmid}/taxonomy.csv | cut -f 3 -d ",")
+            echo $taxonomy_match
+            echo -e "$line $taxonomy_match" >> {output.plasmid}
+        done < {input.plasmid}
         """
 
 rule kma_indexing:
     input:
-        spacers=OUTPUT_DIR + "crispridentify/all_CRISPR-Cas_spacers.fa"
+        spacers=OUTPUT_DIR + "crispridentify/all_spacers.fa"
     output:
         indexed_spacers=OUTPUT_DIR + "kma/spacer_DB/spacers.name"
     params:
@@ -775,9 +858,9 @@ rule kma:
         genomes=expand(INPUT_DIR + "{batch}/", batch=BATCHES),
         indexed_spacers=OUTPUT_DIR + "kma/spacer_DB/spacers.name"
     output:
-        OUTPUT_DIR + "kma/output/CRISPR-Cas.frag.gz"
+        OUTPUT_DIR + "kma/output/CRISPR.frag.gz"
     params:
-        output=OUTPUT_DIR + "kma/output/CRISPR-Cas",
+        output=OUTPUT_DIR + "kma/output/CRISPR",
         indexed_spacers=OUTPUT_DIR + "kma/spacer_DB/spacers",
         spacers=OUTPUT_DIR + "crispridentify/all_spacers.fa"      
     conda:
@@ -792,26 +875,36 @@ rule kma:
         grep ">" {params.spacers} | cut -f 2 -d ">" | cut -f 1 -d "-" | sort -u > tmp_file
         find {input.genomes} -mindepth 1 -maxdepth 1 -type f -name "*.fa" > all_genomes.txt
         genomes=$(grep -x ".*[0-9]\\.fa" all_genomes.txt | grep -v -f tmp_file)
-        kma -hmm -ID 100 -i $genomes -o {params.output} -t_db {params.indexed_spacers} > {log} 2>&1
+        kma -hmm -i $genomes -o {params.output} -t_db {params.indexed_spacers} > {log} 2>&1
         rm tmp_file all_genomes.txt
         """
 
 rule collect_kma:
     input: 
-        OUTPUT_DIR + "kma/output/CRISPR-Cas.frag.gz"
+        OUTPUT_DIR + "kma/output/CRISPR.frag.gz"
     output:
-        OUTPUT_DIR + "kma/CRISPR-Cas_alignment.tsv"
+        OUTPUT_DIR + "kma/CRISPR_alignment"
     log:
         "log/kma/collect_kma.txt"
     benchmark:
         "log/benchmark/kma/collect_kma.txt"
     shell:
         """
-        > {output}
+        echo -e "spacer\tgenome" > {output}
+        zcat {input} | cut -f 6,7 | cut -f 1 -d " " > tmp_file
         while read line; do
+<<<<<<< HEAD
             input=$(echo "$line" | cut -f 6,7 | cut -f 1 -d " ")
             crispr=$(echo $input | cut -f 1 | cut -f 1,6,7,10,11 -d "_")
             echo "$crispr" >> {output}
         done < <(zcat "{input}")
 
         """
+=======
+            match=$(echo $line | cut -f 2)
+            crispr=$(echo $line | cut -f 1 | cut -f 1,6,7,10,11 -d "_")
+            echo -e "$crispr\t$match" >> {output}
+        done < tmp_file
+        rm tmp_file
+        """
+>>>>>>> output_creation
