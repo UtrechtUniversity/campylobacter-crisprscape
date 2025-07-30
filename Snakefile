@@ -893,18 +893,9 @@ rule collect_kma:
         echo -e "spacer\tgenome" > {output}
         zcat {input} | cut -f 6,7 | cut -f 1 -d " " > tmp_file
         while read line; do
-<<<<<<< HEAD
-            input=$(echo "$line" | cut -f 6,7 | cut -f 1 -d " ")
-            crispr=$(echo $input | cut -f 1 | cut -f 1,6,7,10,11 -d "_")
-            echo "$crispr" >> {output}
-        done < <(zcat "{input}")
-
-        """
-=======
             match=$(echo $line | cut -f 2)
             crispr=$(echo $line | cut -f 1 | cut -f 1,6,7,10,11 -d "_")
             echo -e "$crispr\t$match" >> {output}
         done < tmp_file
         rm tmp_file
         """
->>>>>>> output_creation
