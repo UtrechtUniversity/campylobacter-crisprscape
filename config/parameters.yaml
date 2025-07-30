@@ -6,8 +6,8 @@ input_directory: "data/tmp/ATB/"
 output_directory: "data/tmp/"
 
 genomad_database: "data/genomad_db/"
-spacepharer_phage_database: "data/raw/phagescope/*.fasta"
-spacepharer_plasmid_database: "data/raw/PLSDB/sequences.fasta"
+spacepharer_phage_database: "data/raw/phagescope/"
+spacepharer_plasmid_database: "data/raw/PLSDB/"
 ### 2. Tool-specific parameters ###
 
 mlst:

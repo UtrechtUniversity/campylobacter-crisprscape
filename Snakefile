@@ -81,8 +81,8 @@ rule all:
         OUTPUT_DIR + "crispridentify/complete_summary.csv",
         OUTPUT_DIR + "crispridentify/all_spacers.fa",
         #spacepharer output
-        OUTPUT_DIR + "spacepharer/predicted_phage_matches.tsv",
-        OUTPUT_DIR + "spacepharer/predicted_plasmid_matches.tsv",
+        "data/processed/phage_matches.tsv",
+        "data/processed/plasmid_matches.tsv",
         #KMA output
         OUTPUT_DIR + "kma/output/CRISPR-Cas.frag.gz",
         OUTPUT_DIR + "kma/CRISPR-Cas_alignment.tsv"
@@ -666,7 +666,7 @@ rule spacepharer_phage_setup:
         phage_control_DB=OUTPUT_DIR + "spacepharer/phage_DB/controlsetDB",
     params:
         tmp_folder=OUTPUT_DIR + "spacepharer/tmpFolder",
-        DB=config["spacepharer_phage_database"],
+        DB=config["spacepharer_phage_database"] + "*.fasta",
     conda:
         "envs/spacepharer.yml"
     threads: 48
@@ -690,6 +690,7 @@ rule spacepharer_phage:
         phage_control_DB=OUTPUT_DIR + "spacepharer/phage_DB/controlsetDB",
     output:
         result=OUTPUT_DIR + "spacepharer/predicted_phage_matches.tsv",
+        result_sanitised=OUTPUT_DIR + "spacepharer/predicted_phage_matches_san.tsv",
     params:
         tmp_folder=OUTPUT_DIR + "spacepharer/tmpFolder",
     conda:
@@ -701,14 +702,15 @@ rule spacepharer_phage:
         "log/benchmark/spacepharer/spacepharer_phage.txt"
     shell:
         """
-        spacepharer predictmatch {input.spacer_DB} {input.phage_DB} {input.phage_control_DB} {output.result} {params.tmp_folder} --fmt 2 --threads {threads} > {log} 2>&1
+        spacepharer predictmatch {input.spacer_DB} {input.phage_DB} {input.phage_control_DB} {output.result} {params.tmp_folder} --threads {threads} > {log} 2>&1
+        grep -v "#" {output.result} > {output.result_sanitised} 
         rm -r {params.tmp_folder} >> {log} 2>&1
         """
 
 
 rule spacepharer_plasmid_setup:
     input:
-        DB=config["spacepharer_plasmid_database"],
+        DB=config["spacepharer_plasmid_database"] + "sequences.fasta",
     output:
         DB=OUTPUT_DIR + "spacepharer/plasmid_DB/targetsetDB",
         control_DB=OUTPUT_DIR + "spacepharer/plasmid_DB/controlsetDB",
@@ -737,6 +739,7 @@ rule spacepharer_plasmid:
         spacer_DB=OUTPUT_DIR + "spacepharer/DB_CRISPR/querysetDB",
     output:
         result=OUTPUT_DIR + "spacepharer/predicted_plasmid_matches.tsv",
+        result_sanitised=OUTPUT_DIR + "spacepharer/predicted_plasmid_matches_san.tsv",
     params:
         tmp_folder=OUTPUT_DIR + "spacepharer/tmpFolder",
     conda:
@@ -749,7 +752,42 @@ rule spacepharer_plasmid:
     shell:
         """
         spacepharer predictmatch {input.spacer_DB} {input.phage_DB} {input.phage_control_DB} {output.result} {params.tmp_folder} --threads {threads} > {log} 2>&1
+        grep -v "#" {output.result} > {output.result_sanitised} 
         rm -r {params.tmp_folder} >> {log} 2>&1
+        """
+
+rule create_spacepharer_table:
+    input:
+        phage=OUTPUT_DIR + "spacepharer/predicted_phage_matches_san.tsv",
+        meta_phage=config["spacepharer_phage_database"],
+        plasmid=OUTPUT_DIR + "spacepharer/predicted_plasmid_matches_san.tsv",
+        meta_plasmid=config["spacepharer_plasmid_database"]
+    output:
+        phage="data/processed/phage_matches.tsv",
+        plasmid="data/processed/plasmid_matches.tsv"
+    threads: 1
+    log:
+        "log/create_spacepharer_table.txt"
+    shell:
+        """
+        echo -e "sample_accession\tphage_accession\tp_best_hit\tspacer_start\tspacer_end\tphage_start\tphage_end\t5_3_PAM\t3_5_PAM\tLength\tGC_content\ttaxonomy\tcompleteness\thost\tlifestyle" > {output.phage}
+        while read line; do
+            ID=$(echo $line | cut -f 2 -d " ")
+            metadata_match=$(grep -w "$ID" {input.meta_phage}/merged_metadata.tsv | cut -f 2-7)
+            echo -e "$line $metadata_match" >> {output.phage}
+        done < {input.phage}
+        
+        echo "starting plasmid"
+        echo -e "sample_accession\tphage_accession\tp_best_hit\tspacer_start\tspacer_end\tphage_start\tphage_end\t5_3_PAM\t3_5_PAM\ttaxonomy" > {output.plasmid}
+        while read line; do
+            ID=$(echo $line | cut -f 2 -d " ")
+            echo $ID
+            nuccore_match=$(grep -w "$ID" {input.meta_plasmid}/nuccore.csv | cut -f 13 -d ",")
+            echo $nuccore_match
+            taxonomy_match=$(grep -w "^$nuccore_match" {input.meta_plasmid}/taxonomy.csv | cut -f 3 -d ",")
+            echo $taxonomy_match
+            echo -e "$line $taxonomy_match" >> {output.plasmid}
+        done < {input.plasmid}
         """
 
 rule kma_indexing:
