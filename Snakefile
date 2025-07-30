@@ -445,7 +445,7 @@ rule crispridentify:
         """
     
     cd bin/CRISPRidentify
-    find ../../{params.arrays}/*/fasta/CRISPR-Cas-with_flanks.fasta -size +0c -print0 | \
+    find ../../{params.arrays}/*/fasta/CRISPR_arrays-with_flanks.fasta -size +0c -print0 | \
     parallel -0 --jobs {threads} --retry-failed --halt='now,fail=1'\
     python CRISPRidentify.py --file {{}} --result_folder "../../{params.out_dir}/{{/.}}" --fasta_report True --strand False > ../../{log} 2>&1   
 
@@ -460,17 +460,17 @@ rule merge_crispridentify_batches:
     params:
         spacers_crispr=expand(
             OUTPUT_DIR
-            + "crispridentify/{batch}/CRISPR-Cas-with_flanks/Complete_spacer_dataset.fasta",
+            + "crispridentify/{batch}/CRISPR_arrays-with_flanks/Complete_spacer_dataset.fasta",
             batch=BATCHES,
         ),
         summary_crispr=expand(
             OUTPUT_DIR
-            + "crispridentify/{batch}/CRISPR-Cas-with_flanks/Complete_summary.csv",
+            + "crispridentify/{batch}/CRISPR_arrays-with_flanks/Complete_summary.csv",
             batch=BATCHES,
         ),
     output:
-        spacers_crispr=OUTPUT_DIR + "crispridentify/all_CRISPR-Cas_spacers.fa",
-        summary_crispr=OUTPUT_DIR + "crispridentify/complete_CRISPR-Cas_summary.csv",
+        spacers_crispr=OUTPUT_DIR + "crispridentify/all_spacers.fa",
+        summary_crispr=OUTPUT_DIR + "crispridentify/complete_summary.csv",
     threads: 1
     log:
         "log/merge_crispridentify_batches.txt",
@@ -493,7 +493,7 @@ rule merge_crispridentify_batches:
 
 rule cluster_unique_spacers_crispridentify:
     input:
-        OUTPUT_DIR + "crispridentify/all_CRISPR-Cas_spacers.fa",
+        OUTPUT_DIR + "crispridentify/all_spacers.fa",
     output:
         clusters=OUTPUT_DIR + "crispridentify/all_spacers-clustered.clstr",
         spacers=OUTPUT_DIR + "crispridentify/all_spacers-clustered",
@@ -640,9 +640,9 @@ rule collect_jaeger_predictions:
 
 rule spacepharer_spacer_setup:
     input:
-        spacers=OUTPUT_DIR + "crispridentify/all_CRISPR-Cas_spacers.fa",
+        spacers=OUTPUT_DIR + "crispridentify/all_spacers.fa",
     output:
-        spacer_DB=OUTPUT_DIR + "spacepharer/DB_CRISPR-Cas/querysetDB",
+        spacer_DB=OUTPUT_DIR + "spacepharer/DB_CRISPR/querysetDB",
     params:
         tmp_folder=OUTPUT_DIR + "spacepharer/tmpFolder",
     conda:
@@ -685,7 +685,7 @@ rule spacepharer_phage_setup:
 
 rule spacepharer_phage:
     input:
-        spacer_DB=OUTPUT_DIR + "spacepharer/DB_CRISPR-Cas/querysetDB",
+        spacer_DB=OUTPUT_DIR + "spacepharer/DB_CRISPR/querysetDB",
         phage_DB=OUTPUT_DIR + "spacepharer/phage_DB/targetsetDB",
         phage_control_DB=OUTPUT_DIR + "spacepharer/phage_DB/controlsetDB",
     output:
@@ -734,7 +734,7 @@ rule spacepharer_plasmid:
     input:
         phage_DB=OUTPUT_DIR + "spacepharer/plasmid_DB/targetsetDB",
         phage_control_DB=OUTPUT_DIR + "spacepharer/plasmid_DB/controlsetDB",
-        spacer_DB=OUTPUT_DIR + "spacepharer/DB_CRISPR-Cas/querysetDB",
+        spacer_DB=OUTPUT_DIR + "spacepharer/DB_CRISPR/querysetDB",
     output:
         result=OUTPUT_DIR + "spacepharer/predicted_plasmid_matches.tsv",
     params:
