@@ -491,6 +491,51 @@ rule merge_crispridentify_batches:
         """
 
 
+rule merge_cctyper_identify:
+    input:
+        identify=OUTPUT_DIR + "crispridentify/complete_summary.csv",
+        cctyper=expand(OUTPUT_DIR + "cctyper/{batch}/crisprs_all-{batch}.tab", batch=BATCHES)
+    output: 
+        OUTPUT_DIR + "../processed/all_CRISPRS.tab"
+    params:
+        temp1="tmp_file1",
+        temp2="tmp_file2"
+    threads: 1
+    log:
+        "log/merge_cctyper_identify"
+    shell:
+        """
+    first=True
+    for summary in {input.cctyper} ; do
+        if [ $first == True ];
+        then
+            cat $summary > {params.tmp1}
+            first=False
+        else
+            tail -n +2 $summary >> {params.tmp1}
+        fi
+    done
+
+    header=$(head -n 1 {input.identify} | cut -f 1,5,6,7,8,9,10,11,14 -d "," | tr "," "\t")
+    tail -n +2 {input.identify} | cut -f 1,5,6,7,8,9,10,11,14 -d "," | tr "," "\t" > {params.tmp2}
+    first=True
+    while read line;
+        if [ $first == True ];
+        then
+            first=False
+            echo -e "$line\t$header" > {output}
+        else
+            sample=$(cut -f 1 $line)
+            start=$(cut -f 3 $line)
+            start=$(expr $start + 1)
+            match=$(grep "$sample_$start" {tmp2})
+            echo -e "$line\t$match" >> {output}
+        fi
+    done < {params.tmp1}
+    rm {tmp1} {tmp2}
+        """
+
+
 rule cluster_unique_spacers_crispridentify:
     input:
         OUTPUT_DIR + "crispridentify/all_spacers.fa",
