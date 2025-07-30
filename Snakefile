@@ -52,8 +52,8 @@ rule all:
         # Multilocus Sequence Types (ST) for Campylobacter
         expand(OUTPUT_DIR + "mlst/{batch}-concatenated.tsv", batch=BATCHES),
         # Virus and plasmid predictions per contig
-        "data/processed/genomad_predictions.csv",
-        "data/processed/jaeger_predictions.csv",
+        #"data/processed/genomad_predictions.csv",
+        #"data/processed/jaeger_predictions.csv",
         # Concatenated CCTyper output
         expand(
             OUTPUT_DIR + "cctyper/{batch}/{filename}-{batch}.tab",
@@ -826,11 +826,8 @@ rule create_spacepharer_table:
         echo -e "sample_accession\tphage_accession\tp_best_hit\tspacer_start\tspacer_end\tphage_start\tphage_end\t5_3_PAM\t3_5_PAM\ttaxonomy" > {output.plasmid}
         while read line; do
             ID=$(echo $line | cut -f 2 -d " ")
-            echo $ID
             nuccore_match=$(grep -w "$ID" {input.meta_plasmid}/nuccore.csv | cut -f 13 -d ",")
-            echo $nuccore_match
             taxonomy_match=$(grep -w "^$nuccore_match" {input.meta_plasmid}/taxonomy.csv | cut -f 3 -d ",")
-            echo $taxonomy_match
             echo -e "$line $taxonomy_match" >> {output.plasmid}
         done < {input.plasmid}
         """
