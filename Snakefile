@@ -84,8 +84,8 @@ rule all:
         "data/processed/phage_matches.tsv",
         "data/processed/plasmid_matches.tsv",
         #KMA output
-        OUTPUT_DIR + "kma/output/CRISPR-Cas.frag.gz",
-        OUTPUT_DIR + "kma/CRISPR-Cas_alignment.tsv"
+        OUTPUT_DIR + "kma/output/CRISPR.frag.gz",
+        OUTPUT_DIR + "kma/CRISPR_alignment"
 
 
 ### Step 3: Define processing steps that generate the output ###
@@ -792,7 +792,7 @@ rule create_spacepharer_table:
 
 rule kma_indexing:
     input:
-        spacers=OUTPUT_DIR + "crispridentify/all_CRISPR-Cas_spacers.fa"
+        spacers=OUTPUT_DIR + "crispridentify/all_spacers.fa"
     output:
         indexed_spacers=OUTPUT_DIR + "kma/spacer_DB/spacers.name"
     params:
@@ -813,9 +813,9 @@ rule kma:
         genomes=expand(INPUT_DIR + "{batch}/", batch=BATCHES),
         indexed_spacers=OUTPUT_DIR + "kma/spacer_DB/spacers.name"
     output:
-        OUTPUT_DIR + "kma/output/CRISPR-Cas.frag.gz"
+        OUTPUT_DIR + "kma/output/CRISPR.frag.gz"
     params:
-        output=OUTPUT_DIR + "kma/output/CRISPR-Cas",
+        output=OUTPUT_DIR + "kma/output/CRISPR",
         indexed_spacers=OUTPUT_DIR + "kma/spacer_DB/spacers",
         spacers=OUTPUT_DIR + "crispridentify/all_spacers.fa"      
     conda:
@@ -830,26 +830,27 @@ rule kma:
         grep ">" {params.spacers} | cut -f 2 -d ">" | cut -f 1 -d "-" | sort -u > tmp_file
         find {input.genomes} -mindepth 1 -maxdepth 1 -type f -name "*.fa" > all_genomes.txt
         genomes=$(grep -x ".*[0-9]\\.fa" all_genomes.txt | grep -v -f tmp_file)
-        kma -hmm -ID 100 -i $genomes -o {params.output} -t_db {params.indexed_spacers} > {log} 2>&1
+        kma -hmm -i $genomes -o {params.output} -t_db {params.indexed_spacers} > {log} 2>&1
         rm tmp_file all_genomes.txt
         """
 
 rule collect_kma:
     input: 
-        OUTPUT_DIR + "kma/output/CRISPR-Cas.frag.gz"
+        OUTPUT_DIR + "kma/output/CRISPR.frag.gz"
     output:
-        OUTPUT_DIR + "kma/CRISPR-Cas_alignment.tsv"
+        OUTPUT_DIR + "kma/CRISPR_alignment"
     log:
         "log/kma/collect_kma.txt"
     benchmark:
         "log/benchmark/kma/collect_kma.txt"
     shell:
         """
-        > {output}
+        echo -e "spacer\tgenome" > {output}
+        zcat {input} | cut -f 6,7 | cut -f 1 -d " " > tmp_file
         while read line; do
-            input=$(echo "$line" | cut -f 6,7 | cut -f 1 -d " ")
-            crispr=$(echo $input | cut -f 1 | cut -f 1,6,7,10,11 -d "_")
-            echo "$crispr" >> {output}
-        done < <(zcat "{input}")
-
+            match=$(echo $line | cut -f 2)
+            crispr=$(echo $line | cut -f 1 | cut -f 1,6,7,10,11 -d "_")
+            echo -e "$crispr\t$match" >> {output}
+        done < tmp_file
+        rm tmp_file
         """
