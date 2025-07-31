@@ -25,7 +25,7 @@ Test a CRISPR analysis workflow for the PINNACLE project
 
 - [x] Add CRISPRidentify to workflow
 
-- [ ] Combine results from CCTyper with CRISPRidentify
+- [x] Combine results from CCTyper with CRISPRidentify
 
 - [ ] Make and/or correct scripts for combining results into 'Output files'
 
