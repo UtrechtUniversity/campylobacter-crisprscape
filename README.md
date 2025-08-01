@@ -110,8 +110,14 @@ By running:
 ```bash
 bash bin/download_spacepharer_database.sh
 ```
-Both databases are downloaded, extracted and then merged for use in Spacepharer. If you wish to use a different database or add to them, `config/parameters.yaml` contain the expected database locations after running download_spacepharer_database.sh and can be adjusted as desired. Do note that the file extensions of the database FASTA files SHOULD have the .fasta extension.
+Both databases are downloaded, extracted and then merged for use in Spacepharer. If you wish to use a different database or add to them, see `doc/spacepharer.md` for advice.
 
+### dependency CRISPRidentify
+CRISPRscape uses CRISPRidentify as a second pass over cctyper's output. However this program has no conda environment that contains the program itself and as of writing requires a forked version to function properly. 
+To install CRISPRidentify, run 
+```bash
+git clone https://github.com/Necopy-byte/CRISPRidentify/tree/master bin/
+```
 
 ### Analysis workflow
 
