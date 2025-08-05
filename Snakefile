@@ -52,8 +52,8 @@ rule all:
         # Multilocus Sequence Types (ST) for Campylobacter
         expand(OUTPUT_DIR + "mlst/{batch}-concatenated.tsv", batch=BATCHES),
         # Virus and plasmid predictions per contig
-        #"data/processed/genomad_predictions.csv",
-        #"data/processed/jaeger_predictions.csv",
+        "data/processed/genomad_predictions.csv",
+        "data/processed/jaeger_predictions.csv",
         # Concatenated CCTyper output
         expand(
             OUTPUT_DIR + "cctyper/{batch}/{filename}-{batch}.tab",
@@ -78,8 +78,8 @@ rule all:
         #CRISPRidentify output
         expand(OUTPUT_DIR + "crispridentify/{batch}/complete", batch=BATCHES),
         #concatenated CRISPRidentify output
-        OUTPUT_DIR + "crispridentify/complete_CRISPR-Cas_summary.csv",
-        OUTPUT_DIR + "crispridentify/all_CRISPR-Cas_spacers.fa",
+        OUTPUT_DIR + "crispridentify/complete_summary.csv",
+        OUTPUT_DIR + "crispridentify/all_spacers.fa",
         #merged CRISPRidentify and CCtyper output
         "data/processed/all_CRISPRS.tab",
         #spacepharer output
