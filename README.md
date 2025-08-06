@@ -39,6 +39,12 @@ Test a CRISPR analysis workflow for the PINNACLE project
 
 - [ ] Rewrite 'Problems encountered' into a rationale for our tool selection (as separate document)
 
+- [ ] Write detailed and technical step-by-step description of the workflow
+
+    - [ ] While reviewing the workflow, remove unnecessary pieces and clean-up where possible
+
+- [ ] Setup MkDocs-powered documentation (at least locally, integrate with GitHub pages later)
+
 (_Note to self: Add to this list when other ideas come to mind!_)
 
 ## Workflow description
