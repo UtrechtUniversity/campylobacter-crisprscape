@@ -21,7 +21,7 @@ concatenate_files () {
         all_files=( $(find ${batch} -mindepth 2 -maxdepth 2 -name "${file_basename}") )
         echo "Concatenating all ${#all_files[@]} $(basename ${file_basename}) files!"
 
-        first_file=${all_files[1]}
+        first_file=${all_files[0]}
         # First, only extract the header from the first file:
         head -n 1 ${first_file} > ${output_file}
 
