@@ -1,6 +1,6 @@
 # Step-by-step explanation of the CRISPR-Cas screening workflow (simplified)
 
-``` mermaid title="CRISPR-Cas screening"
+``` mermaid
 flowchart LR
     A([Genome]) -->|Screen CRISPR-Cas| B[Tables]
     A([Genome]) -->|Screen CRISPR-Cas| F(FASTA)
