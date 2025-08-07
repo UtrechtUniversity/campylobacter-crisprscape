@@ -2,12 +2,15 @@ site_name: Campylobacter CRISPRscape
 site_url: https://localhost:8000/campylobacter-crisprscape
 nav:
   - Overview: index.md
+  - User manual: manual.md
   - Workflow details:
     - Prepare genomes:
       - Script functions: prepare_genomes.md
       - Metadata: allthebacteria.md
     - CRISPR screening: CRISPR_screening.md
     - SpacePHARER: spacepharer.md
+  - Output files: enter_here
+  - Development notes: dev_notes.md
 theme:
   name: material
   features:
