@@ -27,9 +27,15 @@ For more detailed documentation, please look at the [project website](https://ut
 
 - [x] Add CRISPRidentify to workflow
 
+   - [ ] And make sure it works on a clean install
+
 - [x] Combine results from CCTyper with CRISPRidentify
 
-- [ ] Make and/or correct scripts for combining results into 'Output files'
+- [ ] Make and/or correct scripts for combining results into 'Output files' (write to `data/processed/`)
+
+   - [ ] Concatenate MLST results
+
+   - [ ] Enable spacer table creation script in Snakefile (add to `rule all`)
 
 - [x] Collect and combine results from geNomad and Jaeger
 
@@ -45,7 +51,7 @@ For more detailed documentation, please look at the [project website](https://ut
 
     - [ ] While reviewing the workflow, remove unnecessary pieces and clean-up where possible
 
-- [ ] Setup MkDocs-powered documentation (at least locally, integrate with GitHub pages later)
+- [x] Setup MkDocs-powered documentation (at least locally, integrate with GitHub pages later)
 
 (_Note to self: Add to this list when other ideas come to mind!_)
 
