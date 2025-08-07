@@ -7,6 +7,8 @@ _Author: Sam Nooij (s.nooij [at] uu.nl)_
 
 Test a CRISPR analysis workflow for the PINNACLE project
 
+For more detailed documentation, please look at the [project website](https://utrechtuniversity.github.io/campylobacter-crisprscape/index.html).
+
 ## Index
 
 1. [Workflow description](#workflow-description)
