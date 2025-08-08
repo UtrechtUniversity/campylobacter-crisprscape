@@ -35,7 +35,7 @@ For more detailed documentation, please look at the
 
    - [ ] Concatenate MLST results
 
-   - [ ] Enable spacer table creation script in Snakefile (add to `rule all`)
+   - [x] Enable spacer table creation script in Snakefile (add to `rule all`)
 
 - [x] Collect and combine results from geNomad and Jaeger
 
