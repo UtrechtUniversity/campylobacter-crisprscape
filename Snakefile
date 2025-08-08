@@ -584,6 +584,21 @@ plot_len1.pl {output.clusters}\
  > {output.distribution}
         """
 
+rule create_crispr_cluster_table_identify:
+    input:
+        clstr=OUTPUT_DIR + "crispridentify/all_spacers-clustered.clstr",
+        fasta=OUTPUT_DIR + "crispridentify/all_spacers.fa",
+    output:
+        "data/processed/all_spacers_table_identify.tsv",
+    conda:
+        "envs/pyfaidx.yaml"
+    threads: 1
+    log:
+        "log/create_crispr_cluster_table_identify.txt",
+    benchmark:
+        "log/benchmark/create_crispr_cluster_table_identify.txt"
+    script:
+        "bin/make_cluster_table_identify.py"
 
 rule concatenate_batches:
     input:
