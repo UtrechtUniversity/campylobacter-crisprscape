@@ -1,0 +1,138 @@
+"""
+Author: Sam Nooij
+Organisation: Utrecht University
+Department: Clinical Infectiology (KLIF), Infectious Diseases & Immunology,
+  Biomolecular Health Sciences, Faculty of Veterinary Medicine
+Date: 2024-11-06
+
+Workflow for testing CRISPR analysis options
+In contrast to the 'regular' Snakefile workflow, which works
+per genome file, this workflow works per batch and runs GNU
+parallel to parallelise processing of the genomes within
+each batch.
+
+
+Input: Fasta files of Campylobacter whole-genomes
+Output: (various)
+
+Example use:
+    $ snakemake --profile config
+
+N.B. Variables are set in the configuration files under `config`.
+"""
+
+from pathlib import Path
+import functools
+import operator
+
+### Step 1: Import configuration file ###
+
+
+configfile: Path("config/parameters.yaml")
+
+
+# Use Python functions to automatically detect batches of genomes fasta files
+# in the input directory as 'BATCHES' and 'SAMPLES'
+INPUT_DIR = config["input_directory"]
+
+BATCH_PATHS = list(Path(INPUT_DIR).glob("*"))
+for batch in BATCH_PATHS:
+    assert Path(batch).is_dir(), f"Batches must be directories, got {batch}"
+
+BATCHES = [batch.stem for batch in BATCH_PATHS]
+
+OUTPUT_DIR = config["output_directory"]
+
+
+### Step 2: Specify output files ###
+
+
+rule all:
+    input:
+        # geNomad output
+#        expand(
+#            OUTPUT_DIR + "genomad-parallel/{batch}/complete",
+#            batch=BATCHES,
+#        ),
+#
+         # Jaeger output
+         expand(
+             OUTPUT_DIR + "jaeger/{batch}/complete",
+             batch=BATCHES,
+         ),
+
+
+### Step 3: Define processing steps that generate the output ###
+
+
+rule crisprcastyper:
+    input:
+        INPUT_DIR + "{batch}/{sample}.fa",
+    output:
+        arguments=OUTPUT_DIR + "cctyper/{batch}/{sample}/arguments.tab",
+        putative_operons=OUTPUT_DIR
+        + "cctyper/{batch}/{sample}/cas_operons_putative.tab",
+        genes=OUTPUT_DIR + "cctyper/{batch}/{sample}/genes.tab",
+        hmmer=OUTPUT_DIR + "cctyper/{batch}/{sample}/hmmer.tab",
+    params:
+        out_dir=OUTPUT_DIR + "cctyper/{batch}/{sample}",
+    conda:
+        "envs/cctyper.yaml"
+    threads: config["cctyper"]["threads"]
+    log:
+        "log/cctyper/{batch}/{sample}.txt",
+    benchmark:
+        "log/benchmark/cctyper/{batch}/{sample}.txt"
+    shell:
+        """
+rm -rf {params.out_dir}
+cctyper -t {threads} {input} {params.out_dir} > {log} 2>&1
+        """
+
+
+rule genomad:
+    input:
+        batch=INPUT_DIR + "{batch}/",
+        db=config["genomad_database"],
+    output:
+        OUTPUT_DIR + "genomad-parallel/{batch}-fs/complete"
+    params:
+        output_dir=OUTPUT_DIR + "genomad-parallel/{batch}-fs/",
+    conda:
+        "envs/genomad.yaml"
+    threads: config["genomad"]["threads"]
+    log:
+        "log/genomad/{batch}-fewer_splits.txt",
+    benchmark:
+        "log/benchmark/genomad/{batch}-fewer_splits.txt"
+    shell:
+        """
+parallel --jobs {threads} --retry-failed --halt='now,fail=1'\
+ genomad end-to-end -t 2 --splits 2 --cleanup --enable-score-calibration\
+ {{}} "{params.output_dir}{{/.}}" {input.db} > {log} 2>&1 ::: {input.batch}/*.fa
+touch {output}
+        """
+
+
+rule jaeger:
+    input:
+        batch=INPUT_DIR + "{batch}/"
+    output:
+        OUTPUT_DIR + "jaeger/{batch}/complete"
+    params:
+        output_dir=OUTPUT_DIR + "jaeger/{batch}/"
+    conda:
+        "envs/jaeger.yaml"
+    threads: config["jaeger"]["threads"]
+    log:
+        "log/jaeger/{batch}.txt"
+    benchmark:
+        "log/benchmark/jaeger/{batch}.txt"
+    shell:
+        """
+parallel --jobs {threads} --retry-failed --halt='now,fail=1'\
+ Jaeger -p --workers 1 -i {{}} -o "{params.output_dir}{{/.}}" --overwrite\
+ > {log} 2>&1 ::: {input.batch}/*.fa
+
+touch {output}
+        """

@@ -1,0 +1,21 @@
+How to process output files
+
+To extract the number of CRISPR spacers and operons from CCTyper's output,
+the following files can be read:
+
+Number of CRISPR-Cas loci may be obtained from `CRISPR_Cas.tab`: number of lines other than the header.
+  - This file contains a prediction value (False, Ambiguous, True?) and type.
+  - This file also contains the contig name and start and stop positions, which can be used
+    to extract the sequence from the fasta file that was used as input.
+
+Number of CRISPR spacers is in `crisprs_all.tab`; again remember to subtract the header line.
+  - For the number of spacers near Cas-genes, there is `crisprs_near_cas.tab`.
+  - This file contains contig names and start and stop positions per CRISPR which can be used
+    to extract the sequence from the input fasta file.
+  - These files also contain the number of repeats, spacer length, type, consensus sequence of the repeat,
+    prediction scores and prediction result.
+
+There is also a file with putative Cas operons, which we probably won't need, as this is already
+automatically parsed and turned into the `CRISPR_Cas.tab` file. The file `cas_operons_putative.tab`
+contains a list of predicted Cas operons with prediction scores. Those that are not 'False' seem
+to go to `CRISPR_Cas.tab`.
