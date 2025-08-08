@@ -3,6 +3,15 @@ on:
   push:
     branches:
       - main
+    paths:
+      - 'doc/*.md'
+      - 'mkdocs.yaml'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'doc/*.md'
+      - 'mkdocs.yaml'
 permissions:
   contents: write
 jobs:
