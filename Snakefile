@@ -73,7 +73,6 @@ rule all:
         OUTPUT_DIR + "cctyper/spacer_cluster_summary.tsv",
         # Cluster unique CRISPR spacers
         OUTPUT_DIR + "cctyper/all_spacers-clustered.clstr",
-        OUTPUT_DIR + "cctyper/all_spacers_table.tsv",
         OUTPUT_DIR + "crispridentify/all_spacers-clustered.clstr",
         "data/processed/all_spacers_table_identify.tsv",
         "data/processed/all_spacers_table.tsv",
@@ -85,7 +84,7 @@ rule all:
         OUTPUT_DIR + "crispridentify/complete_summary.csv",
         OUTPUT_DIR + "crispridentify/all_spacers.fa",
         #merged CRISPRidentify and CCtyper output
-        "data/processed/all_CRISPRS.tab",
+        "data/processed/all_CRISPRS_with_identify.tab",
         #spacepharer output
         "data/processed/phage_matches.tsv",
         "data/processed/plasmid_matches.tsv",
