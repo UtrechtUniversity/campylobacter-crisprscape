@@ -1,6 +1,6 @@
 # Test CRISPR workflow
 
-[![Project Status: WIP – Initial development is in progress, but there has not yet been a stable, usable release suitable for the public.](https://www.repostatus.org/badges/latest/wip.svg)](https://www.repostatus.org/#wip) [![License](https://img.shields.io/badge/License-BSD_3--Clause-blue.svg)](https://opensource.org/licenses/BSD-3-Clause)
+[![Project Status: WIP – Initial development is in progress, but there has not yet been a stable, usable release suitable for the public.](https://www.repostatus.org/badges/latest/wip.svg)](https://www.repostatus.org/#wip) [![License](https://img.shields.io/badge/License-BSD_3--Clause-blue.svg)](https://opensource.org/licenses/BSD-3-Clause) [![pages-build-deployment](https://github.com/UtrechtUniversity/campylobacter-crisprscape/actions/workflows/pages/pages-build-deployment/badge.svg)](https://utrechtuniversity.github.io/campylobacter-crisprscape/)
 
 _Date: 2024-09-12_  
 _Author: Sam Nooij (s.nooij [at] uu.nl)_
