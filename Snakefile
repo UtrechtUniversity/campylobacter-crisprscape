@@ -72,7 +72,11 @@ rule all:
         # CCTyper CRISPR spacer cluster analysis report
         OUTPUT_DIR + "cctyper/spacer_cluster_summary.tsv",
         # Cluster unique CRISPR spacers
-        OUTPUT_DIR + "all_spacers-clustered.clstr",
+        OUTPUT_DIR + "cctyper/all_spacers-clustered.clstr",
+        OUTPUT_DIR + "cctyper/all_spacers_table.tsv",
+        OUTPUT_DIR + "crispridentify/all_spacers-clustered.clstr",
+        "data/processed/all_spacers_table_identify.tsv",
+        "data/processed/all_spacers_table.tsv",
         # Extracted CRISPR arrays (as fasta)
         expand(OUTPUT_DIR + "arrays/{batch}/complete", batch=BATCHES),
         #CRISPRidentify output
@@ -389,9 +393,9 @@ rule cluster_unique_spacers:
     input:
         OUTPUT_DIR + "cctyper/all_spacers.fa",
     output:
-        clusters=OUTPUT_DIR + "all_spacers-clustered.clstr",
-        spacers=OUTPUT_DIR + "all_spacers-clustered",
-        distribution=OUTPUT_DIR + "all_spacers-clustered-distribution.tsv",
+        clusters=OUTPUT_DIR + "cctyper/all_spacers-clustered.clstr",
+        spacers=OUTPUT_DIR + "cctyper/all_spacers-clustered",
+        distribution=OUTPUT_DIR + "cctyper/all_spacers-clustered-distribution.tsv",
     conda:
         "envs/cdhit.yaml"
     threads: 1
@@ -413,10 +417,10 @@ plot_len1.pl {output.clusters}\
 
 rule create_crispr_cluster_table:
     input:
-        clstr=OUTPUT_DIR + "all_spacers-clustered.clstr",
+        clstr=OUTPUT_DIR + "cctyper/all_spacers-clustered.clstr",
         fasta=OUTPUT_DIR + "cctyper/all_spacers.fa",
     output:
-        OUTPUT_DIR + "cctyper/all_spacers_table.tsv",
+        "data/processed/all_spacers_table.tsv",
     conda:
         "envs/pyfaidx.yaml"
     threads: 1
@@ -498,7 +502,7 @@ rule merge_cctyper_identify:
         identify=OUTPUT_DIR + "crispridentify/complete_summary.csv",
         cctyper=expand(OUTPUT_DIR + "cctyper/{batch}/crisprs_all-{batch}.tab", batch=BATCHES)
     output: 
-        "data/processed/all_CRISPRS.tab"
+        "data/processed/all_CRISPRS_with_identify.tab"
     params:
         tmp1="tmp_file1",
         tmp2="tmp_file2"
@@ -561,8 +565,7 @@ rule cluster_unique_spacers_crispridentify:
     output:
         clusters=OUTPUT_DIR + "crispridentify/all_spacers-clustered.clstr",
         spacers=OUTPUT_DIR + "crispridentify/all_spacers-clustered",
-        distribution=OUTPUT_DIR
-        + "crispridentify/all_spacers-clustered-distribution.tsv",
+        distribution=OUTPUT_DIR + "crispridentify/all_spacers-clustered-distribution.tsv",
     conda:
         "envs/cdhit.yaml"
     threads: 1
