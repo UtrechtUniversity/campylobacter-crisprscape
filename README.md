@@ -24,6 +24,25 @@ For more detailed documentation, please look at the
 
 ---
 
+## Release roadmap
+
+1. [ ] Verify CRISPR screening functionality (CCTyper + CRISPRidentify);
+ generate CRISPR-Cas array table and CRISPR spacer table
+
+2. [ ] Complete documentation for 'basic' functions:
+
+    - [ ] User manual
+
+    - [ ] Step-by-step process description
+
+    - [ ] Output file descriptions
+
+3. [ ] Clean-up code
+
+    - [ ] Remove outdated/unnecessary steps
+
+    - [ ] Apply standardised code formatting
+
 ## To do
 
 - [x] Add CRISPRidentify to workflow
