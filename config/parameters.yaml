@@ -29,9 +29,6 @@ extract_sequences:
 extract_arrays:
   threads: 10
 
-extract_sequences:
-  threads: 10
-
 genomad:
   threads: 20
 
