@@ -26,3 +26,29 @@ by John van Dam: <https://stackoverflow.com/a/55007872>. As described there,
 this makes the whole DAG simpler, and the processing faster, at the cost
 of losing checks by Snakemake to see if all expected output files are
 generated.
+
+## Using other inputs than ATB
+
+This workflow was designed to work with bacterial genomes from
+[AllTheBacteria](https://allthebacteria.readthedocs.io/en/latest/) (ATB)
+as input and has provided scripts to automatically download genomes
+of the bacterial species of interest.
+However, the processing steps should work equally well on other genomes in
+FASTA format. Currently, the easiest way to 'trick' the workflow into using
+custom input is to either modify the input directory line in
+`config/parameters.yaml`:
+
+``` yaml
+input_directory: "data/tmp/ATB/"
+```
+
+to wherever you stored your files, or create this directory and copy
+your genomes to there. Furthermore, Snakemake expects the input to be stored
+in batches, using a directory that is named 'batch_*', where the asterisk
+can match anything. So for example, you can make a directory:
+`data/tmp/ATB/batch_custom`, put your FASTA files in there and Snakemake
+should pick them up and have them analysed.
+
+Also note that downstream processing, i.e., statistical analyses and
+visualisation, make use of the metadata provided with ATB. This would have
+to be adjusted to the custom data as well.
