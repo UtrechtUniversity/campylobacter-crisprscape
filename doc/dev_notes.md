@@ -10,6 +10,18 @@ sheds light on _why we use the tools and parameters we use_.
 (Rationale for including in the `Snakefile` or providing separate scripts
 that need to be run before running the workflow with `snakemake`.)
 
+Databases are downloaded for:
+
+- ATB input genomes (script `bin/prepare_genomes.sh`)
+
+- Multilocus sequence typing (Snakemake rule `download_mlst_database`)
+
+- PADLOC anti-phage defence system screening (Snakemake rule `download_padloc_database`)
+
+- geNomad plasmid/phage predictions (not included, undocumented)
+
+- SpacePHARER CRISPR target prediction (script `download_spacepharer_database.sh`)
+
 ## Use of GNU parallel over Snakemake
 
 Snakemake is very good at running processes in parallel and making
