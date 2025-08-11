@@ -1,0 +1,3 @@
+[submodule "bin/crispridentify"]
+	path = bin/crispridentify
+	url = https://github.com/Necopy-byte/CRISPRidentify
