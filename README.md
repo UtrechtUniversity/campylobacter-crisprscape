@@ -13,6 +13,7 @@ For more detailed documentation, please look at the
 
 1. [Workflow description](#workflow-description)
    - [download genomes](#download-genomes)
+   - [download databases](#download-databases)
    - [analysis workflow](#analysis-workflow)
    - [future suggestions](#suggestions-of-programsanalyses-to-test)
 2. [Output files](#output-files)
@@ -118,17 +119,50 @@ default input directory for the analysis workflow.
 
 ### Download Databases
 
-The bin folder also includes scripts to download and extract pre-selected databases for use in Spacepharer. 
-These include [Phagescope](https://phagescope.deepomics.org/) for annotated phage sequences and [PLSDB](https://ccb-microbe.cs.uni-saarland.de/plsdb2025/) for annotated plasmid sequences which have been chosen for their broad taxonomy selection. 
+#### [geNomad](https://portal.nersc.gov/genomad/index.html)
+
+This workflow uses geNomad to predict whether genomic contigs derive from
+chromosomal DNA, plasmids or viruses. This tool uses both a neural network
+classifier and a marker-based approach to calculate prediction scores.
+For the marker-based method, it requires a database which can be downloaded
+using the tool geNomad itself. If you have installed
+[mamba](https://mamba.readthedocs.io/en/latest/)
+this can be done as follows:
+
+``` bash
+mamba env create -f envs/genomad.yaml
+mamba activate genomad
+genomad download-database data/
+```
+
+Note that this will create the subdirectory `data/genomad_db/`,
+which is the default that is also defined in
+[`config/parameters.yaml`](config/parameters.yaml).
+
+The current version of the database, v1.7, uses 1.4GB disk space.
+
+#### [SpacePHARER](https://github.com/soedinglab/spacepharer)
+
+The bin folder also includes scripts to download and extract pre-selected
+databases for use in Spacepharer.
+These include [Phagescope](https://phagescope.deepomics.org/) for annotated
+phage sequences and [PLSDB](https://ccb-microbe.cs.uni-saarland.de/plsdb2025/)
+for annotated plasmid sequences which have been chosen for their broad taxonomy.
 By running:
+
 ```bash
 bash bin/download_spacepharer_database.sh
 ```
-Both databases are downloaded, extracted and then merged for use in Spacepharer. If you wish to use a different database or add to them, see `doc/spacepharer.md` for advice.
+
+Both databases are downloaded, extracted and then merged for use in Spacepharer.
+If you wish to use a different database or add to them, see
+[`doc/spacepharer.md`](https://utrechtuniversity.github.io/campylobacter-crisprscape/spacepharer.html)
+for advice.
 
 ### dependency CRISPRidentify
-CRISPRscape uses CRISPRidentify as a second pass over cctyper's output. However this program has no conda environment that contains the program itself and as of writing requires a forked version to function properly. 
-To install CRISPRidentify, run 
+CRISPRscape uses CRISPRidentify as a second pass over cctyper's output. However this program has no conda environment that contains the program itself and as of writing requires a forked version to function properly.
+To install CRISPRidentify, run
+
 ```bash
 git clone https://github.com/Necopy-byte/CRISPRidentify/tree/master bin/
 ```
@@ -282,9 +316,9 @@ Unticked boxes indicate that documentation has not been written yet.
 ├── bin                <- Code and programs used in this project/experiment
 ├── config             <- Configuration of Snakemake workflow
 ├── data               <- All project data, divided in subfolders
-│   ├── processed      <- Final data, used for visualisation (e.g. tables)
-│   ├── raw            <- Raw data, original, should not be modified (e.g. fastq files)
-│   └── tmp            <- Intermediate data, derived from the raw data, but not yet ready for visualisation
+│   ├── processed      <- Final data, used for visualisation (e.g. tables)
+│   ├── raw            <- Raw data, original, should not be modified (e.g. fastq files)
+│   └── tmp            <- Intermediate data, derived from the raw data, but not yet ready for visualisation
 ├── doc                <- Project documentation, notes and experiment records
 ├── envs               <- Conda environments necessary to run the project/experiment
 ├── log                <- Log files from programs
