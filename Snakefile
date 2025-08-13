@@ -129,7 +129,7 @@ rule mlst:
         "log/benchmark/mlst/{batch}.txt"
     shell:
         """
-find {input.batch} -mindepth 1 -maxdepth 1 -type f -name "*.fa" -print0 |\
+find -L {input.batch} -mindepth 1 -maxdepth 1 -type f -name "*.fa" -print0 |\
  parallel -0 --jobs {threads} --retry-failed --halt='now,fail=1'\
  claMLST search {input.db} {{}} -o "$(dirname {output})/{{/.}}.txt" > {log} 2>&1
 
@@ -172,7 +172,7 @@ rule crisprcastyper:
         "log/benchmark/cctyper/{batch}.txt"
     shell:
         """
-find {input.batch} -mindepth 1 -maxdepth 1 -type f -name "*.fa" -print0 |\
+find -L {input.batch} -mindepth 1 -maxdepth 1 -type f -name "*.fa" -print0 |\
  parallel -0 --jobs {threads} --retry-failed --halt='now,fail=1'\
  'rm -rf "{params.out_dir}{{/.}}" &&\
  cctyper -t 1 {{}} "{params.out_dir}{{/.}}"' > {log} 2>&1
@@ -213,7 +213,7 @@ rule padloc:
         "log/benchmark/padloc/{batch}.txt"
     shell:
         """
-find {input.batch} -mindepth 1 -maxdepth 1 -type f -name "*.fa" -print0 |\
+find -L {input.batch} -mindepth 1 -maxdepth 1 -type f -name "*.fa" -print0 |\
  parallel -0 --jobs {threads} --retry-failed --halt='now,fail=1'\
  'mkdir -p "$(dirname {output})/{{/.}}" && padloc --cpu 1 --fna {{}} --outdir "$(dirname {output})/{{/.}}"' > {log} 2>&1
 
@@ -906,7 +906,7 @@ rule kma:
     shell:
         """     
         grep ">" {params.spacers} | cut -f 2 -d ">" | cut -f 1 -d "-" | sort -u > tmp_file
-        find {input.genomes} -mindepth 1 -maxdepth 1 -type f -name "*.fa" > all_genomes.txt
+        find -L {input.genomes} -mindepth 1 -maxdepth 1 -type f -name "*.fa" > all_genomes.txt
         genomes=$(grep -x ".*[0-9]\\.fa" all_genomes.txt | grep -v -f tmp_file)
         kma -hmm -i $genomes -o {params.output} -t_db {params.indexed_spacers} > {log} 2>&1
         rm tmp_file all_genomes.txt
