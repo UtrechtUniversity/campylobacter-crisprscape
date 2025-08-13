@@ -26,7 +26,7 @@ For more detailed documentation, please look at the
 
 ## Release roadmap
 
-1. [ ] Verify CRISPR screening functionality (CCTyper + CRISPRidentify);
+1. [x] Verify CRISPR screening functionality (CCTyper + CRISPRidentify);
  generate CRISPR-Cas array table and CRISPR spacer table
 
 2. [ ] Complete documentation for 'basic' functions:
@@ -47,7 +47,7 @@ For more detailed documentation, please look at the
 
 - [x] Add CRISPRidentify to workflow
 
-   - [ ] And make sure it works on a clean install
+   - [x] And make sure it works on a clean install
 
 - [x] Combine results from CCTyper with CRISPRidentify
 
