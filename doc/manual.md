@@ -1,5 +1,51 @@
 # CRISPRscape user manual
 
+## Quick start
+
+Install dependencies:
+[git](https://git-scm.com/downloads/),
+[mamba](https://github.com/conda-forge/miniforge?tab=readme-ov-file#install)
+and
+[Snakemake](https://snakemake.readthedocs.io/en/stable/getting_started/installation.html#full-installation)
+.
+
+Download the repository (including submodules):
+
+``` bash
+git clone --recurse-submodules https://github.com/UtrechtUniversity/campylobacter-crisprscape.git
+```
+
+Move into the downloaded directory:
+
+``` bash
+cd campylobacter-crisprscape
+```
+
+Download genomes from AllTheBacteria
+
+``` bash
+bash bin/prepare_genomes.sh
+```
+
+Download reference databases for geNomad and SpacePHARER:
+
+``` bash
+mamba env create -f envs/genomad.yaml
+mamba activate genomad
+genomad download-database data/
+
+bash bin/download_spacepharer_database.sh
+```
+
+Run the actual analysis workflow:
+
+``` bash
+snakemake --profile config
+```
+
+_For a more detailed explanation and information for adjusting parameters,_
+_please see below._
+
 ## 1. Before you start
 
 The CRISPRscape workflow relies on two main tools for managing the workflow
@@ -11,7 +57,7 @@ Furthermore, since the project is hosted on GitHub, we expect you to use
 [git](https://git-scm.com/).
 
 CRISPRscape is designed to work with the
-[AllTheBacteria]()
+[AllTheBacteria](https://allthebacteria.readthedocs.io/en/latest/)
 resource to download all high-quality genomes of a given species.
 (The example on which it was first tested is _Campylobacter coli_
 and _C. jejuni_, combined.)
@@ -74,7 +120,7 @@ make sure to use the taxonomy from
 
 This also affects multilocus sequence typing (MLST): CRISPRscape includes
 automated MLST, which requires downloading the proper marker gene database.
-This information is stored under 
+This information is stored under
 [`config/parameters.yaml`](https://github.com/UtrechtUniversity/campylobacter-crisprscape/blob/8f66f87d44ef6a8761e372d67074227f0b64c026/config/parameters.yaml#L15)
 .
 For finding valid species names, please consult
