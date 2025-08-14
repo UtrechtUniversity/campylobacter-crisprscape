@@ -8,6 +8,7 @@ nav:
       - Script functions: prepare_genomes.md
       - Metadata: allthebacteria.md
     - CRISPR screening: CRISPR_screening.md
+    - CRISPR clustering: clustering_spacers.md
     - SpacePHARER: spacepharer.md
   - Output files: enter_here
   - Development notes: dev_notes.md
