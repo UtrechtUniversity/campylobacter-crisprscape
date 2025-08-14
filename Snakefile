@@ -544,8 +544,8 @@ rule merge_cctyper_identify:
                     else
                         start=$(echo -e "$line2" | cut -f 2)
                         start=$(expr "$start" + "$start_cc" - 5000)
-                        end=$(echo -e "$line2" | cut -f 3)
-                        end=$(expr "$end" + "$start" - 5000)
+                        length=$(echo -e "$line2" | cut -f 4)
+                        end=$(expr "$length" + "$start" - 1)
                         begin=$(echo -e "$line2" | cut -f 1)
                         rest=$(echo -e "$line2" | cut -f 4-9)
                         echo -e "$line\t$begin\t$start\t$end\t$rest" >> {output}
