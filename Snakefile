@@ -681,7 +681,7 @@ rule jaeger:
     shell:
         """
 parallel --jobs {threads} --retry-failed --halt='now,fail=1'\
- Jaeger -p --workers 1 -i {{}} -o "{params.output_dir}{{/.}}" --overwrite\
+ jaeger run -p --workers 1 -i {{}} -o "{params.output_dir}{{/.}}" --overwrite\
  > {log} 2>&1 ::: {input.batch}/*.fa
 
 touch {output}
