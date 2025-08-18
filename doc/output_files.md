@@ -167,3 +167,27 @@ members in clusters of various sizes.
 Also see the user guide on
 [bioinformatics.org](https://www.bioinformatics.org/cd-hit/cd-hit-user-guide)
 for details on CD-HIT's output files and extra tools.
+
+### Spacer cluster table
+
+To facilitate further analyses on the spacer level, we have included the
+step `create_crispr_cluster_table`, which calls
+[`bin/make_cluster_table.py`](https://github.com/UtrechtUniversity/campylobacter-crisprscape/blob/main/bin/make_cluster_table.py)
+to parse the output of CD-HIT and create a tab-separated table that looks
+like:
+
+``` bash
+$ head data/processed/all_spacers_table.tsv
+Genome  Contig  Locus   Cluster Length  Cluster_representative  Sequence        Identity        Strand
+SAMN30649373    contig00012     SAMN30649373.contig00012_1:1    0       75nt    SAMN30649373.contig00012_1:1    TATAGCAGTAAAATAGGCTTTAGAATGTATTTTATAAAAGCGTAAAAAATCAATATTATACCGACATTTTGCGAC     NA      NA
+SAMN30649373    contig00012     SAMN30649373.contig00012_1:2    0       55nt    SAMN30649373.contig00012_1:1    TATAGCAGTAAAATAGGCTTTAGAATGTATTTTATAAAAGCGTAAAAAATCAATA 100.00% +
+SAMN19302369    contig00024     SAMN19302369.contig00024_2:1    1       57nt    SAMN19302369.contig00024_2:1    TATTATATAATATATACTAGTGCATTTTGATAATAATTATCGACTTCAAGTAAAATT       NA      NA
+SAMN36876523    contig00043     SAMN36876523.contig00043_2:1    2       56nt    SAMN36876523.contig00043_2:1    ATGCTTGGCTTTTTTGTAGTATATAGCAATGCTATATATCCTAGTATATACTTAAA        NA      NA
+SAMN11571935    contig00011     SAMN11571935.contig00011_2:1    3       56nt    SAMN11571935.contig00011_2:1    ATAATGGTAAAATAGTCTTTAGAATGTATTTTAAAAAAGCATAAAAAGCTAATATA        NA      NA
+SAMN32601407    contig00036     SAMN32601407.contig00036_2:1    4       56nt    SAMN32601407.contig00036_2:1    ATAATGGTAAAATAGTCTTTAGAATGTATTTTAAATAAACTTAAAAAGCTAATATA        NA      NA
+SAMEA1676287    contig00014     SAMEA1676287.contig00014_1:2    5       56nt    SAMEA1676287.contig00014_1:2    TAGAAAATTTTTTATAAAAAATGTATATTTTTTTACCAAAAAATGAGACAAAAGCA        NA      NA
+SAMEA1676287    contig00014     SAMEA1676287.contig00014_1:4    5       56nt    SAMEA1676287.contig00014_1:2    TAGAAAATTTTTTATAAAAAATGTATATTTTTTTACCAAAAAATGAGACAAAAGCA        100.00% +
+SAMN15582136    contig00006     SAMN15582136.contig00006_1:9    6       55nt    SAMN15582136.contig00006_1:9    CTCAAACTTAGATTTATGGTAAAATTCAAATTCAAATATGACATCTAATAGTGAC NA      NA
+```
+
+!!! info "Final output: `data/processed/all_spacers_table.tsv`"
