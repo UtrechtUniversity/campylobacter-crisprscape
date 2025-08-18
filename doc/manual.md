@@ -183,7 +183,7 @@ genomad download-database data/
 
 Note that this will create the subdirectory `data/genomad_db/`,
 which is the default that is also defined in
-[`config/parameters.yaml`](config/parameters.yaml).
+[`config/parameters.yaml`](https://github.com/UtrechtUniversity/campylobacter-crisprscape/blob/main/config/parameters.yaml).
 
 The current version of the database, v1.7, uses 1.4GB disk space.
 
