@@ -1,5 +1,17 @@
 # Output files
 
+!!! note
+
+    Files that we consider to be the 'final output' of this workflow are
+    labelled with a box like this:
+
+    !!! info "Final output: `data/processed/filename`"
+
+    They are stored in the directory `data/processed/`.
+
+    Other output files are often not needed for end-users and are stored in
+    `data/tmp/`.
+
 ## 1. CRISPR-Cas screening
 
 ### 1.1 CCTyper
