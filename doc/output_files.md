@@ -203,3 +203,16 @@ SAMN15582136    contig00006     SAMN15582136.contig00006_1:9    6       55nt    
 ```
 
 !!! info "Final output: `data/processed/all_spacers_table.tsv`"
+
+## 2. CRISPR-Cas refinement
+
+### 2.1 Evaluation by CRISPRidentify
+
+See the original documentation on
+[CRISPRidentify's output](https://github.com/BackofenLab/CRISPRidentify#output-files)
+.
+
+(Write a couple of sentences describing the output and maybe include some
+examples from the command-line.)
+
+!!! info "Final output: `data/processed/all_CRISPRS_with_identify.tab`"
