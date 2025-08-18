@@ -139,6 +139,11 @@ GTGGGCATAAGCAACTTAATGGCAGGATTT
 TAAAGCTGGAAATTTTTCAACTAATTTACC
 ```
 
+!!! Warning "Warning: missing piece"
+
+    Note that we currently do not have a separate step to concatenate
+    the CSV files derived from CCTyper.
+
 ## Cluster spacers: CCTyper
 
 All CRISPR spacer sequences identified by CCTyper are clustered with

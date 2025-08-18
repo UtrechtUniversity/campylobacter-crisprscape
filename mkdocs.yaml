@@ -52,3 +52,6 @@ markdown_extensions:
       url_download: false
       url_max_size: 33554432
       url_timeout: 10
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
