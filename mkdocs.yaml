@@ -10,7 +10,7 @@ nav:
     - CRISPR screening: CRISPR_screening.md
     - CRISPR clustering: clustering_spacers.md
     - SpacePHARER: spacepharer.md
-  - Output files: enter_here
+  - Output files: output_files.md
   - Development notes: dev_notes.md
 theme:
   name: material

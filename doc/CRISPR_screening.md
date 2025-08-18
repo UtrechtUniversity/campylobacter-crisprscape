@@ -15,7 +15,10 @@ flowchart LR
 
 ## 1. Screening genomes for presence of CRISPR-Cas :octicons-search-16:
 
-We screen each input genome for the presence of CRISPR-Cas loci using CCTyper.
+We screen each input genome for the presence of CRISPR-Cas loci using 
+[CCTyper](https://github.com/Russel88/CRISPRCasTyper).
+For a detailed overview of the method, please see the
+[paper (preprint)](https://doi.org/10.1101/2020.05.15.097824).
 CCTyper produces tab-separated output tables summarising results of:
 
 1. Complete CRISPR-Cas systems (CRISPR + Cas locus)
@@ -27,6 +30,10 @@ each array gets one FASTA file with spacers as separate entries/lines.
 
 This is described in the `Snakefile` rule `crisprcastyper`.
 The output files have the extension `.tab`.
+
+CCTyper also provides a visual output for each identified locus, for example:
+
+![Figure 1: CCTyper output](figures/cctyper_plot.svg){width="560"}
 
 ### 1.1 Summarising the summaries :octicons-stack-16:
 
@@ -91,3 +98,20 @@ After the concatenation of CCTyper's output files per batch, CRISPR
 spacer sequences (as `.fa` files) for all batches are concatenated
 in one batch with the rule `concatenate_all_spacers`.
 This results in a single file `all_spacers.fasta` for all input genomes together.
+
+### Output files generated in the process :file_folder: :material-file-table: :material-file-table:
+
+Each step in the process generates a number of output files, which by default
+are written to:
+
+``` bash
+data/
+  tmp/
+    cctyper/            # Here go overall files, such as 'all_spacers.fa'
+      batch_[number]/   # Here we get batch-wide files, such as
+                        #  'CRISPR-Cas-batch_[number].csv'.
+        [sample_id]/    # Here go the sample-specific files, such as CCTyper's
+                        #  primary output, for example 'crisprs_all.tab'
+```
+
+For more details on the output files, see [output](output_files.md).
