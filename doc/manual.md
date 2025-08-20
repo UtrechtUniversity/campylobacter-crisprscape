@@ -1,6 +1,6 @@
 # CRISPRscape user manual
 
-## Quick start
+## Quick start :material-run-fast:
 
 Install dependencies:
 [git](https://git-scm.com/downloads/),
@@ -53,7 +53,7 @@ snakemake --profile config
 _For a more detailed explanation and information for adjusting parameters,_
 _please see below._
 
-## 1. Before you start
+## 1. Before you start :octicons-info-16:
 
 The CRISPRscape workflow relies on two main tools for managing the workflow
 and installing software:
@@ -69,7 +69,7 @@ resource to download all high-quality genomes of a given species.
 (The example on which it was first tested is _Campylobacter coli_
 and _C. jejuni_, combined.)
 
-### Estimated disk use
+### Estimated disk use :material-harddisk:
 
 !!! warning
 
@@ -89,7 +89,7 @@ and _C. jejuni_, combined.)
 
 - [geNomad database](#genomad): 1.4GB
 
-### Download and install software
+### Download and install software :material-download:
 
 Before you begin, you need to install:
 (follow these links to find installation instructions)
@@ -123,12 +123,12 @@ cd campylobacter-crisprscape
 (You may of course rename this directory if you want to. Just make sure you
 remember it.)
 
-### Tunable parameters
+### Tunable parameters :material-tune:
 
 CRISPRscape includes some options that can be modified by the user.
 These are stored in YAML and TXT files under the `config` directory.
 
-#### Species of interest
+#### Species of interest :fontawesome-solid-binoculars:
 
 The species of interest can be modified to your liking by changing the file
 [`config/species_of_interest.txt`](https://github.com/UtrechtUniversity/campylobacter-crisprscape/blob/main/config/species_of_interest.txt)
@@ -154,7 +154,7 @@ For finding valid species names, please consult
 [pyMLST](https://pymlst.readthedocs.io/en/latest/documentation/clamlst/initialise.html#import-from-pubmlst)
 .
 
-#### Technical parameters
+#### Technical parameters :material-tools:
 
 Then, there are some technical parameters that you can adjust to fit your
 system. These range from the input directory in which your genomes are stored
@@ -171,7 +171,7 @@ The default CPU settings are:
 
 - Use 20 CPU threads for most compute-intensive tasks
 
-### Download input genomes
+### Download input genomes :material-cloud-download:
 
 CRISPRscape includes a convenient script to autmatically download genomes
 of interest from ATB. When the desired species name is saved in
@@ -190,7 +190,7 @@ default). For example:
 bash bin/prepare_genomes.sh all
 ```
 
-### Downloading databases
+### Downloading databases :material-cloud-download:
 
 #### [geNomad](https://portal.nersc.gov/genomad/index.html)
 
@@ -232,7 +232,7 @@ If you wish to use a different database or add to them, see
 [`doc/spacepharer.md`](https://utrechtuniversity.github.io/campylobacter-crisprscape/spacepharer.html)
 for advice.
 
-## 2. Running the workflow
+## 2. Running the workflow :material-run:
 
 The workflow is fully automated and should complete with one command.
 For details on what happens under the hood, see the tab 'Workflow details'.
@@ -249,7 +249,7 @@ To run the actual workflow:
 snakemake --profile config
 ```
 
-## 3. Interpreting results
+## 3. Interpreting results :material-magnify:
 
 After running the workflow, the user is presented with a number of output files.
 These are described in detail under the tab 'Output files'.
