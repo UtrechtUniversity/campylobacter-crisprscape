@@ -405,7 +405,7 @@ rule cluster_unique_spacers:
     shell:
         """
 cd-hit-est -c 1 -n 8 -r 1 -g 1 -AS 0 -sf 1 -d 0 -T {threads}\
- -i {input} -o {output.spacers}
+ -i {input} -o {output.spacers} > {log} 2>&1
 
 plot_len1.pl {output.clusters}\
  1,2-4,5-9,10-19,20-49,50-99,100-499,500-99999\
@@ -575,7 +575,7 @@ rule cluster_unique_spacers_crispridentify:
     shell:
         """
 cd-hit-est -c 1 -n 8 -r 1 -g 1 -AS 0 -sf 1 -d 0 -T {threads}\
- -i {input} -o {output.spacers}
+ -i {input} -o {output.spacers} > {log} 2>&1
 
 plot_len1.pl {output.clusters}\
  1,2-4,5-9,10-19,20-49,50-99,100-499,500-99999\
