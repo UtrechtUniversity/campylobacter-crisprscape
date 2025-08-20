@@ -252,4 +252,4 @@ snakemake --profile config
 ## 3. Interpreting results :material-magnify:
 
 After running the workflow, the user is presented with a number of output files.
-These are described in detail under the tab 'Output files'.
+These are described in detail under the tab '[Output files](output_files.md)'.
