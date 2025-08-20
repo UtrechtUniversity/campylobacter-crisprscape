@@ -5,12 +5,16 @@
 ### Rationale of two-step approach
 
 It has been shown that CCTyper, the primary method we use for CRISPR-Cas
-identification, has a high false-positive rate. Or rather, that the tool
+identification, may have a high false-positive rate. Or rather, that the tool
 that it relies on (
 [MinCED](https://github.com/ctSkennerton/minced)
 , derived from 
 [CRT](https://www.room220.com/crt/)
-) has a high false-positive rate. Therefore, we include a second tool,
+) has a high false-positive rate.
+Furthermore, we have found that with highly similar CRISPR arrays in
+different genomes, the start and stop positions of repeats and spacers may
+shift by one or more positions when comparing these arrays.
+Therefore, we include a second tool,
 [CRISPRidentify](https://github.com/BackofenLab/CRISPRidentify)
 to evaluate the loci identified by CCTyper.
 For a detailed description of how CRISPRidentify works, we refer you to the
@@ -33,8 +37,8 @@ different modules of which this tool or suite consists.
 
 In brief, CRISPRidentify has two crucial advantages compared to CCTyper:
 
-1. It has a more sophisticated method of identifying CRISPR repeats and
-their correct start and stop positions (details in 
+1. It has a more sophisticated method of identifying the correct start and
+stop positions of CRISPR repeats (details in
 [Supplementary file 1](https://academic.oup.com/nar/article/49/4/e20/6027817?login=false#supplementary-data)
 )
 
