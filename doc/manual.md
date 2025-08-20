@@ -37,6 +37,13 @@ genomad download-database data/
 bash bin/download_spacepharer_database.sh
 ```
 
+_Optional:_ Do a dry-run to check if Snakemake can find all the right input
+and output files:
+
+``` bash
+snakemake --profile config -n
+```
+
 Run the actual analysis workflow:
 
 ``` bash
