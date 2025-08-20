@@ -19,7 +19,7 @@ The workflow works as follows:
 
 3. [Cluster identified CRISPR spacers](clustering_spacers.md)
 
-4. [Refine identiffied CRISPR arrays](CRISPR_refinement.md)
+4. [Refine identified CRISPR arrays](CRISPR_refinement.md)
 
 ## What it creates
 
