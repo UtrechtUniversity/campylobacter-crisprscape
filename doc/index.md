@@ -17,9 +17,9 @@ The workflow works as follows:
 
 2. [Screen for presence of CRISPR-Cas systems](CRISPR_screening.md)
 
-3. [Cluster identified CRISPR spacers](clustering_spacers.md)
+3. [Refine identified CRISPR arrays](CRISPR_refinement.md)
 
-4. [Refine identified CRISPR arrays](CRISPR_refinement.md)
+4. [Cluster identified CRISPR spacers](clustering_spacers.md)
 
 ## What it creates
 
