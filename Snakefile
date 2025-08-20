@@ -405,7 +405,7 @@ rule cluster_unique_spacers:
     shell:
         """
 cd-hit-est -c 1 -n 8 -r 1 -g 1 -AS 0 -sf 1 -d 0 -T {threads}\
- -i {input} -o {output.spacers}
+ -i {input} -o {output.spacers} > {log} 2>&1
 
 plot_len1.pl {output.clusters}\
  1,2-4,5-9,10-19,20-49,50-99,100-499,500-99999\
@@ -544,8 +544,8 @@ rule merge_cctyper_identify:
                     else
                         start=$(echo -e "$line2" | cut -f 2)
                         start=$(expr "$start" + "$start_cc" - 5000)
-                        end=$(echo -e "$line2" | cut -f 3)
-                        end=$(expr "$end" + "$start" - 5000)
+                        length=$(echo -e "$line2" | cut -f 4)
+                        end=$(expr "$length" + "$start" - 1)
                         begin=$(echo -e "$line2" | cut -f 1)
                         rest=$(echo -e "$line2" | cut -f 4-9)
                         echo -e "$line\t$begin\t$start\t$end\t$rest" >> {output}
@@ -575,7 +575,7 @@ rule cluster_unique_spacers_crispridentify:
     shell:
         """
 cd-hit-est -c 1 -n 8 -r 1 -g 1 -AS 0 -sf 1 -d 0 -T {threads}\
- -i {input} -o {output.spacers}
+ -i {input} -o {output.spacers} > {log} 2>&1
 
 plot_len1.pl {output.clusters}\
  1,2-4,5-9,10-19,20-49,50-99,100-499,500-99999\
@@ -681,7 +681,7 @@ rule jaeger:
     shell:
         """
 parallel --jobs {threads} --retry-failed --halt='now,fail=1'\
- Jaeger -p --workers 1 -i {{}} -o "{params.output_dir}{{/.}}" --overwrite\
+ jaeger run -p --workers 1 -i {{}} -o "{params.output_dir}{{/.}}" --overwrite\
  > {log} 2>&1 ::: {input.batch}/*.fa
 
 touch {output}

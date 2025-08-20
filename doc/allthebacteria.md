@@ -4,6 +4,17 @@ Last updated: September 2024
 
 ## Metadata files and sizes
 
+After downloading all metadata using the bundled script, you have:
+
+``` bash
+$ ls -sh data/ATB/
+total 1.4G
+679M ena_metadata.20240801.tsv.gz            74M assembly-stats.tsv.gz
+ 18M file_list.all.20240805.tsv.gz           63M checkm2.tsv.gz
+5.5M sample_list.txt.gz                     371M ena_metadata.0.2.20240606.tsv.gz
+17M species_calls.tsv.gz                    104M sylph.tsv.gz
+```
+
 - Assembly statistics `assembly-stats.tsv.gz` 74MB
   - Lists per sample accession the total length, number of contigs, N50 and
    more statistics of the assembly.

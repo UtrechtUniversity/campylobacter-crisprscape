@@ -15,7 +15,10 @@ flowchart LR
 
 ## 1. Screening genomes for presence of CRISPR-Cas :octicons-search-16:
 
-We screen each input genome for the presence of CRISPR-Cas loci using CCTyper.
+We screen each input genome for the presence of CRISPR-Cas loci using 
+[CCTyper](https://github.com/Russel88/CRISPRCasTyper).
+For a detailed overview of the method, please see the
+[paper (preprint)](https://doi.org/10.1101/2020.05.15.097824).
 CCTyper produces tab-separated output tables summarising results of:
 
 1. Complete CRISPR-Cas systems (CRISPR + Cas locus)
@@ -27,6 +30,10 @@ each array gets one FASTA file with spacers as separate entries/lines.
 
 This is described in the `Snakefile` rule `crisprcastyper`.
 The output files have the extension `.tab`.
+
+CCTyper also provides a visual output for each identified locus, for example:
+
+![Figure 1: CCTyper output](figures/cctyper_plot.svg){width="560"}
 
 ### 1.1 Summarising the summaries :octicons-stack-16:
 
@@ -60,9 +67,57 @@ _Note that CCTyper reports putative cas operons._
 _The `concatenate_cctyper_output.sh` script also makes a `.tab` file of_
 _predicted 'true' operons as `cas_operons-[batch name].tab`._
 
+On a technical note, rather than using Snakemake's built-in parallelisation,
+we rely on GNU parallel to process genomes in batches. The code is:
+
+``` bash
+find -L {input.batch} -mindepth 1 -maxdepth 1 -type f -name "*.fa" -print0 |\
+ parallel -0 --jobs {threads} --retry-failed --halt='now,fail=1'\
+ 'rm -rf "{params.out_dir}{{/.}}" &&\
+ cctyper -t 1 {{}} "{params.out_dir}{{/.}}"' > {log} 2>&1
+
+touch {output}
+```
+
+`find` is used to localise the input files with extension '.fa'.
+(`-type f` matches files only, while the `-L` option enables the use of
+symbolic links.)
+These files are then passed to `parallel`, which executes the codeblock
+from `rm -rf` to `cctyper`. To prevent funny results with previous analyses,
+we remove any previous output directories and then run CCTyper with default
+parameters and 1 CPU thread to analyse the given input genome.
+All the command-line output (stdout and stderr) is written to the log file
+specified in the `Snakefile`.
+
+For more details on using GNU parallel, see the
+[development notes](dev_notes.md#use-of-gnu-parallel-over-snakemake).
+
 ### 1.3 Collect all identified CRISPR spacers :octicons-list-ordered-16:
 
 After the concatenation of CCTyper's output files per batch, CRISPR
 spacer sequences (as `.fa` files) for all batches are concatenated
 in one batch with the rule `concatenate_all_spacers`.
 This results in a single file `all_spacers.fasta` for all input genomes together.
+
+### Output files generated in the process :file_folder: :material-file-table: :material-file-table:
+
+Each step in the process generates a number of output files, which by default
+are written to:
+
+``` bash
+data/
+  tmp/
+    cctyper/            # Here go overall files, such as 'all_spacers.fa'
+      batch_[number]/   # Here we get batch-wide files, such as
+                        #  'CRISPR-Cas-batch_[number].csv'.
+        [sample_id]/    # Here go the sample-specific files, such as CCTyper's
+                        #  primary output, for example 'crisprs_all.tab'
+```
+
+For more details on the output files, see [output](output_files.md).
+
+#### Next steps
+
+&rarr; [Cluster spacers](clustering_spacers.md)
+
+&rarr; [Refine CRISPRs](CRISPR_refinement.md)

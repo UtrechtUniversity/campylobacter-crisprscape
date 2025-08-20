@@ -31,11 +31,13 @@ For more detailed documentation, please look at the
 
 2. [ ] Complete documentation for 'basic' functions:
 
-    - [ ] User manual
+    - [x] User manual
 
-    - [ ] Step-by-step process description
+    - [x] Step-by-step process description
 
-    - [ ] Output file descriptions
+    - [x] Output file descriptions
+  
+    - [ ] Expand CRISPRidentify-based pieces
 
 3. [ ] Clean-up code
 

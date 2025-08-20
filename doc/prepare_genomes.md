@@ -135,3 +135,7 @@ This option is most relevant to `bin/download_genomes.sh`.
 
 - The script reads whether files exist already. If they are already there,
 they will not be downloaded again.
+
+#### Next steps
+
+&rarr; [Screen CRISPRs](CRISPR_screening.md)
