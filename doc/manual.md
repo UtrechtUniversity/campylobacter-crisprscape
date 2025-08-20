@@ -62,6 +62,26 @@ resource to download all high-quality genomes of a given species.
 (The example on which it was first tested is _Campylobacter coli_
 and _C. jejuni_, combined.)
 
+### Estimated disk use
+
+!!! warning
+
+    CRISPRscape requires downloading multiple databases.
+    Prepare to use hundreds of GBs!
+
+- [AllTheBacteria metadata](allthebacteria.md): ~1.5GB
+
+    - AllTheBacteria genomes: depends on species
+    (e.g., 197GB for ~130,000 _Campylobacter_ genomes)
+
+- Databases of [SpacePHARER](#spacepharer):
+
+    - [PLSDB](spacepharer.md#plsdb-2024_05_31_v2): ~80GB
+
+    - [Phagescope](spacepharer.md#phagescope): ~320GB
+
+- [geNomad database](#genomad): 1.4GB
+
 ### Download and install software
 
 Before you begin, you need to install:
