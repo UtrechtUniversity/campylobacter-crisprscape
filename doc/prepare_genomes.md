@@ -1,8 +1,31 @@
 # Prepare genomes :material-database-arrow-down:
 
-A step-by-step explanation of the `bin/prepare_genomes.sh` script that
-downloads genomes of interest from [AllTheBacteria](https://allthebacteria.readthedocs.io/en/latest/)
-along with the relevant metadata.
+CRISPRscape includes scripts to automatically download bacterial genomes
+from [AllTheBacteria](https://allthebacteria.readthedocs.io/en/latest/),
+along with the available metadata (from the European Nucleotide Archive).
+
+This page provides a step-by-step explanation of the `bin/prepare_genomes.sh`
+script. The script can be run as:
+
+``` bash
+bash bin/prepare_genomes.sh
+```
+
+(Also see the [manual](manual.md#download-input-genomes).)
+
+And it does the following things:
+
+1. [Download ATB metadata](#1-download-atb-metadata)
+
+2. [Extract species of interest](#2-look-up-accession-ids-of-species-of-interest)
+
+3. [Filter its respective metadata](#3-filter-metadata)
+
+4. [Identify the right batches](#4-find-batches-that-contain-species-of-interest)
+
+5. [Download genome batches](#5-download-the-genomes)
+
+6. [Remove non-target species](#6-remove-other-species)
 
 ## 1. Download ATB metadata
 
@@ -51,6 +74,8 @@ name per line, the script looks up all matches in the `species_calls.tsv.gz`
 file from ATB and filters the high-quality assemblies.
 The accession IDs are stored in a separate file:
 `data/ATB/all_samples_of_interest.txt`.
+([Modify this file](manual.md#species-of-interest) if you want different
+species.)
 
 As an extra, the script reads the total number of selected genomes,
 which is printed to the command-line (stdout).
@@ -100,6 +125,28 @@ files. (It does not retry downloading automatically.)
 The files (as batches) are downloaded as XZ archive, which are
 extracted to subdirectories named after the batch number.
 This yields FASTA files in a directory called `data/tmp/ATB/batch_[number]`.
+
+### Default species: _Campylobacter coli_ and _C. jejuni_
+
+This workflow has been developed for and tested on _Campylobacter_ genomes.
+As of 2024-09-19,
+[AllTheBacteria](https://allthebacteria.readthedocs.io/en/latest/)
+includes 129,080 _C. coli_ and _C. jejuni_ genomes.
+(Up from 104,146 before the incremental update.
+That means there are 24,934 extra genomes.)
+
+### Quality filtering
+
+Genomes are pre-filtered to include only 'high-quality' genomes.
+AllTheBacteria has its own
+[quality criteria](https://allthebacteria.readthedocs.io/en/latest/sample_metadata.html#high-quality-dataset):
+
+- &#8805;99% species abundance (practically pure)
+- &#8805;90% completeness (CheckM2)
+- &#8804;5% contaminated (CheckM2)
+- total length between 100 kbp and 15 Mbp
+- &#8804; 2,000 contigs
+- &#8805; 2,000 N50
 
 ## 6. Remove other species
 

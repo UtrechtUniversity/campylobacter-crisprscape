@@ -6,8 +6,7 @@ Install dependencies:
 [git](https://git-scm.com/downloads/),
 [mamba](https://github.com/conda-forge/miniforge?tab=readme-ov-file#install)
 and
-[Snakemake](https://snakemake.readthedocs.io/en/stable/getting_started/installation.html#full-installation)
-.
+[Snakemake](https://snakemake.readthedocs.io/en/stable/getting_started/installation.html#full-installation).
 
 Download the repository (including submodules):
 
@@ -78,14 +77,14 @@ and _C. jejuni_, combined.)
 
 - [AllTheBacteria metadata](allthebacteria.md): ~1.5GB
 
-    - AllTheBacteria genomes: depends on species
+      - AllTheBacteria genomes: depends on species
     (e.g., 197GB for ~130,000 _Campylobacter_ genomes)
 
 - Databases of [SpacePHARER](#spacepharer):
 
-    - [PLSDB](spacepharer.md#plsdb-2024_05_31_v2): ~80GB
+      - [PLSDB](spacepharer.md#plsdb-2024_05_31_v2): ~80GB
 
-    - [Phagescope](spacepharer.md#phagescope): ~320GB
+      - [Phagescope](spacepharer.md#phagescope): ~320GB
 
 - [geNomad database](#genomad): 1.4GB
 
@@ -151,8 +150,7 @@ This information is stored under
 [`config/parameters.yaml`](https://github.com/UtrechtUniversity/campylobacter-crisprscape/blob/8f66f87d44ef6a8761e372d67074227f0b64c026/config/parameters.yaml#L15)
 .
 For finding valid species names, please consult
-[pyMLST](https://pymlst.readthedocs.io/en/latest/documentation/clamlst/initialise.html#import-from-pubmlst)
-.
+[pyMLST](https://pymlst.readthedocs.io/en/latest/documentation/clamlst/initialise.html#import-from-pubmlst).
 
 #### Technical parameters :material-tools:
 

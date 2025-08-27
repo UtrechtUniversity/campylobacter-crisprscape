@@ -52,5 +52,9 @@ CD-HIT-EST is used to cluster all CRISPR spacer sequences as reported by
 CCTyper, and later also those reported (or rather, modified) by CRISRPidentify.
 This allows the user to tell how many unique spacer sequences were detected.
 
-Note: for alignment coverage control options, see the figure on page 9 of
-[the documentation](http://www.bioinformatics.org/cd-hit/cd-hit-user-guide.pdf)
+The output files are briefly described in the
+[output files](output_files.md#cluster-spacers-cctyper)
+page. For more details on CD-HIT's output, and for information on
+alignment coverage control options (figure on page 9), see
+[CD-HIT's documentation](http://www.bioinformatics.org/cd-hit/cd-hit-user-guide.pdf)
+on bioinformatics.org.

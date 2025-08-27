@@ -26,24 +26,19 @@ For more detailed documentation, please look at the
 
 ## Release roadmap
 
-1. [x] Verify CRISPR screening functionality (CCTyper + CRISPRidentify);
- generate CRISPR-Cas array table and CRISPR spacer table
+- Version 0.1 updates:
 
-2. [ ] Complete documentation for 'basic' functions:
+    - Updates in documentation of implemented functions and output files
+(e.g., expaning documentation on the use of CRISPRidentify)
 
-    - [x] User manual
+    - Functions to concatenate and combine existing outputs
 
-    - [x] Step-by-step process description
+    - Code clean-up (moving long commands to separate scripts,
+applying standardised formatting, remove unnecessary code)
 
-    - [x] Output file descriptions
-  
-    - [ ] Expand CRISPRidentify-based pieces
+- Versions 0.2 and further:
 
-3. [ ] Clean-up code
-
-    - [ ] Remove outdated/unnecessary steps
-
-    - [ ] Apply standardised code formatting
+    - New functionality (e.g., all-vs-all genome comparisons)
 
 ## To do
 
@@ -67,9 +62,9 @@ For more detailed documentation, please look at the
 
 - [ ] Write documentation for output files
 
-- [ ] Rewrite 'Problems encountered' into a rationale for our tool selection (as separate document)
+- [x] Rewrite 'Problems encountered' into a rationale for our tool selection (as separate document)
 
-- [ ] Write detailed and technical step-by-step description of the workflow
+- [x] Write detailed and technical step-by-step description of the workflow
 
     - [ ] While reviewing the workflow, remove unnecessary pieces and clean-up where possible
 
@@ -77,124 +72,25 @@ For more detailed documentation, please look at the
 
 (_Note to self: Add to this list when other ideas come to mind!_)
 
+## User manual
+
+Please consult the
+[user manual](https://utrechtuniversity.github.io/campylobacter-crisprscape/manual.html)
+on our documentation page, which includes a quick start guide as well as a
+detailed step-by-step description.
+
 ## Workflow description
-
-### Input files to prepare
-
-- _Campylobacter jujuni_ and _coli_ genomes from [AllTheBacteria](https://allthebacteria.readthedocs.io/en/latest/)
-
-As of 2024-09-19 this includes 129,080 genomes!
-(Up from 104,146 before the incremental update.
-That means there are 24,934 extra genomes now.)
-
-_Note: AllTheBacteria has its own [quality criteria](https://allthebacteria.readthedocs.io/en/latest/sample_metadata.html#high-quality-dataset) for inclusion._
-_This includes:_
-
-- \>=99% species abundance (practically pure)
-- \>= 90% completeness (CheckM2)
-- \<= 5% contaminated (CheckM2)
-- total length between 100 kbp and 15 Mbp
-- \<= 2,000 contigs
-- \>= N50 2,000
-
-### Download genomes
-
-This repository includes scripts to automatically download genome files and metadata from ATB.
-These can be run as follows:
-
-```bash
-git clone https://github.com/UtrechtUniversity/campylobacter-crisprscape.git
-cd campylobacter-crisprscape
-bash bin/prepare_genomes.sh
-```
-
-By default this downloads high-quality _Campylobacter jejuni_ and _C. coli_ genomes from the incremental update.
-This [`prepare_genomes.sh`](bin/prepare_genomes.sh) script links to other scripts and has to be run from the 'base' folder as shown above.
-The script itself contains a general description of how it works and to use it.
-In short, it:
-
- 1. Dowloads the metadata from AllTheBacteria (see [this script](bin/download_ATB_metadata.sh)).
-By default, it downloads to the `data/ATB/` subdirectory and a different directory
-can be provided as command-line argument.
-
- 2. Extract sample accession IDs of the species of interest, as defined in
-[`config/species_of_interest.txt`](config/species_of_interest.txt).
-Edit this file if you want to run this workflow for different species!
-
- 3. Look up the metadata of the species of interest by filtering the ENA metadata file.
-
- 4. Find the batches in AllTheBacteria that contain the species of interest.
-
- 5. Download the genome sequences of the species of interest (i.e., the batches identified in step 4).
-
- 6. Remove other species from the downloaded batches.
-(Batches may contain a mix of different species.)
-
-As of February 2025, AllTheBacteria consists of an original set of genomes and
-an incremental update. The `prepare_genomes.sh` script can download either part,
-or all of the genomes at once using command-line options 'all', 'original', or
-'update' (default: update).
-
-The genomes are downloaded to the `data/tmp/ATB/` subdirectory. This is also the
-default input directory for the analysis workflow.
-
-### Download Databases
-
-#### [geNomad](https://portal.nersc.gov/genomad/index.html)
-
-This workflow uses geNomad to predict whether genomic contigs derive from
-chromosomal DNA, plasmids or viruses. This tool uses both a neural network
-classifier and a marker-based approach to calculate prediction scores.
-For the marker-based method, it requires a database which can be downloaded
-using the tool geNomad itself. If you have installed
-[mamba](https://mamba.readthedocs.io/en/latest/)
-this can be done as follows:
-
-``` bash
-mamba env create -f envs/genomad.yaml
-mamba activate genomad
-genomad download-database data/
-```
-
-Note that this will create the subdirectory `data/genomad_db/`,
-which is the default that is also defined in
-[`config/parameters.yaml`](config/parameters.yaml).
-
-The current version of the database, v1.7, uses 1.4GB disk space.
-
-#### [SpacePHARER](https://github.com/soedinglab/spacepharer)
-
-The bin folder also includes scripts to download and extract pre-selected
-databases for use in Spacepharer.
-These include [Phagescope](https://phagescope.deepomics.org/) for annotated
-phage sequences and [PLSDB](https://ccb-microbe.cs.uni-saarland.de/plsdb2025/)
-for annotated plasmid sequences which have been chosen for their broad taxonomy.
-By running:
-
-```bash
-bash bin/download_spacepharer_database.sh
-```
-
-Both databases are downloaded, extracted and then merged for use in Spacepharer.
-If you wish to use a different database or add to them, see
-[`doc/spacepharer.md`](https://utrechtuniversity.github.io/campylobacter-crisprscape/spacepharer.html)
-for advice.
-
-### dependency CRISPRidentify
-CRISPRscape uses CRISPRidentify as a second pass over cctyper's output. However this program has no conda environment that contains the program itself and as of writing requires a forked version to function properly.
-To install CRISPRidentify, run
-
-```bash
-git clone https://github.com/Necopy-byte/CRISPRidentify/tree/master bin/
-```
 
 ### Analysis workflow
 
-The analysis itself is recorded as a [Snakemake](https://snakemake.readthedocs.io/en/stable/) workflow.
+The analysis is recorded as a
+[Snakemake](https://snakemake.readthedocs.io/en/stable/) workflow.
 Its dependencies (bioinformatics tools) are handled by Snakemake using the conda
-package manager, or rather its successor [mamba](https://mamba.readthedocs.io/en/latest/).
+package manager, or rather its successor
+[mamba](https://mamba.readthedocs.io/en/latest/).
 If you have not yet done so, please install mamba following the instructions
-found here: <https://mamba.readthedocs.io/en/latest/installation/mamba-installation.html>.
+found here:
+<https://mamba.readthedocs.io/en/latest/installation/mamba-installation.html>.
 
 After installing mamba, snakemake can be installed using their instructions:
 <https://snakemake.readthedocs.io/en/stable/getting_started/installation.html#full-installation>
@@ -208,7 +104,7 @@ When Snakemake has been set up, you can test if the workflow is ready to be run
 snakemake --profile config -n
 ```
 
-If that returns no errors, run the workflow by removin the `-n` (dry-run) option:
+If that returns no errors, run the workflow by removing the `-n` (dry-run) option:
 
 ```bash
 snakemake --profile config
@@ -216,7 +112,7 @@ snakemake --profile config
 
 Note that the workflow is currently configured to run on the local machine
 (not on a high-performance computing (HPC) cluster or grid) and uses a maximum
-of 24 CPU threads. The number of threads to use can be configured in:
+of 60 CPU threads. The number of threads to use can be configured in:
 [`config/config.yaml`](config/config.yaml) (overall workflow) and
 [`config/parameters.yaml`](config/parameters.yaml) (per step/tool).
 
@@ -234,38 +130,51 @@ In its current state, the workflow:
 plasmids or viruses using both [geNomad](https://portal.nersc.gov/genomad/index.html) (version 1.8.0)
 and [Jaeger](https://github.com/Yasas1994/Jaeger) (version 1.1.26).
 
- 5. Predicts the potential targets of spacers and whether they target chromosomal DNA (of input genomes), plasmid or viruses using [Spacepharer](https://github.com/fbaumdicker/SpacerPlacer) (version 1.0.1) and [kma](https://github.com/genomicepidemiology/kma).
+ 5. Predicts the potential targets of spacers and whether they target
+chromosomal DNA (of input genomes), plasmid or viruses using
+[Spacepharer](https://github.com/soedinglab/spacepharer) (version 5.c2e680a)
+and [kma](https://github.com/genomicepidemiology/kma) (version 1.5.0).
 
 Further steps are added to the workflow after testing!
 
+### Preparing input and databases
+
+Before running the workflow, the user needs to prepare input genomes and
+databases.
+Also see the corresponding documentation pages for details:
+
+- [Prepare genomes](https://utrechtuniversity.github.io/campylobacter-crisprscape/prepare_genomes.html)
+- [Download databases](https://utrechtuniversity.github.io/campylobacter-crisprscape/manual.html#downloading-databases)
+
 ### Suggestions of programs/analyses to test
 
-1. Mash with CRISPR loci, and whole genomes
+1. Mash with CRISPR loci, and whole genomes (compare all-vs-all)
 
-2. Map CRISPR spacers to all downloaded genomes (bowtie, and KMA?), metagenome assemblies, other databases?
+2. Map CRISPR spacers to all downloaded genomes (bowtie, KMA, and Sassy?),
+metagenome assemblies, other databases to predict targets
 
-3. Whole-genome MLST
-
-4. SpacerPlacer (see input file format in <https://github.com/fbaumdicker/SpacerPlacer?tab=readme-ov-file#spacer_fasta-input-format>
+3. SpacerPlacer (see input file format in <https://github.com/fbaumdicker/SpacerPlacer?tab=readme-ov-file#spacer_fasta-input-format>
  (also requires an extra conversion script?)
 
 ## Output files
 
-Unticked boxes indicate that documentation has not been written yet.
+Ticked boxes indicate that
+[documentation](https://utrechtuniversity.github.io/campylobacter-crisprscape/output_files.html)
+is available.
 
-- [ ] ENA metadata
+- [x] ENA metadata
   - Cleaned-up and filtered metadata of included genomes
 
-- [ ] Species classifications
+- [x] Species classifications
   - Taxonomic classification by Sylph, as collected from AllTheBacteria
 
 - [ ] Contig chromosome/plasmid/virus predictions
 
-- [ ] CRISPR-Cas overview table
+- [x] CRISPR-Cas overview table
   - Output from CCTyper, collected and combined in one CSV file
-  - Combine with CRISPRidentify, create filtered crispr by adding Cas and orientation data onto crispridentify csv 
+  - Combine with CRISPRidentify, create filtered crispr by adding Cas and orientation data onto crispridentify csv
 
-- [ ] CRISPR spacer table
+- [x] CRISPR spacer table
 
 - [ ] MLST
   - Sequence Types (ST) of all included genomes
@@ -278,52 +187,6 @@ Unticked boxes indicate that documentation has not been written yet.
 
 - [ ] Genome comparison all-vs-all
   - by whole-genome MLST, average nucleotide identity (ANI) or similar(?)
-
-## Problems encountered
-
-2024-09-12:
-
-- CCTyper does not work from conda installation
-    (<https://github.com/Russel88/CRISPRCasTyper/issues/55>)
-
-- CCTyper cannot handle gzipped fasta files as input,
-    so the input files need to be uncompressed
-
-- RFPlasmid does not work from local install (file not found, permission denied)
-     or conda installation (`rfplasmid --initialize` fails to download database files)
-
-- 'hybrid' RFPlasmid install works: activate conda environment and then run the
-     shared executable using the absolute path
-     (/mnt/DGK_KLIF/data/rfplasmidweb/pip_package/package_files/RFPlasmid/rfplasmid.py)
-     but it seems not to work when only one genome is present in the input directory.
-
-2024-12-10:
-
-- CCTyper returns different output when running single genomes as
-    compared to running one concatenated fasta file with contigs of
-    many genomes. (See `data/tmp/cctyper/batch_22/CRISPR_Cas-batch_22.tab`
-    vs `data/tmp/cctyper/test/batch_22/CRISPR_Cas.tab` - difference is 1KB.)
-    The separate method returns 7 contigs that the concatenated did not find,
-    and the concatenated method found 1 contig that the separate did not find.
-    These may be false positives (how do you check?), but for now I'm sticking
-    with the separate method.
-
-2025-02-11:
-
-- Spacepharer wants to run locally within the same folder that you designate the tmpfolder and where the created
-   databases are located. Following the easy-predict workflow is not recommended as created .fasta files are
-   inconsistently recognized as actual fasta files.
-- Phagescope database says that it can filter genomes based on criteria, but actually downloading these fastas is
-   impossible through an error. Additionally wget and curl do not properly download the databases in a way that
-   spacepharer can identify, requiring a manual upload.
-
-2025-02-21:
-
-- Spacepharer databases are best created using the example names "querysetDB" and "targetsetDB" as other names such as "spacersetDB" causes weird errors.
-
-2025-06-27:
-
-- The yml file provided by CRISPRidentify is only solveable using flexible or disabled channel priority in conda. As of now an adjusted yml file is used that is solveable in strict priority mode, but does make strand prediction in CRISPRidentify non-functional.
 
 ## Project organisation
 
