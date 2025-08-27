@@ -8,16 +8,16 @@ from bacterial genomes, with a focus on _Campylobacter coli_ and _C. jejuni_.
 
 For more detailed documentation, please look at the
 [project website](https://utrechtuniversity.github.io/campylobacter-crisprscape/index.html).
+Here you also find the
+[user manual](https://utrechtuniversity.github.io/campylobacter-crisprscape/manual.html),
+which includes a quick start guide as well as a detailed step-by-step description.
 
 ## Index
 
-1. [Workflow description](#workflow-description)
-   - [download genomes](#download-genomes)
-   - [download databases](#download-databases)
-   - [analysis workflow](#analysis-workflow)
+1. [Roadmap](#release-roadmap)
+2. [Workflow description](#workflow-description)
    - [future suggestions](#suggestions-of-programsanalyses-to-test)
-2. [Output files](#output-files)
-3. [Problems encountered](#problems-encountered)
+3. [Output files](#output-files)
 4. [Project (file) organisation](#project-organisation)
 5. [Licence](#licence)
 6. [Citation](#citation)
@@ -70,18 +70,9 @@ applying standardised formatting, remove unnecessary code)
 
 - [x] Setup MkDocs-powered documentation (at least locally, integrate with GitHub pages later)
 
-(_Note to self: Add to this list when other ideas come to mind!_)
-
-## User manual
-
-Please consult the
-[user manual](https://utrechtuniversity.github.io/campylobacter-crisprscape/manual.html)
-on our documentation page, which includes a quick start guide as well as a
-detailed step-by-step description.
+(_Note to self: Remove this list when finishd and use issues or roadmap instead!_)
 
 ## Workflow description
-
-### Analysis workflow
 
 The analysis is recorded as a
 [Snakemake](https://snakemake.readthedocs.io/en/stable/) workflow.
@@ -162,19 +153,23 @@ Ticked boxes indicate that
 [documentation](https://utrechtuniversity.github.io/campylobacter-crisprscape/output_files.html)
 is available.
 
-- [x] ENA metadata
-  - Cleaned-up and filtered metadata of included genomes
+- [AllTheBacteria metadata](https://utrechtuniversity.github.io/campylobacter-crisprscape/allthebacteria.html)
 
-- [x] Species classifications
-  - Taxonomic classification by Sylph, as collected from AllTheBacteria
+  - [x] ENA metadata
+    - Cleaned-up and filtered metadata of included genomes
+
+  - [x] Species classifications
+    - Taxonomic classification by Sylph, as collected from AllTheBacteria
 
 - [ ] Contig chromosome/plasmid/virus predictions
 
 - [x] CRISPR-Cas overview table
-  - Output from CCTyper, collected and combined in one CSV file
+  - Output from
+[CCTyper](https://utrechtuniversity.github.io/campylobacter-crisprscape/output_files.html#11-cctyper),
+collected and combined in one CSV file
   - Combine with CRISPRidentify, create filtered crispr by adding Cas and orientation data onto crispridentify csv
 
-- [x] CRISPR spacer table
+- [x] [CRISPR spacer table](https://utrechtuniversity.github.io/campylobacter-crisprscape/output_files.html#spacer-cluster-table)
 
 - [ ] MLST
   - Sequence Types (ST) of all included genomes
