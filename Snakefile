@@ -54,6 +54,8 @@ rule all:
         # Virus and plasmid predictions per contig
         "data/processed/genomad_predictions.csv",
         "data/processed/jaeger_predictions.csv",
+        # Phage defence systems
+        "data/processed/padloc_table.csv",
         # Concatenated CCTyper output
         expand(
             OUTPUT_DIR + "cctyper/{batch}/{filename}-{batch}.tab",
@@ -155,6 +157,7 @@ find $(dirname {input}) -mindepth 1 -maxdepth 1 -type f -name "*.txt" -print0 |\
  'tail -n 1 {{}} | cut -f 1-2 >> {output}'
         """
 
+
 rule concatenate_mlst_all:
     input:
         expand(OUTPUT_DIR + "mlst/{batch}-concatenated.tsv", batch=BATCHES)
@@ -171,6 +174,7 @@ batches=( {input} )
 head -1 ${{batches[0]}} > {output}
 sed --separate 1d ${{batches[@]}} >> {output}
         """
+
 
 rule crisprcastyper:
     input:
@@ -234,6 +238,43 @@ find -L {input.batch} -mindepth 1 -maxdepth 1 -type f -name "*.fa" -print0 |\
  'mkdir -p "$(dirname {output})/{{/.}}" && padloc --cpu 1 --fna {{}} --outdir "$(dirname {output})/{{/.}}"' > {log} 2>&1
 
 touch {output}
+        """
+
+
+rule concatenate_padloc_batches:
+    input:
+        OUTPUT_DIR + "padloc/{batch}/complete",
+    output:
+        OUTPUT_DIR + "padloc/{batch}-concatenated.csv",
+    threads: config["padloc"]["threads"]
+    log:
+        "log/concatenate_padloc/{batch}.txt",
+    benchmark:
+        "log/benchmark/concatenate_padloc/{batch}.txt"
+    shell:
+        """
+file_array=( $(find $(dirname {input}) -mindepth 2 -maxdepth 2 -type f -name "*_padloc.csv") )
+head -1 ${{file_array[0]}} > {output}
+parallel --jobs {threads} --retry-failed --halt='now,fail=1'\
+ 'tail -n 1 {{}} >> {output}' ::: ${{file_array[@]}}
+        """
+
+
+rule concatenate_padloc_all:
+    input:
+        expand(OUTPUT_DIR + "padloc/{batch}-concatenated.csv", batch=BATCHES)
+    output:
+        "data/processed/padloc_table.csv"
+    threads: 1
+    log:
+        "log/concatenate_padloc_all.txt"
+    benchmark:
+        "log/benchmark/concatenate_padloc_all.txt"
+    shell:
+        """
+batches=( {input} )
+head -1 ${{batches[0]}} > {output}
+sed --separate 1d ${{batches[@]}} >> {output}
         """
 
 

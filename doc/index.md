@@ -21,6 +21,8 @@ The workflow works as follows:
 
 4. [Cluster identified CRISPR spacers](clustering_spacers.md)
 
+And comes with several [additional functions](extra_functions.md)
+
 ## What it creates
 
 For an overview of the output files that are created in the process, please

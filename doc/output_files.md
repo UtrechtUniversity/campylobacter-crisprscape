@@ -233,4 +233,15 @@ SAMN09405115    8
 SAMN09489478    9111
 ```
 
-!!! info "Final output: `data/processed/mlst_table.tsv.`"
+!!! info "Final output: `data/processed/mlst_table.tsv`"
+
+## Antiviral defence systems
+
+For identifying diverse antiviral defence systems in bacteria, we use
+[PADLOC](https://padloc.otago.ac.nz/padloc/).
+The developers have explained its output in table format as described
+[on GitHub](https://github.com/padlocbio/padloc#interpreting-output).
+
+We concatenate output from all genome batches in one file:
+
+!!! info "Final output: `data/processed/padloc_table.csv`"
