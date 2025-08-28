@@ -50,7 +50,7 @@ OUTPUT_DIR = config["output_directory"]
 rule all:
     input:
         # Multilocus Sequence Types (ST) for Campylobacter
-        expand(OUTPUT_DIR + "mlst/{batch}-concatenated.tsv", batch=BATCHES),
+        "data/processed/mlst_table.tsv",
         # Virus and plasmid predictions per contig
         "data/processed/genomad_predictions.csv",
         "data/processed/jaeger_predictions.csv",
