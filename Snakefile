@@ -137,7 +137,7 @@ touch {output}
         """
 
 
-rule concatenate_mlst:
+rule concatenate_mlst_batches:
     input:
         OUTPUT_DIR + "mlst/{batch}/complete",
     output:
@@ -155,6 +155,22 @@ find $(dirname {input}) -mindepth 1 -maxdepth 1 -type f -name "*.txt" -print0 |\
  'tail -n 1 {{}} | cut -f 1-2 >> {output}'
         """
 
+rule concatenate_mlst_all:
+    input:
+        expand(OUTPUT_DIR + "mlst/{batch}-concatenated.tsv", batch=BATCHES)
+    output:
+        "data/processed/mlst_table.tsv"
+    threads: 1
+    log:
+        "log/concatenate_mlst_all.txt"
+    benchmark:
+        "log/benchmark/concatenate_mlst_all.txt"
+    shell:
+        """
+batches=( {input} )
+head -1 ${{batches[0]}} > {output}
+sed --separate 1d ${{batches[@]}} >> {output}
+        """
 
 rule crisprcastyper:
     input:

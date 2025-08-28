@@ -50,7 +50,7 @@ applying standardised formatting, remove unnecessary code)
 
 - [ ] Make and/or correct scripts for combining results into 'Output files' (write to `data/processed/`)
 
-   - [ ] Concatenate MLST results
+   - [x] Concatenate MLST results
 
    - [x] Enable spacer table creation script in Snakefile (add to `rule all`)
 

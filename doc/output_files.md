@@ -216,3 +216,21 @@ See the original documentation on
 examples from the command-line.)
 
 !!! info "Final output: `data/processed/all_CRISPRS_with_identify.tab`"
+
+## Multilocus Sequence Typing
+
+The workflow includes classical MLST with pyMLST and the pubMLST database.
+The output is a simple table with two columns containing the genome's name
+and its assigned sequence type (if any):
+
+``` bash
+$ head data/processed/mlst_table.tsv
+Genome          ST
+SAMN10081961    48
+SAMN09605354    12411
+SAMN09343354    8
+SAMN09405115    8
+SAMN09489478    9111
+```
+
+!!! info "Final output: `data/processed/mlst_table.tsv.`"
