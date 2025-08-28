@@ -23,3 +23,18 @@ systems. This information is written to a
 [CSV file](https://github.com/padlocbio/padloc#output).
 We use this information to assess the prevalence of defence systems and
 calculate possible correlations with CRISPR-Cas.
+
+## Plasmid and virus prediction of input genomes
+
+We have included two state-of-the-art tools for predicting the origin of
+contigs: chromosome, plasmid or virus (phage). These are
+[geNomad](https://portal.nersc.gov/genomad/) and
+[Jaeger](https://github.com/Yasas1994/Jaeger).
+geNomad compares contigs to a marker database and classifies them using a
+neural network, aggregates these results and calculates probability scores
+for chromosome, plasmid and virus (these three sum up to 1).
+Jaeger uses deep-learning to classify sequences as viral or not. This can
+be used to identify 'free' phages as well as integrated prophages.
+
+We map the identified CRISPR spacers back to the input genomes and use
+these plasmid/phage predictions to estimate the targets of the CRISPRs.
