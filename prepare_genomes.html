@@ -1,0 +1,1095 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+        <link rel="canonical" href="https://localhost:8000/campylobacter-crisprscape/prepare_genomes.html">
+      
+      
+        <link rel="prev" href="manual.html">
+      
+      
+        <link rel="next" href="allthebacteria.html">
+      
+      
+      <link rel="icon" href="assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.18">
+    
+    
+      
+        <title>Script functions - Campylobacter CRISPRscape</title>
+      
+    
+    
+      <link rel="stylesheet" href="assets/stylesheets/main.7e37652d.min.css">
+      
+        
+        <link rel="stylesheet" href="assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+        <script src="https://unpkg.com/iframe-worker/shim"></script>
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL(".",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#prepare-genomes" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="index.html" title="Campylobacter CRISPRscape" class="md-header__button md-logo" aria-label="Campylobacter CRISPRscape" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Campylobacter CRISPRscape
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Script functions
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="index.html" title="Campylobacter CRISPRscape" class="md-nav__button md-logo" aria-label="Campylobacter CRISPRscape" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Campylobacter CRISPRscape
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Overview
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="manual.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    User manual
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Workflow details
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            Workflow details
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_1" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3_1" id="__nav_3_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Prepare genomes
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_1_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3_1">
+            <span class="md-nav__icon md-icon"></span>
+            Prepare genomes
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Script functions
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="prepare_genomes.html" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    Script functions
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-download-atb-metadata" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. Download ATB metadata
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1. Download ATB metadata">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#output-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      Output files
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-look-up-accession-ids-of-species-of-interest" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Look up accession IDs of species of interest
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-filter-metadata" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. Filter metadata
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-find-batches-that-contain-species-of-interest" class="md-nav__link">
+    <span class="md-ellipsis">
+      4. Find batches that contain species of interest
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-download-the-genomes" class="md-nav__link">
+    <span class="md-ellipsis">
+      5. Download the genomes
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. Download the genomes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#default-species-campylobacter-coli-and-c-jejuni" class="md-nav__link">
+    <span class="md-ellipsis">
+      Default species: Campylobacter coli and C. jejuni
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#quality-filtering" class="md-nav__link">
+    <span class="md-ellipsis">
+      Quality filtering
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-remove-other-species" class="md-nav__link">
+    <span class="md-ellipsis">
+      6. Remove other species
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#general-remarks" class="md-nav__link">
+    <span class="md-ellipsis">
+      General remarks
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="General remarks">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#next-steps" class="md-nav__link">
+    <span class="md-ellipsis">
+      Next steps
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="allthebacteria.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Metadata
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="CRISPR_screening.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    CRISPR screening
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="CRISPR_refinement.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    CRISPR refinement
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="clustering_spacers.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    CRISPR clustering
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="spacepharer.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    SpacePHARER
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="extra_functions.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Extra functions
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="output_files.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Output files
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="dev_notes.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Development notes
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-download-atb-metadata" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. Download ATB metadata
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1. Download ATB metadata">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#output-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      Output files
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-look-up-accession-ids-of-species-of-interest" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Look up accession IDs of species of interest
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-filter-metadata" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. Filter metadata
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-find-batches-that-contain-species-of-interest" class="md-nav__link">
+    <span class="md-ellipsis">
+      4. Find batches that contain species of interest
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-download-the-genomes" class="md-nav__link">
+    <span class="md-ellipsis">
+      5. Download the genomes
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. Download the genomes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#default-species-campylobacter-coli-and-c-jejuni" class="md-nav__link">
+    <span class="md-ellipsis">
+      Default species: Campylobacter coli and C. jejuni
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#quality-filtering" class="md-nav__link">
+    <span class="md-ellipsis">
+      Quality filtering
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-remove-other-species" class="md-nav__link">
+    <span class="md-ellipsis">
+      6. Remove other species
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#general-remarks" class="md-nav__link">
+    <span class="md-ellipsis">
+      General remarks
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="General remarks">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#next-steps" class="md-nav__link">
+    <span class="md-ellipsis">
+      Next steps
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="prepare-genomes">Prepare genomes <span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 13c-2.17 0-4.07 1.16-5.12 2.89-.6.07-1.23.11-1.88.11-4.42 0-8-1.79-8-4V9c0 2.21 3.58 4 8 4s8-1.79 8-4v3c0 .36-.1.71-.28 1.05C19.5 13 19.24 13 19 13m-7-2c4.42 0 8-1.79 8-4s-3.58-4-8-4-8 1.79-8 4 3.58 4 8 4m1.1 6.96c-.36.04-.73.04-1.1.04-4.42 0-8-1.79-8-4v3c0 2.21 3.58 4 8 4 .46 0 .9 0 1.33-.06A6 6 0 0 1 13 19c0-.36.04-.7.1-1.04M20 20v-4h-2v4h-2l3 3 3-3z"/></svg></span></h1>
+<p>CRISPRscape includes scripts to automatically download bacterial genomes
+from <a href="https://allthebacteria.readthedocs.io/en/latest/">AllTheBacteria</a>,
+along with the available metadata (from the European Nucleotide Archive).</p>
+<p>This page provides a step-by-step explanation of the <code>bin/prepare_genomes.sh</code>
+script. The script can be run as:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>bash<span class="w"> </span>bin/prepare_genomes.sh
+</span></code></pre></div>
+<p>(Also see the <a href="manual.html#download-input-genomes">manual</a>.)</p>
+<p>And it does the following things:</p>
+<ol>
+<li>
+<p><a href="#1-download-atb-metadata">Download ATB metadata</a></p>
+</li>
+<li>
+<p><a href="#2-look-up-accession-ids-of-species-of-interest">Extract species of interest</a></p>
+</li>
+<li>
+<p><a href="#3-filter-metadata">Filter its respective metadata</a></p>
+</li>
+<li>
+<p><a href="#4-find-batches-that-contain-species-of-interest">Identify the right batches</a></p>
+</li>
+<li>
+<p><a href="#5-download-the-genomes">Download genome batches</a></p>
+</li>
+<li>
+<p><a href="#6-remove-other-species">Remove non-target species</a></p>
+</li>
+</ol>
+<h2 id="1-download-atb-metadata">1. Download ATB metadata</h2>
+<p>The script starts by calling a separate script: <code>bin/download_ATB_metadata.sh</code>.
+This script downloads:</p>
+<ol>
+<li>
+<p>ENA metadata (standard metadata from the <a href="https://www.ebi.ac.uk/ena/browser/home">European Nucleotide Archive</a>)</p>
+<ul>
+<li>for this, it downloads both the '20240801' and '0.2.20240606' files</li>
+</ul>
+</li>
+<li>
+<p>Sample list (accession IDs for all samples included in ATB)</p>
+</li>
+<li>
+<p>Sylph output (taxonomic classification based on the
+<a href="https://gtdb.ecogenomic.org/">Genome Taxonomy Database</a>)</p>
+</li>
+<li>
+<p>Assembly statistics (total length, number of contigs, N50, and more)</p>
+</li>
+<li>
+<p>Assembly quality assessment (<a href="https://github.com/chklovski/CheckM2">CheckM2</a>)</p>
+</li>
+<li>
+<p>Species calls (an interpretation of the Sylph and CheckM2 output)</p>
+<ul>
+<li>three columns: accession ID, species name and high-quality (T/F)</li>
+</ul>
+</li>
+<li>
+<p>A list of all files</p>
+<ul>
+<li>this is actually a table with accession IDs, species name, which
+ATB batch file they are part of, batch MD5 checksum and file size</li>
+</ul>
+</li>
+</ol>
+<h3 id="output-files">Output files</h3>
+<p>By default, these are all downloaded to the directory <code>data/ATB/</code>.
+You then get:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="m">1</span><span class="w">   </span>ena_metadata.0.2.20240606.tsv.gz
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="m">2</span><span class="w">   </span>ena_metadata.20240801.tsv.gz
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="m">3</span><span class="w">   </span>sample_list.txt.gz
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="m">4</span><span class="w">   </span>sylph.tsv.gz
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="m">5</span><span class="w">   </span>assembly-stats.tsv.gz
+</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="m">6</span><span class="w">   </span>checkm2.tsv.gz
+</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="m">7</span><span class="w">   </span>species_calls.tsv.gz
+</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="m">8</span><span class="w">   </span>file_list.all.20240805.tsv.gz
+</span></code></pre></div>
+<h2 id="2-look-up-accession-ids-of-species-of-interest">2. Look up accession IDs of species of interest</h2>
+<p>Using the file <code>config/species_of_interest.txt</code>, which contains one species
+name per line, the script looks up all matches in the <code>species_calls.tsv.gz</code>
+file from ATB and filters the high-quality assemblies.
+The accession IDs are stored in a separate file:
+<code>data/ATB/all_samples_of_interest.txt</code>.
+(<a href="manual.html#species-of-interest">Modify this file</a> if you want different
+species.)</p>
+<p>As an extra, the script reads the total number of selected genomes,
+which is printed to the command-line (stdout).
+Also, the number of genomes per species is collected and stored as:
+<code>data/ATB/number_of_genomes_per_species.txt</code>.</p>
+<p>Note: the system works with the <a href="https://gtdb.ecogenomic.org/tree?r=d__Bacteria">GTDB taxonomy</a>
+and GNU <code>grep</code>. This means it can only find names as defined by the GTDB
+and can use parts of the names too. E.g., <em>Campylobacter jejuni</em> is known
+in GTDB as 'Campylobacter_D jejuni' and by using this as search term,
+the script also matches 'Campylobacter_D jejuni_A' or any other suffix.</p>
+<h2 id="3-filter-metadata">3. Filter metadata</h2>
+<p>The complete metadata file is big (677MiB compressed, 3,112,707 lines).
+To make this a bit easier to work with, we're extracting only the lines
+referring to the species of interest and store this as a separate file:
+<code>data/ATB/enametadata.20240801-filtered.tsv.gz</code>.</p>
+<h2 id="4-find-batches-that-contain-species-of-interest">4. Find batches that contain species of interest</h2>
+<p>ATB has created batches of genomes to use clever compression and
+significantly reduce file sizes. To find which batches contain
+the species of interest, the script:</p>
+<ol>
+<li>
+<p>reads sample accession IDs from <code>data/ATB/all_samples_of_interest.txt</code></p>
+</li>
+<li>
+<p>uses the accession IDs to filter matching lines in <code>data/ATB/file_list.all.20240805.tsv.gz</code></p>
+</li>
+<li>
+<p>extracts the column containing file names, download URLs and MD5 checksums</p>
+</li>
+<li>
+<p>deduplicates them, keeping one copy of each batch containing species of interest</p>
+</li>
+<li>
+<p>and stores this in a separate file: <code>data/ATB/batches_to_download.tsv</code></p>
+</li>
+</ol>
+<h2 id="5-download-the-genomes">5. Download the genomes</h2>
+<p>The actual downloading of the genomes happens here! <span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M14 2H6c-1.11 0-2 .89-2 2v16c0 1.11.89 2 2 2h12c1.11 0 2-.89 2-2V8zm-2 17-4-4h2.5v-3h3v3H16zm1-10V3.5L18.5 9z"/></svg></span>
+The script calls yet another separate script: <code>bin/download_genomes.sh</code></p>
+<p><code>download_genomes.sh</code> reads the files that need to be downloaded
+from <code>data/ATB/batches_to_download.tsv</code> and downloads them one by one
+to <code>data/tmp/ATB/</code>.
+It checks file integrity with the MD5 checksum and deletes corrupted
+files. (It does not retry downloading automatically.)</p>
+<p>The files (as batches) are downloaded as XZ archive, which are
+extracted to subdirectories named after the batch number.
+This yields FASTA files in a directory called <code>data/tmp/ATB/batch_[number]</code>.</p>
+<h3 id="default-species-campylobacter-coli-and-c-jejuni">Default species: <em>Campylobacter coli</em> and <em>C. jejuni</em></h3>
+<p>This workflow has been developed for and tested on <em>Campylobacter</em> genomes.
+As of 2024-09-19,
+<a href="https://allthebacteria.readthedocs.io/en/latest/">AllTheBacteria</a>
+includes 129,080 <em>C. coli</em> and <em>C. jejuni</em> genomes.
+(Up from 104,146 before the incremental update.
+That means there are 24,934 extra genomes.)</p>
+<h3 id="quality-filtering">Quality filtering</h3>
+<p>Genomes are pre-filtered to include only 'high-quality' genomes.
+AllTheBacteria has its own
+<a href="https://allthebacteria.readthedocs.io/en/latest/sample_metadata.html#high-quality-dataset">quality criteria</a>:</p>
+<ul>
+<li>&#8805;99% species abundance (practically pure)</li>
+<li>&#8805;90% completeness (CheckM2)</li>
+<li>&#8804;5% contaminated (CheckM2)</li>
+<li>total length between 100 kbp and 15 Mbp</li>
+<li>&#8804; 2,000 contigs</li>
+<li>&#8805; 2,000 N50</li>
+</ul>
+<h2 id="6-remove-other-species">6. Remove other species</h2>
+<p>Some batches may contain more than only the species of interest.
+In those cases, FASTA files that contain genomes from other species are
+deleted.
+To do this, the final script <code>bin/remove_other_species.sh</code> is called.
+This script compares the accession IDs (samples) of the species of interest
+with the accession IDs present in the downloaded batches to
+compose a list of samples with other species (<code>data/tmp/other_species-samples.txt</code>).
+It counts how many samples have other species and then the corresponding
+FASTA files are removed.
+For curious users, the other species names and numbers are stored as:
+<code>data/tmp/other_species_calls.tsv</code> and <code>data/tmp/other_species_numbers.txt</code>.</p>
+<h2 id="general-remarks">General remarks</h2>
+<ul>
+<li>
+<p>The whole process is set up as Bash script, and uses GNU tools such
+as <code>grep</code> and <code>wget</code>. This should work on most Unix-like systems.</p>
+</li>
+<li>
+<p>The script can use a command-line option to donwload genomes from the
+complete ATB, only the first version, or the incremental update.
+For this, it uses options 'all', 'original' or 'update', respectively.
+By default, the script uses 'update', which has the smallest file sizes.
+The option can be provided as:</p>
+</li>
+</ul>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>bash<span class="w"> </span>bin/prepare_genomes.sh<span class="w"> </span>all
+</span></code></pre></div>
+<p>This option is most relevant to <code>bin/download_genomes.sh</code>.
+<a href="#5-download-the-genomes">(Step 5)</a></p>
+<ul>
+<li>The script reads whether files exist already. If they are already there,
+they will not be downloaded again.</li>
+</ul>
+<h4 id="next-steps">Next steps</h4>
+<p>&rarr; <a href="CRISPR_screening.html">Screen CRISPRs</a></p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      <script id="__config" type="application/json">{"base": ".", "features": ["content.code.copy", "content.code.select"], "search": "assets/javascripts/workers/search.973d3a69.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="assets/javascripts/bundle.92b07e13.min.js"></script>
+      
+    
+  </body>
+</html>

@@ -1,0 +1,1157 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+        <link rel="canonical" href="https://localhost:8000/campylobacter-crisprscape/output_files.html">
+      
+      
+        <link rel="prev" href="extra_functions.html">
+      
+      
+        <link rel="next" href="dev_notes.html">
+      
+      
+      <link rel="icon" href="assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.18">
+    
+    
+      
+        <title>Output files - Campylobacter CRISPRscape</title>
+      
+    
+    
+      <link rel="stylesheet" href="assets/stylesheets/main.7e37652d.min.css">
+      
+        
+        <link rel="stylesheet" href="assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+        <script src="https://unpkg.com/iframe-worker/shim"></script>
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL(".",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#output-files" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="index.html" title="Campylobacter CRISPRscape" class="md-header__button md-logo" aria-label="Campylobacter CRISPRscape" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Campylobacter CRISPRscape
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Output files
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="index.html" title="Campylobacter CRISPRscape" class="md-nav__button md-logo" aria-label="Campylobacter CRISPRscape" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Campylobacter CRISPRscape
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Overview
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="manual.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    User manual
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Workflow details
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            Workflow details
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_1" id="__nav_3_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Prepare genomes
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_1">
+            <span class="md-nav__icon md-icon"></span>
+            Prepare genomes
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="prepare_genomes.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Script functions
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="allthebacteria.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Metadata
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="CRISPR_screening.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    CRISPR screening
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="CRISPR_refinement.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    CRISPR refinement
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="clustering_spacers.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    CRISPR clustering
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="spacepharer.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    SpacePHARER
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="extra_functions.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Extra functions
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Output files
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="output_files.html" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    Output files
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-crispr-cas-screening" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. CRISPR-Cas screening
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1. CRISPR-Cas screening">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#11-cctyper" class="md-nav__link">
+    <span class="md-ellipsis">
+      1.1 CCTyper
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#12-collecting-many-outputs-from-cctyper" class="md-nav__link">
+    <span class="md-ellipsis">
+      1.2 Collecting many outputs from CCTyper
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#13-use-bed-files-to-extract-sequences" class="md-nav__link">
+    <span class="md-ellipsis">
+      1.3 Use BED files to extract sequences
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#14-concatenate-batches" class="md-nav__link">
+    <span class="md-ellipsis">
+      1.4 Concatenate batches
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#15-concatenate-overall" class="md-nav__link">
+    <span class="md-ellipsis">
+      1.5 Concatenate overall
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cluster-spacers-cctyper" class="md-nav__link">
+    <span class="md-ellipsis">
+      Cluster spacers: CCTyper
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Cluster spacers: CCTyper">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#spacer-cluster-table" class="md-nav__link">
+    <span class="md-ellipsis">
+      Spacer cluster table
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-crispr-cas-refinement" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. CRISPR-Cas refinement
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. CRISPR-Cas refinement">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#21-evaluation-by-crispridentify" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.1 Evaluation by CRISPRidentify
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#multilocus-sequence-typing" class="md-nav__link">
+    <span class="md-ellipsis">
+      Multilocus Sequence Typing
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#antiviral-defence-systems" class="md-nav__link">
+    <span class="md-ellipsis">
+      Antiviral defence systems
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#virus-and-plasmid-predictions" class="md-nav__link">
+    <span class="md-ellipsis">
+      Virus and plasmid predictions
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="dev_notes.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Development notes
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-crispr-cas-screening" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. CRISPR-Cas screening
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1. CRISPR-Cas screening">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#11-cctyper" class="md-nav__link">
+    <span class="md-ellipsis">
+      1.1 CCTyper
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#12-collecting-many-outputs-from-cctyper" class="md-nav__link">
+    <span class="md-ellipsis">
+      1.2 Collecting many outputs from CCTyper
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#13-use-bed-files-to-extract-sequences" class="md-nav__link">
+    <span class="md-ellipsis">
+      1.3 Use BED files to extract sequences
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#14-concatenate-batches" class="md-nav__link">
+    <span class="md-ellipsis">
+      1.4 Concatenate batches
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#15-concatenate-overall" class="md-nav__link">
+    <span class="md-ellipsis">
+      1.5 Concatenate overall
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cluster-spacers-cctyper" class="md-nav__link">
+    <span class="md-ellipsis">
+      Cluster spacers: CCTyper
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Cluster spacers: CCTyper">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#spacer-cluster-table" class="md-nav__link">
+    <span class="md-ellipsis">
+      Spacer cluster table
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-crispr-cas-refinement" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. CRISPR-Cas refinement
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. CRISPR-Cas refinement">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#21-evaluation-by-crispridentify" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.1 Evaluation by CRISPRidentify
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#multilocus-sequence-typing" class="md-nav__link">
+    <span class="md-ellipsis">
+      Multilocus Sequence Typing
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#antiviral-defence-systems" class="md-nav__link">
+    <span class="md-ellipsis">
+      Antiviral defence systems
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#virus-and-plasmid-predictions" class="md-nav__link">
+    <span class="md-ellipsis">
+      Virus and plasmid predictions
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="output-files">Output files</h1>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Files that we consider to be the 'final output' of this workflow are
+labelled with a box like this:</p>
+<div class="admonition info">
+<p class="admonition-title">Final output: <code>data/processed/filename</code></p>
+</div>
+<p>They are stored in the directory <code>data/processed/</code>.</p>
+<p>Other output files are often not needed for end-users and are stored in
+<code>data/tmp/</code>.</p>
+</div>
+<h2 id="1-crispr-cas-screening">1. CRISPR-Cas screening</h2>
+<h3 id="11-cctyper">1.1 CCTyper</h3>
+<p>The results of CCTyper are by default written to:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>data/tmp/cctyper/<span class="o">[</span>batch_id<span class="o">]</span>/<span class="o">[</span>sample_id<span class="o">]</span>/
+</span></code></pre></div>
+<p>For example:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>$<span class="w"> </span>ls<span class="w"> </span>-F<span class="w"> </span>data/tmp/cctyper/batch_22/SAMN36083307
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>arguments.tab<span class="w">    </span>cas_operons_putative.tab<span class="w">  </span>CRISPR-Cas.bed<span class="w">  </span>CRISPR_Cas.tab<span class="w">   </span>crisprs.gff<span class="w">           </span>fasta/<span class="w">     </span>Flank.njs<span class="w">  </span>Flank.ntf<span class="w">  </span>genes.tab<span class="w">  </span>plot.png<span class="w">  </span>spacers/
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>Cas_operons.bed<span class="w">  </span>CRISPR_arrays.bed<span class="w">         </span>CRISPR-Cas.csv<span class="w">  </span>crisprs_all.tab<span class="w">  </span>crisprs_near_cas.tab<span class="w">  </span>Flank.ndb<span class="w">  </span>Flank.not<span class="w">  </span>Flank.nto<span class="w">  </span>hmmer.tab<span class="w">  </span>plot.svg
+</span></code></pre></div>
+<p>For the <code>*.tab</code> files, <code>plot.[png|svg]</code>, <code>Flank.*</code> and <code>spacers/</code>, please see
+CCTyper's
+<a href="https://github.com/Russel88/CRISPRCasTyper?tab=readme-ov-file#output-">own documentation</a>.
+<strong>This comprises the fundamental output of our workflow.</strong></p>
+<p>For other (derived) files, please read below.</p>
+<h3 id="12-collecting-many-outputs-from-cctyper">1.2 Collecting many outputs from CCTyper</h3>
+<p>After running CCTyper, there is a script
+<a href="https://github.com/UtrechtUniversity/campylobacter-crisprscape/blob/main/bin/cctyper_extender.py"><code>bin/cctyper_extender</code></a>
+that reads these tabular output files  (<code>*.tab</code> files) and converts them to
+BED files for each CRISPR array (spacers and repeats), CRISPR-Cas system
+(CRISPR array with <em>cas</em> genes), or <em>cas</em> operon.
+These files contain the contig ID in which the locus was found, its start and
+stop positions, the CRISPR array or <em>cas</em> operon ID as listed by CCTyper,
+the number of CRISPR repeats or <em>cas</em> genes found,
+and whether the <em>cas</em> genes were on the template or reverse complement strand.
+For example:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>$<span class="w"> </span>head<span class="w"> </span>data/tmp/cctyper/batch_22/SAMN36083307/*bed
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="o">==</span>&gt;<span class="w"> </span>data/tmp/cctyper/batch_22/SAMN36083307/Cas_operons.bed<span class="w"> </span>&lt;<span class="o">==</span>
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>SAMN36083307.contig00015<span class="w">        </span><span class="m">38536</span><span class="w">   </span><span class="m">42801</span><span class="w">   </span>SAMN36083307.contig00015@1<span class="w">      </span><span class="m">3</span><span class="w">       </span>-
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="o">==</span>&gt;<span class="w"> </span>data/tmp/cctyper/batch_22/SAMN36083307/CRISPR_arrays.bed<span class="w"> </span>&lt;<span class="o">==</span>
+</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>SAMN36083307.contig00015<span class="w">        </span><span class="m">37630</span><span class="w">   </span><span class="m">38392</span><span class="w">   </span>SAMN36083307.contig00015_1<span class="w">      </span><span class="m">12</span><span class="w">      </span>-
+</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>
+</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="o">==</span>&gt;<span class="w"> </span>data/tmp/cctyper/batch_22/SAMN36083307/CRISPR-Cas.bed<span class="w"> </span>&lt;<span class="o">==</span>
+</span><span id="__span-2-9"><a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>SAMN36083307.contig00015<span class="w">        </span><span class="m">37630</span><span class="w">   </span><span class="m">42801</span><span class="w">   </span>SAMN36083307.contig00015_1<span class="w">      </span><span class="m">12</span><span class="w">      </span>-
+</span></code></pre></div>
+<p>Furthermore, the script summarises all characteristics of the CRISPR array and
+<em>cas</em> genes in a single file: <code>CRISPR-Cas.csv</code>.</p>
+<p>The columns that it includes are:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>Sample_accession<span class="w">    </span>Contig<span class="w">              </span>System<span class="w">                  </span>CRISPR_ID<span class="w">           </span>CRISPR_start<span class="w">    </span>CRISPR_end
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>Trusted<span class="w">             </span>Repeat_subtype<span class="w">      </span>Repeat_type_probability<span class="w"> </span>Consensus_repeat<span class="w">    </span>N_repeats
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>Repeat_len<span class="w">          </span>Repeat_identity<span class="w">     </span>Spacer_len_avg<span class="w">          </span>Spacer_identity<span class="w">     </span>Spacer_len_sem
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>Operon_ID<span class="w">           </span>Distance_to_CRISPR<span class="w">  </span>Cas_start<span class="w">               </span>Cas_end<span class="w">             </span>Best_type
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>Best_score<span class="w">          </span>Genes<span class="w">               </span>Complete_interference<span class="w">   </span>Complete_adaptation<span class="w"> </span>Strand_cas
+</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>N_genes<span class="w">             </span>Gene_lengths_aa
+</span></code></pre></div>
+<p>Note that while these are taken from CCTyper, some names have been adjusted
+or added.</p>
+<h3 id="13-use-bed-files-to-extract-sequences">1.3 Use BED files to extract sequences</h3>
+<p>Using the BED files generated in the step above, we use
+<a href="https://bioinf.shenwei.me/seqkit/usage/#subseq"><code>seqkit</code></a>
+to extract the loci of interest from the original assemblies based on the
+contig IDs and positions.
+For this, we use a custom script:
+<a href="https://github.com/UtrechtUniversity/campylobacter-crisprscape/blob/main/bin/extract_crispr-cas_from_fasta.sh"><code>bin/extract_crispr-cas_from_fasta.sh</code></a>
+.
+This script extracts the regions from start to stop, and also with (up to)
+5000bp up- and downstream of the region. These are then written to FASTA files
+in the subdirectory <code>fasta/</code></p>
+<p>Besides, for each locus it also generates FASTA files with only either the
+upstream or downstream region. These can be used to infer the genomic
+neighbourhood and compare between genomes.</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>$<span class="w"> </span>ls<span class="w"> </span>-sh<span class="w"> </span>data/tmp/cctyper/batch_22/SAMN36083307/fasta/
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>total<span class="w"> </span>100K
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="m">8</span>.0K<span class="w"> </span>Cas_operons-downstream.fasta<span class="w">   </span>12K<span class="w"> </span>Cas_operons-with_flanks.fasta<span class="w">   </span><span class="m">8</span>.0K<span class="w"> </span>CRISPR_arrays-upstream.fasta<span class="w">     </span><span class="m">8</span>.0K<span class="w"> </span>CRISPR-Cas.fasta
+</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="m">8</span>.0K<span class="w"> </span>Cas_operons.fasta<span class="w">             </span><span class="m">8</span>.0K<span class="w"> </span>CRISPR_arrays-downstream.fasta<span class="w">   </span>12K<span class="w"> </span>CRISPR_arrays-with_flanks.fasta<span class="w">  </span><span class="m">4</span>.0K<span class="w"> </span>CRISPR-Cas-upstream.fasta
+</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="m">4</span>.0K<span class="w"> </span>Cas_operons-upstream.fasta<span class="w">    </span><span class="m">4</span>.0K<span class="w"> </span>CRISPR_arrays.fasta<span class="w">             </span><span class="m">8</span>.0K<span class="w"> </span>CRISPR-Cas-downstream.fasta<span class="w">       </span>16K<span class="w"> </span>CRISPR-Cas-with_flanks.fasta
+</span></code></pre></div>
+<h3 id="14-concatenate-batches">1.4 Concatenate batches</h3>
+<p>We currently split our input samples in batches and to facilitate overall
+analyses, we concatenate the output files within batches using the rule
+<code>collect_cctyper</code>, which in turn invokes
+<a href="https://github.com/UtrechtUniversity/campylobacter-crisprscape/blob/main/bin/concatenate_cctyper_output.sh"><code>bin/concatenate_cctyper_output.sh</code></a>
+and
+<a href="https://github.com/UtrechtUniversity/campylobacter-crisprscape/blob/main/bin/concatenate_cctyper_csv.sh"><code>bin/concatenate_cctyper_csv.sh</code></a>
+as well as a <code>cat</code> command to concatenate the FASTA files of spacer sequences</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>find<span class="w"> </span><span class="k">$(</span>dirname<span class="w"> </span><span class="o">{</span>input.cctyper<span class="o">}</span><span class="k">)</span><span class="w"> </span>-mindepth<span class="w"> </span><span class="m">3</span><span class="w"> </span>-maxdepth<span class="w"> </span><span class="m">3</span><span class="w"> </span>-name<span class="w"> </span><span class="s2">&quot;*.fa&quot;</span><span class="se">\</span>
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w"> </span>-exec<span class="w"> </span>cat<span class="w"> </span><span class="o">{{}}</span><span class="w"> </span>+<span class="w"> </span>&gt;<span class="w"> </span><span class="o">{</span>output.spacers<span class="o">}</span><span class="w"> </span><span class="m">2</span>&gt;&gt;<span class="w"> </span><span class="o">{</span>log<span class="o">}</span>
+</span></code></pre></div>
+<p>This creates a set of files with the batch name as suffix, for example:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>$<span class="w"> </span>ls<span class="w"> </span>-sh<span class="w"> </span>data/tmp/cctyper/batch_22
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>
+</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="m">4</span>.0K<span class="w"> </span>all_spacers-batch_22.fa<span class="w">   </span><span class="m">4</span>.0K<span class="w"> </span>CRISPR-Cas-batch_22.csv<span class="w">        </span><span class="m">4</span>.0K<span class="w"> </span>crisprs_orphan-batch_22.tab
+</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="m">4</span>.0K<span class="w"> </span>cas_operons-batch_22.tab<span class="w">  </span><span class="m">4</span>.0K<span class="w"> </span>CRISPR_Cas-batch_22.tab<span class="w">        </span><span class="m">4</span>.0K<span class="w"> </span>crisprs_all-batch_22.tab
+</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="m">4</span>.0K<span class="w"> </span>CRISPR_Cas-batch_22.bed<span class="w">   </span><span class="m">4</span>.0K<span class="w"> </span>crisprs_near_cas-batch_22.tab
+</span></code></pre></div>
+<h3 id="15-concatenate-overall">1.5 Concatenate overall</h3>
+<p>To then go to one final file for the whole dataset, the files listed above
+are further concatenated in rule <code>concatenate_all_spacers</code> with <code>cat</code>.</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>$<span class="w"> </span>ls<span class="w"> </span>-sh<span class="w"> </span>data/tmp/cctyper/all_spacers.fa
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>22M<span class="w"> </span>data/tmp/cctyper/all_spacers.fa
+</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>
+</span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>$<span class="w"> </span>head<span class="w"> </span>data/tmp/cctyper/all_spacers.fa
+</span><span id="__span-7-5"><a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>&gt;SAMN37284265.contig00007_1:1
+</span><span id="__span-7-6"><a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a>TTATTTTTGTCGCTAATTGCACCTAAAGAC
+</span><span id="__span-7-7"><a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a>&gt;SAMN37284265.contig00007_1:2
+</span><span id="__span-7-8"><a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a>TTTAGAAGAAGAAATATCTTATCTTCAAAG
+</span><span id="__span-7-9"><a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a>&gt;SAMN37284265.contig00007_1:3
+</span><span id="__span-7-10"><a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a>ATAAGAAGTTAATTTGCTTACTTTCAAGTA
+</span><span id="__span-7-11"><a id="__codelineno-7-11" name="__codelineno-7-11" href="#__codelineno-7-11"></a>&gt;SAMN37284265.contig00007_1:4
+</span><span id="__span-7-12"><a id="__codelineno-7-12" name="__codelineno-7-12" href="#__codelineno-7-12"></a>GTGGGCATAAGCAACTTAATGGCAGGATTT
+</span><span id="__span-7-13"><a id="__codelineno-7-13" name="__codelineno-7-13" href="#__codelineno-7-13"></a>&gt;SAMN37284265.contig00007_1:5
+</span><span id="__span-7-14"><a id="__codelineno-7-14" name="__codelineno-7-14" href="#__codelineno-7-14"></a>TAAAGCTGGAAATTTTTCAACTAATTTACC
+</span></code></pre></div>
+<div class="admonition warning">
+<p class="admonition-title">Warning: missing piece</p>
+<p>Note that we currently do not have a separate step to concatenate
+the CSV files derived from CCTyper.</p>
+</div>
+<h2 id="cluster-spacers-cctyper">Cluster spacers: CCTyper</h2>
+<p>All CRISPR spacer sequences identified by CCTyper are clustered with
+CD-HIT to determine the number of unique spacers. This happens in the rule
+<code>cluster_unique_spacers</code>, and generates:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>ls<span class="w"> </span>-sh<span class="w"> </span>data/tmp/cctyper/all_spacers-clustered*
+</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>948K<span class="w"> </span>data/tmp/cctyper/all_spacers-clustered
+</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="w"> </span>20M<span class="w"> </span>data/tmp/cctyper/all_spacers-clustered.clstr
+</span><span id="__span-8-4"><a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="m">4</span>.0K<span class="w"> </span>data/tmp/cctyper/all_spacers-clustered-distribution.tsv
+</span></code></pre></div>
+<p>The file without extension is the FASTA file that CD-HIT outputs,
+<code>all_spacers-clustered.clstr</code> is the list of clusters as determined
+by CD-HIT (in FASTA-like format). And the file
+<code>all_spacers-clustered-distribution.tsv</code> uses the script <code>plot_len1.pl</code> that
+is bundled with CD-HIT to create a tab-separated table of the number of
+members in clusters of various sizes.</p>
+<p>Also see the user guide on
+<a href="https://www.bioinformatics.org/cd-hit/cd-hit-user-guide">bioinformatics.org</a>
+for details on CD-HIT's output files and extra tools.</p>
+<h3 id="spacer-cluster-table">Spacer cluster table</h3>
+<p>To facilitate further analyses on the spacer level, we have included the
+step <code>create_crispr_cluster_table</code>, which calls
+<a href="https://github.com/UtrechtUniversity/campylobacter-crisprscape/blob/main/bin/make_cluster_table.py"><code>bin/make_cluster_table.py</code></a>
+to parse the output of CD-HIT and create a tab-separated table that looks
+like:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>$<span class="w"> </span>head<span class="w"> </span>data/processed/all_spacers_table.tsv
+</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>Genome<span class="w">  </span>Contig<span class="w">  </span>Locus<span class="w">   </span>Cluster<span class="w"> </span>Length<span class="w">  </span>Cluster_representative<span class="w">  </span>Sequence<span class="w">        </span>Identity<span class="w">        </span>Strand
+</span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>SAMN30649373<span class="w">    </span>contig00012<span class="w">     </span>SAMN30649373.contig00012_1:1<span class="w">    </span><span class="m">0</span><span class="w">       </span>75nt<span class="w">    </span>SAMN30649373.contig00012_1:1<span class="w">    </span>TATAGCAGTAAAATAGGCTTTAGAATGTATTTTATAAAAGCGTAAAAAATCAATATTATACCGACATTTTGCGAC<span class="w">     </span>NA<span class="w">      </span>NA
+</span><span id="__span-9-4"><a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>SAMN30649373<span class="w">    </span>contig00012<span class="w">     </span>SAMN30649373.contig00012_1:2<span class="w">    </span><span class="m">0</span><span class="w">       </span>55nt<span class="w">    </span>SAMN30649373.contig00012_1:1<span class="w">    </span>TATAGCAGTAAAATAGGCTTTAGAATGTATTTTATAAAAGCGTAAAAAATCAATA<span class="w"> </span><span class="m">100</span>.00%<span class="w"> </span>+
+</span><span id="__span-9-5"><a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>SAMN19302369<span class="w">    </span>contig00024<span class="w">     </span>SAMN19302369.contig00024_2:1<span class="w">    </span><span class="m">1</span><span class="w">       </span>57nt<span class="w">    </span>SAMN19302369.contig00024_2:1<span class="w">    </span>TATTATATAATATATACTAGTGCATTTTGATAATAATTATCGACTTCAAGTAAAATT<span class="w">       </span>NA<span class="w">      </span>NA
+</span><span id="__span-9-6"><a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a>SAMN36876523<span class="w">    </span>contig00043<span class="w">     </span>SAMN36876523.contig00043_2:1<span class="w">    </span><span class="m">2</span><span class="w">       </span>56nt<span class="w">    </span>SAMN36876523.contig00043_2:1<span class="w">    </span>ATGCTTGGCTTTTTTGTAGTATATAGCAATGCTATATATCCTAGTATATACTTAAA<span class="w">        </span>NA<span class="w">      </span>NA
+</span><span id="__span-9-7"><a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a>SAMN11571935<span class="w">    </span>contig00011<span class="w">     </span>SAMN11571935.contig00011_2:1<span class="w">    </span><span class="m">3</span><span class="w">       </span>56nt<span class="w">    </span>SAMN11571935.contig00011_2:1<span class="w">    </span>ATAATGGTAAAATAGTCTTTAGAATGTATTTTAAAAAAGCATAAAAAGCTAATATA<span class="w">        </span>NA<span class="w">      </span>NA
+</span><span id="__span-9-8"><a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a>SAMN32601407<span class="w">    </span>contig00036<span class="w">     </span>SAMN32601407.contig00036_2:1<span class="w">    </span><span class="m">4</span><span class="w">       </span>56nt<span class="w">    </span>SAMN32601407.contig00036_2:1<span class="w">    </span>ATAATGGTAAAATAGTCTTTAGAATGTATTTTAAATAAACTTAAAAAGCTAATATA<span class="w">        </span>NA<span class="w">      </span>NA
+</span><span id="__span-9-9"><a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a>SAMEA1676287<span class="w">    </span>contig00014<span class="w">     </span>SAMEA1676287.contig00014_1:2<span class="w">    </span><span class="m">5</span><span class="w">       </span>56nt<span class="w">    </span>SAMEA1676287.contig00014_1:2<span class="w">    </span>TAGAAAATTTTTTATAAAAAATGTATATTTTTTTACCAAAAAATGAGACAAAAGCA<span class="w">        </span>NA<span class="w">      </span>NA
+</span><span id="__span-9-10"><a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a>SAMEA1676287<span class="w">    </span>contig00014<span class="w">     </span>SAMEA1676287.contig00014_1:4<span class="w">    </span><span class="m">5</span><span class="w">       </span>56nt<span class="w">    </span>SAMEA1676287.contig00014_1:2<span class="w">    </span>TAGAAAATTTTTTATAAAAAATGTATATTTTTTTACCAAAAAATGAGACAAAAGCA<span class="w">        </span><span class="m">100</span>.00%<span class="w"> </span>+
+</span><span id="__span-9-11"><a id="__codelineno-9-11" name="__codelineno-9-11" href="#__codelineno-9-11"></a>SAMN15582136<span class="w">    </span>contig00006<span class="w">     </span>SAMN15582136.contig00006_1:9<span class="w">    </span><span class="m">6</span><span class="w">       </span>55nt<span class="w">    </span>SAMN15582136.contig00006_1:9<span class="w">    </span>CTCAAACTTAGATTTATGGTAAAATTCAAATTCAAATATGACATCTAATAGTGAC<span class="w"> </span>NA<span class="w">      </span>NA
+</span></code></pre></div>
+<div class="admonition info">
+<p class="admonition-title">Final output: <code>data/processed/all_spacers_table.tsv</code></p>
+</div>
+<h2 id="2-crispr-cas-refinement">2. CRISPR-Cas refinement</h2>
+<h3 id="21-evaluation-by-crispridentify">2.1 Evaluation by CRISPRidentify</h3>
+<p>See the original documentation on
+<a href="https://github.com/BackofenLab/CRISPRidentify#output-files">CRISPRidentify's output</a>
+.</p>
+<p>(Write a couple of sentences describing the output and maybe include some
+examples from the command-line.)</p>
+<div class="admonition info">
+<p class="admonition-title">Final output: <code>data/processed/all_CRISPRS_with_identify.tab</code></p>
+</div>
+<h2 id="multilocus-sequence-typing">Multilocus Sequence Typing</h2>
+<p>The workflow includes classical MLST with pyMLST and the pubMLST database.
+The output is a simple table with two columns containing the genome's name
+and its assigned sequence type (if any):</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>$<span class="w"> </span>head<span class="w"> </span>data/processed/mlst_table.tsv
+</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>Genome<span class="w">          </span>ST
+</span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>SAMN10081961<span class="w">    </span><span class="m">48</span>
+</span><span id="__span-10-4"><a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>SAMN09605354<span class="w">    </span><span class="m">12411</span>
+</span><span id="__span-10-5"><a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>SAMN09343354<span class="w">    </span><span class="m">8</span>
+</span><span id="__span-10-6"><a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a>SAMN09405115<span class="w">    </span><span class="m">8</span>
+</span><span id="__span-10-7"><a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a>SAMN09489478<span class="w">    </span><span class="m">9111</span>
+</span></code></pre></div>
+<div class="admonition info">
+<p class="admonition-title">Final output: <code>data/processed/mlst_table.tsv</code></p>
+</div>
+<h2 id="antiviral-defence-systems">Antiviral defence systems</h2>
+<p>For identifying diverse antiviral defence systems in bacteria, we use
+<a href="https://padloc.otago.ac.nz/padloc/">PADLOC</a>.
+The developers have explained its output in table format as described
+<a href="https://github.com/padlocbio/padloc#interpreting-output">on GitHub</a>.</p>
+<p>We concatenate output from all genome batches in one file:</p>
+<div class="admonition info">
+<p class="admonition-title">Final output: <code>data/processed/padloc_table.csv</code></p>
+</div>
+<h2 id="virus-and-plasmid-predictions">Virus and plasmid predictions</h2>
+<p>For each contig, we collect chromosome/plasmid/virus predictions derived
+from geNomad and Jaeger.</p>
+<p>For geNomad, we combine the prediction scores with available plasmid or
+virus information into one comma-separatede dataframe. For example:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>$<span class="w"> </span>head<span class="w"> </span>data/processed/genomad_predictions.csv
+</span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>
+</span><span id="__span-11-3"><a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>genome,batch,contig,chromosome_score,plasmid_score,virus_score,plasmid_topology,plasmid_genes,conjugation_genes,amr_genes,virus_topology,virus_genes,virus_taxonomy,genomad_prediction
+</span><span id="__span-11-4"><a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a>SAMEA114408902,batch_22,SAMEA114408902.contig00032,0.1828,0.2246,0.5926,NA,NA,NA,NA,NA,NA,NA,chromosome
+</span><span id="__span-11-5"><a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a>SAMEA114461799,batch_22,SAMEA114461799.contig00001,0.0133,0.0547,0.932,NA,NA,NA,NA,No<span class="w"> </span>terminal<span class="w"> </span>repeats,62,Viruses<span class="p">;</span>Duplodnaviria<span class="p">;</span>Heunggongvirae<span class="p">;</span>Uroviricota<span class="p">;</span>Caudoviricetes<span class="p">;;</span>,virus
+</span><span id="__span-11-6"><a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a>SAMEA114461799,batch_22,SAMEA114461799.contig00014,0.7204,0.2192,0.0604,NA,NA,NA,NA,NA,NA,NA,chromosome
+</span><span id="__span-11-7"><a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a>SAMEA114461799,batch_22,SAMEA114461799.contig00015,0.8178,0.1384,0.0439,NA,NA,NA,NA,NA,NA,NA,chromosome
+</span><span id="__span-11-8"><a id="__codelineno-11-8" name="__codelineno-11-8" href="#__codelineno-11-8"></a>SAMEA114461799,batch_22,SAMEA114461799.contig00016,0.0017,0.9941,0.0042,No<span class="w"> </span>terminal<span class="w"> </span>repeats,19,T_virB9<span class="p">;</span>T_virB8<span class="p">;</span>T_virB6<span class="p">;</span>virb4<span class="p">;</span>T_virB2,NA,NA,NA,NA,plasmid
+</span></code></pre></div>
+<p>If geNomad did not assign virus or plasmid information, we classify the contig
+as 'chromosome'. This is listed in the final column, 'genomad_prediction'.</p>
+<div class="admonition info">
+<p class="admonition-title">Final output: <code>data/processed/genomad_predictions.csv</code></p>
+</div>
+<p>For Jaeger, the output is described in its
+<a href="https://github.com/Yasas1994/Jaeger#what-is-in-the-output">own documentation</a>.</p>
+<div class="admonition info">
+<p class="admonition-title">Final output: <code>data/processed/jaeger_predictions.csv</code></p>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      <script id="__config" type="application/json">{"base": ".", "features": ["content.code.copy", "content.code.select"], "search": "assets/javascripts/workers/search.973d3a69.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="assets/javascripts/bundle.92b07e13.min.js"></script>
+      
+    
+  </body>
+</html>

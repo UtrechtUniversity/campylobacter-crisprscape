@@ -1,0 +1,1133 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+        <link rel="canonical" href="https://localhost:8000/campylobacter-crisprscape/manual.html">
+      
+      
+        <link rel="prev" href="index.html">
+      
+      
+        <link rel="next" href="prepare_genomes.html">
+      
+      
+      <link rel="icon" href="assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.18">
+    
+    
+      
+        <title>User manual - Campylobacter CRISPRscape</title>
+      
+    
+    
+      <link rel="stylesheet" href="assets/stylesheets/main.7e37652d.min.css">
+      
+        
+        <link rel="stylesheet" href="assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+        <script src="https://unpkg.com/iframe-worker/shim"></script>
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL(".",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#crisprscape-user-manual" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="index.html" title="Campylobacter CRISPRscape" class="md-header__button md-logo" aria-label="Campylobacter CRISPRscape" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Campylobacter CRISPRscape
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              User manual
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="index.html" title="Campylobacter CRISPRscape" class="md-nav__button md-logo" aria-label="Campylobacter CRISPRscape" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Campylobacter CRISPRscape
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Overview
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    User manual
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="manual.html" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    User manual
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#quick-start" class="md-nav__link">
+    <span class="md-ellipsis">
+      Quick start
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1-before-you-start" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. Before you start
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1. Before you start">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#estimated-disk-use" class="md-nav__link">
+    <span class="md-ellipsis">
+      Estimated disk use
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#download-and-install-software" class="md-nav__link">
+    <span class="md-ellipsis">
+      Download and install software
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tunable-parameters" class="md-nav__link">
+    <span class="md-ellipsis">
+      Tunable parameters
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Tunable parameters">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#species-of-interest" class="md-nav__link">
+    <span class="md-ellipsis">
+      Species of interest
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#technical-parameters" class="md-nav__link">
+    <span class="md-ellipsis">
+      Technical parameters
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#download-input-genomes" class="md-nav__link">
+    <span class="md-ellipsis">
+      Download input genomes
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#downloading-databases" class="md-nav__link">
+    <span class="md-ellipsis">
+      Downloading databases
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Downloading databases">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#genomad" class="md-nav__link">
+    <span class="md-ellipsis">
+      geNomad
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#spacepharer" class="md-nav__link">
+    <span class="md-ellipsis">
+      SpacePHARER
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-running-the-workflow" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Running the workflow
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-interpreting-results" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. Interpreting results
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Workflow details
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            Workflow details
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_1" id="__nav_3_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Prepare genomes
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_1">
+            <span class="md-nav__icon md-icon"></span>
+            Prepare genomes
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="prepare_genomes.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Script functions
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="allthebacteria.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Metadata
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="CRISPR_screening.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    CRISPR screening
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="CRISPR_refinement.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    CRISPR refinement
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="clustering_spacers.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    CRISPR clustering
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="spacepharer.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    SpacePHARER
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="extra_functions.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Extra functions
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="output_files.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Output files
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="dev_notes.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Development notes
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#quick-start" class="md-nav__link">
+    <span class="md-ellipsis">
+      Quick start
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1-before-you-start" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. Before you start
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1. Before you start">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#estimated-disk-use" class="md-nav__link">
+    <span class="md-ellipsis">
+      Estimated disk use
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#download-and-install-software" class="md-nav__link">
+    <span class="md-ellipsis">
+      Download and install software
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tunable-parameters" class="md-nav__link">
+    <span class="md-ellipsis">
+      Tunable parameters
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Tunable parameters">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#species-of-interest" class="md-nav__link">
+    <span class="md-ellipsis">
+      Species of interest
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#technical-parameters" class="md-nav__link">
+    <span class="md-ellipsis">
+      Technical parameters
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#download-input-genomes" class="md-nav__link">
+    <span class="md-ellipsis">
+      Download input genomes
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#downloading-databases" class="md-nav__link">
+    <span class="md-ellipsis">
+      Downloading databases
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Downloading databases">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#genomad" class="md-nav__link">
+    <span class="md-ellipsis">
+      geNomad
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#spacepharer" class="md-nav__link">
+    <span class="md-ellipsis">
+      SpacePHARER
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-running-the-workflow" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Running the workflow
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-interpreting-results" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. Interpreting results
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="crisprscape-user-manual">CRISPRscape user manual</h1>
+<h2 id="quick-start">Quick start <span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M16.5 5.5a2 2 0 0 0 2-2 2 2 0 0 0-2-2 2 2 0 0 0-2 2 2 2 0 0 0 2 2m-3.6 13.9 1-4.4 2.1 2v6h2v-7.5l-2.1-2 .6-3A7.3 7.3 0 0 0 22 13v-2c-1.76.03-3.4-.89-4.3-2.4l-1-1.6c-.36-.6-1-1-1.7-1-.3 0-.5.1-.8.1L9 8.3V13h2V9.6l1.8-.7-1.6 8.1-4.9-1-.4 2zM4 9a1 1 0 0 1-1-1 1 1 0 0 1 1-1h3v2zm1-4a1 1 0 0 1-1-1 1 1 0 0 1 1-1h5v2zm-2 8a1 1 0 0 1-1-1 1 1 0 0 1 1-1h4v2z"/></svg></span></h2>
+<p>Install dependencies:
+<a href="https://git-scm.com/downloads/">git</a>,
+<a href="https://github.com/conda-forge/miniforge?tab=readme-ov-file#install">mamba</a>
+and
+<a href="https://snakemake.readthedocs.io/en/stable/getting_started/installation.html#full-installation">Snakemake</a>.</p>
+<p>Download the repository (including submodules):</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>git<span class="w"> </span>clone<span class="w"> </span>--recurse-submodules<span class="w"> </span>https://github.com/UtrechtUniversity/campylobacter-crisprscape.git
+</span></code></pre></div>
+<p>Move into the downloaded directory:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="nb">cd</span><span class="w"> </span>campylobacter-crisprscape
+</span></code></pre></div>
+<p>Download genomes from AllTheBacteria</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>bash<span class="w"> </span>bin/prepare_genomes.sh
+</span></code></pre></div>
+<p>Download reference databases for geNomad and SpacePHARER:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>mamba<span class="w"> </span>env<span class="w"> </span>create<span class="w"> </span>-f<span class="w"> </span>envs/genomad.yaml
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>mamba<span class="w"> </span>activate<span class="w"> </span>genomad
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>genomad<span class="w"> </span>download-database<span class="w"> </span>data/
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>bash<span class="w"> </span>bin/download_spacepharer_database.sh
+</span></code></pre></div>
+<p><em>Optional:</em> Do a dry-run to check if Snakemake can find all the right input
+and output files:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>snakemake<span class="w"> </span>--profile<span class="w"> </span>config<span class="w"> </span>-n
+</span></code></pre></div>
+<p>Run the actual analysis workflow:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>snakemake<span class="w"> </span>--profile<span class="w"> </span>config
+</span></code></pre></div>
+<p><em>For a more detailed explanation and information for adjusting parameters,</em>
+<em>please see below.</em></p>
+<h2 id="1-before-you-start">1. Before you start <span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8m8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13M6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75M8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2"/></svg></span></h2>
+<p>The CRISPRscape workflow relies on two main tools for managing the workflow
+and installing software:
+<a href="https://snakemake.readthedocs.io/en/stable/">Snakemake</a>
+and
+<a href="https://mamba.readthedocs.io/en/latest/index.html">mamba</a>.
+Furthermore, since the project is hosted on GitHub, we expect you to use
+<a href="https://git-scm.com/">git</a>.</p>
+<p>CRISPRscape is designed to work with the
+<a href="https://allthebacteria.readthedocs.io/en/latest/">AllTheBacteria</a>
+resource to download all high-quality genomes of a given species.
+(The example on which it was first tested is <em>Campylobacter coli</em>
+and <em>C. jejuni</em>, combined.)</p>
+<h3 id="estimated-disk-use">Estimated disk use <span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M6 2h12a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2m6 2a6 6 0 0 0-6 6c0 3.31 2.69 6 6.1 6l-.88-2.23a1.01 1.01 0 0 1 .37-1.37l.86-.5a1.01 1.01 0 0 1 1.37.37l1.92 2.42A5.98 5.98 0 0 0 18 10a6 6 0 0 0-6-6m0 5a1 1 0 0 1 1 1 1 1 0 0 1-1 1 1 1 0 0 1-1-1 1 1 0 0 1 1-1m-5 9a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m5.09-4.73 2.49 6.31 2.59-1.5-4.22-5.31z"/></svg></span></h3>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>CRISPRscape requires downloading multiple databases.
+Prepare to use hundreds of GBs!</p>
+</div>
+<ul>
+<li>
+<p><a href="allthebacteria.html">AllTheBacteria metadata</a>: ~1.5GB</p>
+<ul>
+<li>AllTheBacteria genomes: depends on species
+(e.g., 197GB for ~130,000 <em>Campylobacter</em> genomes)</li>
+</ul>
+</li>
+<li>
+<p>Databases of <a href="#spacepharer">SpacePHARER</a>:</p>
+<ul>
+<li>
+<p><a href="spacepharer.html#plsdb-2024_05_31_v2">PLSDB</a>: ~80GB</p>
+</li>
+<li>
+<p><a href="spacepharer.html#phagescope">Phagescope</a>: ~320GB</p>
+</li>
+</ul>
+</li>
+<li>
+<p><a href="#genomad">geNomad database</a>: 1.4GB</p>
+</li>
+</ul>
+<h3 id="download-and-install-software">Download and install software <span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M5 20h14v-2H5m14-9h-4V3H9v6H5l7 7z"/></svg></span></h3>
+<p>Before you begin, you need to install:
+(follow these links to find installation instructions)</p>
+<ol>
+<li>
+<p><a href="https://git-scm.com/downloads/">git</a></p>
+</li>
+<li>
+<p><a href="https://github.com/conda-forge/miniforge?tab=readme-ov-file#install">mamba</a></p>
+</li>
+<li>
+<p><a href="https://snakemake.readthedocs.io/en/stable/getting_started/installation.html#full-installation">Snakemake</a></p>
+</li>
+</ol>
+<p>We recommend Snakemake is installed via mamba. This is also the default
+and linked above.</p>
+<p>When you have these tools installed, you can download CRISPRscape:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>git<span class="w"> </span>clone<span class="w"> </span>--recurse-submodules<span class="w"> </span>https://github.com/UtrechtUniversity/campylobacter-crisprscape.git
+</span></code></pre></div>
+<p>(Note: the <code>--recurse-submodules</code> option is necessary to also automatically
+download <a href="https://github.com/necopy-byte/CRISPRidentify">CRISPRidentify</a>,
+which is one of the two CRISPR-Cas screening tools included.)</p>
+<p>Move your current working directory into this newly downloaded one
+to get started!</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="nb">cd</span><span class="w"> </span>campylobacter-crisprscape
+</span></code></pre></div>
+<p>(You may of course rename this directory if you want to. Just make sure you
+remember it.)</p>
+<h3 id="tunable-parameters">Tunable parameters <span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 17v2h6v-2zM3 5v2h10V5zm10 16v-2h8v-2h-8v-2h-2v6zM7 9v2H3v2h4v2h2V9zm14 4v-2H11v2zm-6-4h2V7h4V5h-4V3h-2z"/></svg></span></h3>
+<p>CRISPRscape includes some options that can be modified by the user.
+These are stored in YAML and TXT files under the <code>config</code> directory.</p>
+<h4 id="species-of-interest">Species of interest <span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.0.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path fill="currentColor" d="M128 32h32c17.7 0 32 14.3 32 32v32H96V64c0-17.7 14.3-32 32-32m64 96v320c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32v-59.1c0-34.6 9.4-68.6 27.2-98.3C40.9 267.8 49.7 242.4 53 216l7.5-60c2-16 15.6-28 31.8-28h99.8zm227.8 0c16.1 0 29.8 12 31.8 28l7.4 60c3.3 26.4 12.1 51.8 25.8 74.6 17.8 29.7 27.2 63.7 27.2 98.3V448c0 17.7-14.3 32-32 32H352c-17.7 0-32-14.3-32-32V128zM320 64c0-17.7 14.3-32 32-32h32c17.7 0 32 14.3 32 32v32h-96zm-32 64v160h-64V128z"/></svg></span></h4>
+<p>The species of interest can be modified to your liking by changing the file
+<a href="https://github.com/UtrechtUniversity/campylobacter-crisprscape/blob/main/config/species_of_interest.txt"><code>config/species_of_interest.txt</code></a></p>
+<p>This file simply lists species names, one per line. The default is:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>Campylobacter_D<span class="w"> </span>jejuni
+</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>Campylobacter_D<span class="w"> </span>coli
+</span></code></pre></div>
+<p>By changing the species name, one can adjust the species that can be
+automatically downloaded from AllTheBacteria (ATB). When changing the name,
+make sure to use the taxonomy from
+<a href="https://gtdb.ecogenomic.org/tree">GTDB</a>.</p>
+<p>This also affects multilocus sequence typing (MLST): CRISPRscape includes
+automated MLST, which requires downloading the proper marker gene database.
+This information is stored under
+<a href="https://github.com/UtrechtUniversity/campylobacter-crisprscape/blob/8f66f87d44ef6a8761e372d67074227f0b64c026/config/parameters.yaml#L15"><code>config/parameters.yaml</code></a>
+.
+For finding valid species names, please consult
+<a href="https://pymlst.readthedocs.io/en/latest/documentation/clamlst/initialise.html#import-from-pubmlst">pyMLST</a>.</p>
+<h4 id="technical-parameters">Technical parameters <span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m21.71 20.29-1.42 1.42a1 1 0 0 1-1.41 0L7 9.85A3.8 3.8 0 0 1 6 10a4 4 0 0 1-3.78-5.3l2.54 2.54.53-.53 1.42-1.42.53-.53L4.7 2.22A4 4 0 0 1 10 6a3.8 3.8 0 0 1-.15 1l11.86 11.88a1 1 0 0 1 0 1.41M2.29 18.88a1 1 0 0 0 0 1.41l1.42 1.42a1 1 0 0 0 1.41 0l5.47-5.46-2.83-2.83M20 2l-4 2v2l-2.17 2.17 2 2L18 8h2l2-4Z"/></svg></span></h4>
+<p>Then, there are some technical parameters that you can adjust to fit your
+system. These range from the input directory in which your genomes are stored
+(default: <code>data/tmp/ATB/</code>) and the location of databases to the number of CPU
+threads to use.</p>
+<p>Please open <code>config/config.yaml</code> and <code>config/parameters.yaml</code> to review
+the default parameters and adjust where needed to make it work for your
+system.</p>
+<p>The default CPU settings are:</p>
+<ul>
+<li>
+<p>Use a maximum total of 60 CPU threads</p>
+</li>
+<li>
+<p>Use 20 CPU threads for most compute-intensive tasks</p>
+</li>
+</ul>
+<h3 id="download-input-genomes">Download input genomes <span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M6.5 20q-2.28 0-3.89-1.57Q1 16.85 1 14.58q0-1.95 1.17-3.48 1.18-1.53 3.08-1.95.58-2.02 2.14-3.4Q8.95 4.38 11 4.08v8.07L9.4 10.6 8 12l4 4 4-4-1.4-1.4-1.6 1.55V4.08q2.58.35 4.29 2.31T19 11q1.73.2 2.86 1.5 1.14 1.28 1.14 3 0 1.88-1.31 3.19T18.5 20Z"/></svg></span></h3>
+<p>CRISPRscape includes a convenient script to autmatically download genomes
+of interest from ATB. When the desired species name is saved in
+<code>config/species_of_interest.txt</code>, you can start downloading with:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>bash<span class="w"> </span>bin/prepare_genomes.sh
+</span></code></pre></div>
+<p>Here, you may optionally add a command-line parameter to tell which part
+of ATB to look into: the complete database (<code>all</code> = largest), only the
+original version (<code>original</code>) or the incremental update (<code>update</code> = smallest;
+default). For example:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>bash<span class="w"> </span>bin/prepare_genomes.sh<span class="w"> </span>all
+</span></code></pre></div>
+<h3 id="downloading-databases">Downloading databases <span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M6.5 20q-2.28 0-3.89-1.57Q1 16.85 1 14.58q0-1.95 1.17-3.48 1.18-1.53 3.08-1.95.58-2.02 2.14-3.4Q8.95 4.38 11 4.08v8.07L9.4 10.6 8 12l4 4 4-4-1.4-1.4-1.6 1.55V4.08q2.58.35 4.29 2.31T19 11q1.73.2 2.86 1.5 1.14 1.28 1.14 3 0 1.88-1.31 3.19T18.5 20Z"/></svg></span></h3>
+<h4 id="genomad"><a href="https://portal.nersc.gov/genomad/index.html">geNomad</a></h4>
+<p>This workflow uses geNomad to predict whether genomic contigs derive from
+chromosomal DNA, plasmids or viruses. This tool uses both a neural network
+classifier and a marker-based approach to calculate prediction scores.
+For the marker-based method, it requires a database which can be downloaded
+using the tool geNomad itself. If you have installed
+<a href="https://mamba.readthedocs.io/en/latest/">mamba</a>
+this can be done as follows:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>mamba<span class="w"> </span>env<span class="w"> </span>create<span class="w"> </span>-f<span class="w"> </span>envs/genomad.yaml
+</span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>mamba<span class="w"> </span>activate<span class="w"> </span>genomad
+</span><span id="__span-11-3"><a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>genomad<span class="w"> </span>download-database<span class="w"> </span>data/
+</span></code></pre></div>
+<p>Note that this will create the subdirectory <code>data/genomad_db/</code>,
+which is the default that is also defined in
+<a href="https://github.com/UtrechtUniversity/campylobacter-crisprscape/blob/main/config/parameters.yaml"><code>config/parameters.yaml</code></a>.</p>
+<p>The current version of the database, v1.7, uses 1.4GB disk space.</p>
+<h4 id="spacepharer"><a href="https://github.com/soedinglab/spacepharer">SpacePHARER</a></h4>
+<p>The bin folder also includes scripts to download and extract pre-selected
+databases for use in Spacepharer.
+These include <a href="https://phagescope.deepomics.org/">Phagescope</a> for annotated
+phage sequences and <a href="https://ccb-microbe.cs.uni-saarland.de/plsdb2025/">PLSDB</a>
+for annotated plasmid sequences which have been chosen for their broad taxonomy.
+By running:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>bash<span class="w"> </span>bin/download_spacepharer_database.sh
+</span></code></pre></div>
+<p>Both databases are downloaded, extracted and then merged for use in Spacepharer.
+If you wish to use a different database or add to them, see
+<a href="https://utrechtuniversity.github.io/campylobacter-crisprscape/spacepharer.html"><code>doc/spacepharer.md</code></a>
+for advice.</p>
+<h2 id="2-running-the-workflow">2. Running the workflow <span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13.5 5.5c1.09 0 2-.92 2-2a2 2 0 0 0-2-2c-1.11 0-2 .88-2 2 0 1.08.89 2 2 2M9.89 19.38l1-4.38L13 17v6h2v-7.5l-2.11-2 .61-3A7.3 7.3 0 0 0 19 13v-2c-1.91 0-3.5-1-4.31-2.42l-1-1.58c-.4-.62-1-1-1.69-1-.31 0-.5.08-.81.08L6 8.28V13h2V9.58l1.79-.7L8.19 17l-4.9-1-.4 2z"/></svg></span></h2>
+<p>The workflow is fully automated and should complete with one command.
+For details on what happens under the hood, see the tab 'Workflow details'.</p>
+<p>One can do a 'dry-run' to test if all preparations have been satisfied:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>snakemake<span class="w"> </span>--profile<span class="w"> </span>config<span class="w"> </span>-n
+</span></code></pre></div>
+<p>To run the actual workflow:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>snakemake<span class="w"> </span>--profile<span class="w"> </span>config
+</span></code></pre></div>
+<h2 id="3-interpreting-results">3. Interpreting results <span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg></span></h2>
+<p>After running the workflow, the user is presented with a number of output files.
+These are described in detail under the tab '<a href="output_files.html">Output files</a>'.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      <script id="__config" type="application/json">{"base": ".", "features": ["content.code.copy", "content.code.select"], "search": "assets/javascripts/workers/search.973d3a69.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="assets/javascripts/bundle.92b07e13.min.js"></script>
+      
+    
+  </body>
+</html>

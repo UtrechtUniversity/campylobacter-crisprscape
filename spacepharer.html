@@ -1,0 +1,867 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+        <link rel="canonical" href="https://localhost:8000/campylobacter-crisprscape/spacepharer.html">
+      
+      
+        <link rel="prev" href="clustering_spacers.html">
+      
+      
+        <link rel="next" href="extra_functions.html">
+      
+      
+      <link rel="icon" href="assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.18">
+    
+    
+      
+        <title>SpacePHARER - Campylobacter CRISPRscape</title>
+      
+    
+    
+      <link rel="stylesheet" href="assets/stylesheets/main.7e37652d.min.css">
+      
+        
+        <link rel="stylesheet" href="assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+        <script src="https://unpkg.com/iframe-worker/shim"></script>
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL(".",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#spacepharer-documentation" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="index.html" title="Campylobacter CRISPRscape" class="md-header__button md-logo" aria-label="Campylobacter CRISPRscape" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Campylobacter CRISPRscape
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              SpacePHARER
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="index.html" title="Campylobacter CRISPRscape" class="md-nav__button md-logo" aria-label="Campylobacter CRISPRscape" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Campylobacter CRISPRscape
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Overview
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="manual.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    User manual
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Workflow details
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            Workflow details
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_1" id="__nav_3_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Prepare genomes
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_1">
+            <span class="md-nav__icon md-icon"></span>
+            Prepare genomes
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="prepare_genomes.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Script functions
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="allthebacteria.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Metadata
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="CRISPR_screening.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    CRISPR screening
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="CRISPR_refinement.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    CRISPR refinement
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="clustering_spacers.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    CRISPR clustering
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    SpacePHARER
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="spacepharer.html" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    SpacePHARER
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#spacepharer" class="md-nav__link">
+    <span class="md-ellipsis">
+      Spacepharer
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#databases" class="md-nav__link">
+    <span class="md-ellipsis">
+      Databases
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Databases">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#phagescope" class="md-nav__link">
+    <span class="md-ellipsis">
+      Phagescope
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#plsdb-2024_05_31_v2" class="md-nav__link">
+    <span class="md-ellipsis">
+      PLSDB 2024_05_31_v2
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#output" class="md-nav__link">
+    <span class="md-ellipsis">
+      Output
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="extra_functions.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Extra functions
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="output_files.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Output files
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="dev_notes.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Development notes
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#spacepharer" class="md-nav__link">
+    <span class="md-ellipsis">
+      Spacepharer
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#databases" class="md-nav__link">
+    <span class="md-ellipsis">
+      Databases
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Databases">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#phagescope" class="md-nav__link">
+    <span class="md-ellipsis">
+      Phagescope
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#plsdb-2024_05_31_v2" class="md-nav__link">
+    <span class="md-ellipsis">
+      PLSDB 2024_05_31_v2
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#output" class="md-nav__link">
+    <span class="md-ellipsis">
+      Output
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="spacepharer-documentation">Spacepharer documentation</h1>
+<h2 id="spacepharer"><a href="https://github.com/soedinglab/spacepharer">Spacepharer</a></h2>
+<p>As described by the github, Spacepharer is a program that uses the search method of MMSEQ2 to query spacer sequences against a database with the intent to find host-phage matches. Normally Spacer sequences have quite short sequences which confound more conventional methods such as BLASTN and therefore require stringent filtering methods. However phage databases are frequently incomplete and phages are generally highly mutable, necessitating that a certain amount of mismatches are allowed. This is what spacepharer overcomes by prioritising open reading frames which bypass the need for highly similar matches.</p>
+<p>Spacepharer was therefore chosen as the method in CRISPRscape to identify spacer to phage matches compared to conventional methods such as BLASTN. With similar rationale, spacepharer was also chosen to match spacers with plasmids as they were expected to have similar problems such as virality causing high mutability and consisting mostly of coding sequences.</p>
+<h2 id="databases">Databases</h2>
+<p>Spacepharer requires the use of databases to match against. For this, CRISPRscape comes with the script <code>download_spacepharer_database.sh</code> which download both Phagescope and PLSDB as databases for phage and plasmid matching respectively and prepare them for use in Spacepharer. It is possible to use other databases but this requires some changes in both <code>Snakefile</code> and <code>parameters.yaml</code> to account for them.</p>
+<p>Specifically <code>Snakefile</code> would require changes to rules:</p>
+<p><code>spacepharer_phage_setup</code>:</p>
+<p>params: DB="path/to/database.fasta"</p>
+<p><code>spacepharer_phage_setup</code>:</p>
+<p>params: DB="path/to/database.fasta"</p>
+<p><code>create_spacepharer_table</code>:</p>
+<p>It is recommended to comment out this rule and instead merge the metadata yourself, as it assumes a certain metadata structure that can change between databases.</p>
+<h3 id="phagescope"><a href="https://phagescope.deepomics.org/">Phagescope</a></h3>
+<p>Phagescope is a large database containing a large set of bacteriophages combined from several sources and further annotated with information such as taxonomy. Specifically this database was chosen as it has a large variety of host species, sufficient annotation for CRISPRscape's goal and is relatively large compared to other databases. Furthermore, depending on further research, the extra annotations are extensive and could be used for further research.</p>
+<p>As of writing Phagescope contains 873.718 phage sequences from 4.723 host species.</p>
+<p>The full download comprises about 41GB, of which <code>merged_metadata.tsv</code> (127MB)
+and the fasta files are the most important.</p>
+<ul>
+<li><code>merged_metadata.tsv</code> lists for each phage its genome length, GC-content,
+taxonomy, completeness (e.g., 'High-quality'), host species, lifestyle
+(e.g, 'virulent'), and which cluster and subcluster it belongs to.</li>
+</ul>
+<p>From these, a custom database is build, which uses <strong>279GB</strong>.</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>$<span class="w"> </span>ls<span class="w"> </span>-sh<span class="w"> </span>data/raw/phagescope/
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>total<span class="w"> </span>41G
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="m">1</span>.4G<span class="w"> </span>CHVD.fasta<span class="w">                    </span>11M<span class="w"> </span>GPD<span class="w">                         </span><span class="m">2</span>.6G<span class="w"> </span>MGV.tar.gz
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="m">5</span>.7M<span class="w"> </span>chvd_phage_meta_data.tsv<span class="w">     </span><span class="m">5</span>.1G<span class="w"> </span>GPD.fasta<span class="w">                   </span>336K<span class="w"> </span>PhagesDB
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>400M<span class="w"> </span>CHVD.tar.gz<span class="w">                   </span>18M<span class="w"> </span>gpd_phage_meta_data.tsv<span class="w">     </span>224M<span class="w"> </span>PhagesDB.fasta
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w"> </span>28K<span class="w"> </span>DDBJ<span class="w">                         </span><span class="m">1</span>.6G<span class="w"> </span>GPD.tar.gz<span class="w">                  </span>524K<span class="w"> </span>phagesdb_phage_meta_data.tsv
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w"> </span>12M<span class="w"> </span>DDBJ.fasta<span class="w">                   </span><span class="m">4</span>.0M<span class="w"> </span>GVD<span class="w">                          </span>68M<span class="w"> </span>PhagesDB.tar.gz
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="w"> </span>40K<span class="w"> </span>ddbj_phage_meta_data.tsv<span class="w">     </span>560M<span class="w"> </span>GVD.fasta<span class="w">                   </span>356K<span class="w"> </span>RefSeq
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="m">3</span>.6M<span class="w"> </span>DDBJ.tar.gz<span class="w">                  </span><span class="m">4</span>.9M<span class="w"> </span>gvd_phage_meta_data.tsv<span class="w">     </span>318M<span class="w"> </span>RefSeq.fasta
+</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="w"> </span>12K<span class="w"> </span>EMBL<span class="w">                         </span>172M<span class="w"> </span>GVD.tar.gz<span class="w">                  </span>572K<span class="w"> </span>refseq_phage_meta_data.tsv
+</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="m">8</span>.5M<span class="w"> </span>EMBL.fasta<span class="w">                   </span>241M<span class="w"> </span>IGVD.fasta<span class="w">                   </span>97M<span class="w"> </span>RefSeq.tar.gz
+</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="w"> </span>20K<span class="w"> </span>embl_phage_meta_data.tsv<span class="w">     </span><span class="m">1</span>.2M<span class="w"> </span>igvd_phage_meta_data.tsv<span class="w">     </span>98M<span class="w"> </span>STV.fasta
+</span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a><span class="m">2</span>.6M<span class="w"> </span>EMBL.tar.gz<span class="w">                   </span>70M<span class="w"> </span>IGVD.tar.gz<span class="w">                 </span>536K<span class="w"> </span>stv_phage_meta_data.tsv
+</span><span id="__span-0-14"><a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>164K<span class="w"> </span>Genbank<span class="w">                      </span><span class="m">8</span>.2G<span class="w"> </span>IMG_VR.fasta<span class="w">                 </span>28M<span class="w"> </span>STV.tar.gz
+</span><span id="__span-0-15"><a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>147M<span class="w"> </span>Genbank.fasta<span class="w">                 </span>31M<span class="w"> </span>img_vr_phage_meta_data.tsv<span class="w">  </span><span class="m">5</span>.0M<span class="w"> </span>TemPhD
+</span><span id="__span-0-16"><a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>256K<span class="w"> </span>genbank_phage_meta_data.tsv<span class="w">  </span><span class="m">2</span>.4G<span class="w"> </span>IMG_VR.tar.gz<span class="w">               </span><span class="m">2</span>.5G<span class="w"> </span>TemPhD.fasta
+</span><span id="__span-0-17"><a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a><span class="w"> </span>45M<span class="w"> </span>Genbank.tar.gz<span class="w">               </span>127M<span class="w"> </span>merged_metadata.tsv<span class="w">         </span><span class="m">8</span>.6M<span class="w"> </span>temphd_phage_meta_data.tsv
+</span><span id="__span-0-18"><a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a><span class="m">4</span>.0G<span class="w"> </span>GOV2.fasta<span class="w">                    </span>15M<span class="w"> </span>MGV<span class="w">                         </span>770M<span class="w"> </span>TemPhD.tar.gz
+</span><span id="__span-0-19"><a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a><span class="w"> </span>35M<span class="w"> </span>gov2_phage_meta_data.tsv<span class="w">     </span><span class="m">8</span>.4G<span class="w"> </span>MGV.fasta
+</span><span id="__span-0-20"><a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a><span class="m">1</span>.1G<span class="w"> </span>GOV2.tar.gz<span class="w">                   </span>23M<span class="w"> </span>mgv_phage_meta_data.tsv
+</span></code></pre></div>
+<h3 id="plsdb-2024_05_31_v2"><a href="https://ccb-microbe.cs.uni-saarland.de/plsdb2025/">PLSDB</a> 2024_05_31_v2</h3>
+<p>PLSDB is an up to date database containing plasmids taken from NCBI and INSDC that have been scrubbed of chromosomal sequences. Furthermore PLSDB has extensive annotation including taxonomy and antimicrobial resistance genes.</p>
+<p>This database was chosen for its wide variety of host species, origin location and being of sufficient size. Furthermore, as of writing it is still getting updates.</p>
+<p>The version used by CRISPRscape (PLSDB 2024_05_31_v2) contains 72.360 plasmid sequences from 9436 different host species.</p>
+<p>The full download uses 14GB of disk space, but the essential files for
+CRISPRscape are smaller:</p>
+<ul>
+<li>
+<p><code>sequences.fasta</code>: 7GB</p>
+<ul>
+<li>self-explanatory: fasta file with the plasmid sequences</li>
+</ul>
+</li>
+<li>
+<p><code>nuccore.csv</code>: 17MB</p>
+<ul>
+<li>Metadata file with unique ID, accession number, description, creation
+ date, predicted completeness, 'Genome' (plasmid), length, and 14 more
+ columns with a.o. source information</li>
+</ul>
+</li>
+<li>
+<p><code>taxonomy.csv</code>: 2.3MB</p>
+<ul>
+<li>Taxonomic tree for all included plasmids as comma-separated table,
+including both taxonomic names for each rank and taxID numbers.</li>
+</ul>
+</li>
+</ul>
+<p>These are used to build a custom database of <strong>68GB</strong>.</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>$<span class="w"> </span>ls<span class="w"> </span>-sh<span class="w"> </span>data/raw/PLSDB/
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>total<span class="w"> </span>14G
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w"> </span>37M<span class="w"> </span>amr.tsv<span class="w">                         </span><span class="m">1</span>.7M<span class="w"> </span>disease_terms.csv<span class="w">      </span>16M<span class="w"> </span>plasmidfinder.csv<span class="w">      </span>16K<span class="w"> </span>README.md
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="m">3</span>.1M<span class="w"> </span>assembly.csv<span class="w">                    </span><span class="m">3</span>.5G<span class="w"> </span>download_meta.tar.gz<span class="w">   </span>14M<span class="w"> </span>plsdb_mashdb_sim.tsv<span class="w">  </span><span class="m">7</span>.0G<span class="w"> </span>sequences.fasta
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w"> </span>16K<span class="w"> </span>biosample_attributes_plsdb.csv<span class="w">  </span><span class="m">8</span>.0K<span class="w"> </span>ecopaths.csv<span class="w">          </span>569M<span class="w"> </span>plsdb_sketch.msh<span class="w">      </span><span class="m">2</span>.3M<span class="w"> </span>taxonomy.csv
+</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="w"> </span>12M<span class="w"> </span>biosample.csv<span class="w">                   </span>780K<span class="w"> </span>nucc_identical.csv<span class="w">    </span>610M<span class="w"> </span>proteins.csv<span class="w">           </span>23M<span class="w"> </span>typing.csv
+</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="m">2</span>.5M<span class="w"> </span>changes.tsv<span class="w">                      </span>17M<span class="w"> </span>nuccore.csv<span class="w">           </span><span class="m">1</span>.7G<span class="w"> </span>proteins.fasta<span class="w">         </span>75M<span class="w"> </span>typing_markers.csv
+</span></code></pre></div>
+<h2 id="output">Output</h2>
+<p>Spacepharers output consists of a singular .tsv file showing all matches to a phage_ID within the database provided. The expected output takes the form of:</p>
+<p><div class="language-text highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>#prok_acc  phage_acc   S_comb      num_hits
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>&gt;spacer_acc      phage_acc   p_bh    spacer_start      spacer_end  phage_start phage_end   5&#39;_PAM|3&#39;_PAM    5&#39;_PAM|3&#39;_PAM(reverse strand)
+</span></code></pre></div>
+where the # indicates the prokaryotic match. However due to the way that input is provided, this ends up being redundant. CRISPRscape therefore filters out the # sections retaining only the individual matches.</p>
+<p>of the matches the columns consist of:
+<code>spacer accession, phage accession, p besthit, spacer start and end, phage start and end, possible 5’ PAM|3’ PAM, possible 5’ PAM|3’ PAM on the reverse strand</code></p>
+<p>Lastly the matches are then matched with their respective metadata and added onto the table. Crisprscape will by default take the metadata from Phagescope and PLSDB and add the relevant columns.</p>
+<p>For Phagescope these columns are: <code>Length, GC_content, taxonomy, completeness, host, lifestyle</code></p>
+<p>For PLSDB the column added is: <code>Host taxonomy</code></p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      <script id="__config" type="application/json">{"base": ".", "features": ["content.code.copy", "content.code.select"], "search": "assets/javascripts/workers/search.973d3a69.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="assets/javascripts/bundle.92b07e13.min.js"></script>
+      
+    
+  </body>
+</html>
