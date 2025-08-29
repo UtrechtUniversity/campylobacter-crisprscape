@@ -726,8 +726,6 @@ rule jaeger:
         batch=INPUT_DIR + "{batch}/",
     output:
         OUTPUT_DIR + "jaeger/{batch}/complete",
-    params:
-        output_dir=OUTPUT_DIR + "jaeger/{batch}/",
     conda:
         "envs/jaeger.yaml"
     threads: config["jaeger"]["threads"]
@@ -738,7 +736,7 @@ rule jaeger:
     shell:
         """
 parallel --jobs {threads} --retry-failed --halt='now,fail=1'\
- jaeger run -p --workers 1 -i {{}} -o "{params.output_dir}{{/.}}" --overwrite\
+ jaeger run -p --workers 1 -i {{}} -o $(dirname {output}) --overwrite\
  > {log} 2>&1 ::: {input.batch}/*.fa
 
 touch {output}
