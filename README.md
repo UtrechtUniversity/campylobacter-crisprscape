@@ -29,7 +29,7 @@ which includes a quick start guide as well as a detailed step-by-step descriptio
 - Version 0.1 updates:
 
     - Updates in documentation of implemented functions and output files
-(e.g., expaning documentation on the use of CRISPRidentify)
+(e.g., expanding documentation on the use of CRISPRidentify)
 
     - Functions to concatenate and combine existing outputs
 
