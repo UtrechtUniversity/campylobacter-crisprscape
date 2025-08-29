@@ -113,10 +113,9 @@ causes weird errors.
 
 ### Phagescope
 
-The Phagescope database says that it can filter genomes based on criteria,
-but actually downloading these fastas is impossible due to an error.
-Additionally, `wget` and `curl` do not properly download the databases in a way that
-spacepharer can identify, requiring a manual upload.
+The Phagescope database has to be downloaded in full, no selections can be made
+beforehand. Therefore, the download is pretty large, while the parts that are
+needed may be modest in size and can be filtered after downloading.
 
 ### CRISPRidentify
 
@@ -131,4 +130,5 @@ or similar. We found that the YAML file provided on the CRISPRidentify GitHub
 page cannot be solved using the recommended 'strict channel priority' setting.
 We could only get it to work with the flexible or disabled channel priority.
 We have adapted to YAML so that it can be solved using strict priority mode,
-but this does make strand prediction in CRISPRidentify non-functional.
+but with this method two modules are disabled: strand and _cas_ prediction
+(CRISRPcasIdentifier).
