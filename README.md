@@ -70,7 +70,7 @@ applying standardised formatting, remove unnecessary code)
 
 - [x] Setup MkDocs-powered documentation (at least locally, integrate with GitHub pages later)
 
-(_Note to self: Remove this list when finishd and use issues or roadmap instead!_)
+(_Note to self: Remove this list when finished and use issues or roadmap instead!_)
 
 ## Workflow description
 
