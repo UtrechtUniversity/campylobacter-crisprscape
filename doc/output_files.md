@@ -216,3 +216,61 @@ See the original documentation on
 examples from the command-line.)
 
 !!! info "Final output: `data/processed/all_CRISPRS_with_identify.tab`"
+
+## Multilocus Sequence Typing
+
+The workflow includes classical MLST with pyMLST and the pubMLST database.
+The output is a simple table with two columns containing the genome's name
+and its assigned sequence type (if any):
+
+``` bash
+$ head data/processed/mlst_table.tsv
+Genome          ST
+SAMN10081961    48
+SAMN09605354    12411
+SAMN09343354    8
+SAMN09405115    8
+SAMN09489478    9111
+```
+
+!!! info "Final output: `data/processed/mlst_table.tsv`"
+
+## Antiviral defence systems
+
+For identifying diverse antiviral defence systems in bacteria, we use
+[PADLOC](https://padloc.otago.ac.nz/padloc/).
+The developers have explained its output in table format as described
+[on GitHub](https://github.com/padlocbio/padloc#interpreting-output).
+
+We concatenate output from all genome batches in one file:
+
+!!! info "Final output: `data/processed/padloc_table.csv`"
+
+## Virus and plasmid predictions
+
+For each contig, we collect chromosome/plasmid/virus predictions derived
+from geNomad and Jaeger.
+
+For geNomad, we combine the prediction scores with available plasmid or
+virus information into one comma-separatede dataframe. For example:
+
+``` bash
+$ head data/processed/genomad_predictions.csv
+
+genome,batch,contig,chromosome_score,plasmid_score,virus_score,plasmid_topology,plasmid_genes,conjugation_genes,amr_genes,virus_topology,virus_genes,virus_taxonomy,genomad_prediction
+SAMEA114408902,batch_22,SAMEA114408902.contig00032,0.1828,0.2246,0.5926,NA,NA,NA,NA,NA,NA,NA,chromosome
+SAMEA114461799,batch_22,SAMEA114461799.contig00001,0.0133,0.0547,0.932,NA,NA,NA,NA,No terminal repeats,62,Viruses;Duplodnaviria;Heunggongvirae;Uroviricota;Caudoviricetes;;,virus
+SAMEA114461799,batch_22,SAMEA114461799.contig00014,0.7204,0.2192,0.0604,NA,NA,NA,NA,NA,NA,NA,chromosome
+SAMEA114461799,batch_22,SAMEA114461799.contig00015,0.8178,0.1384,0.0439,NA,NA,NA,NA,NA,NA,NA,chromosome
+SAMEA114461799,batch_22,SAMEA114461799.contig00016,0.0017,0.9941,0.0042,No terminal repeats,19,T_virB9;T_virB8;T_virB6;virb4;T_virB2,NA,NA,NA,NA,plasmid
+```
+
+If geNomad did not assign virus or plasmid information, we classify the contig
+as 'chromosome'. This is listed in the final column, 'genomad_prediction'.
+
+!!! info "Final output: `data/processed/genomad_predictions.csv`"
+
+For Jaeger, the output is described in its
+[own documentation](https://github.com/Yasas1994/Jaeger#what-is-in-the-output).
+
+!!! info "Final output: `data/processed/jaeger_predictions.csv`"

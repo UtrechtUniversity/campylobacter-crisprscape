@@ -1,6 +1,6 @@
 # CRISPRscape documentation
 
-[![Built with MkDocs](https://cdn.jsdelivr.net/npm/@intergrav/devins-badges@3/assets/cozy/built-with/mkdocs_vector.svg)](https://www.mkdocs.org/) + [![Using Material for MkDocs](https://cdn.jsdelivr.net/gh/Andre601/devins-badges@v3.x-mkdocs-material/assets/compact-minimal/built-with/mkdocs-material_vector.svg)](https://squidfunk.github.io/mkdocs-material)
+[![Built with MkDocs](https://cdn.jsdelivr.net/npm/@intergrav/devins-badges@3/assets/cozy/built-with/mkdocs_vector.svg)](https://www.mkdocs.org/) &nbsp;+ &nbsp;[![Using Material for MkDocs](https://cdn.jsdelivr.net/gh/Andre601/devins-badges@v3.x-mkdocs-material/assets/compact-minimal/built-with/mkdocs-material_vector.svg)](https://squidfunk.github.io/mkdocs-material) &nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;View project code on [:simple-github: GitHub](https://github.com/UtrechtUniversity/campylobacter-crisprscape)
 
 !!! danger "Work in progress"
 
@@ -20,6 +20,8 @@ The workflow works as follows:
 3. [Refine identified CRISPR arrays](CRISPR_refinement.md)
 
 4. [Cluster identified CRISPR spacers](clustering_spacers.md)
+
+And comes with several [additional functions](extra_functions.md)
 
 ## What it creates
 

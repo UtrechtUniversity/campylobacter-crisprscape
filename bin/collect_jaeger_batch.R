@@ -25,7 +25,6 @@ jaeger_df_simple <- jaeger_df %>%
                         replacement = "",
                         x = contig)
   ) %>%
-  rename("reliability_score" = "realiability_score") %>%
   select(accession_id, contig, length, prediction, reliability_score, prophage_contam)
 
 # And write to a CSV file (which can easily be concatenated with a script)

@@ -4,4 +4,4 @@ channels:
   - bioconda
   - defaults
 dependencies:
-  - spacepharer>=1.56925d2
+  - spacepharer=5.c2e680a

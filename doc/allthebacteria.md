@@ -34,9 +34,13 @@ total 1.4G
     e.g.
 
 ```bash
-zgrep -f all_Campylobacter_samples.txt file_list.all.20240805.tsv.gz |\
- cut -f 3,4,5 | sort | uniq
+zgrep -f data/ATB/all_samples_of_interest.txt\
+ data/ATB/file_list.all.20240805.tsv.gz | cut -f 3-5 | sort | uniq
 ```
+
+(Note that the file `all_samples_of_interest.txt` is generated when running
+the script `bin/prepare_genomes.sh`. Also see the
+[manual](manual.md#download-input-genomes).)
 
 - Sample list `sample_list.txt.gz` 5.4MB
   - This file simply lists all the sample accessions that are present in the dataset.
