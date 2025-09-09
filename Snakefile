@@ -904,7 +904,7 @@ rule create_spacepharer_table:
     threads: 1
     log:
         "log/create_spacepharer_table.txt"
-    script: bin/create_spacepharer_table.sh
+    script: "bin/create_spacepharer_table.sh"
 
 rule kma_indexing:
     input:
