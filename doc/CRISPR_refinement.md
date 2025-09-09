@@ -53,11 +53,23 @@ this two-step approach.
 
 ## 2.2 Re-evaluation of the CRISPR arrays
 
-(Brief description of how CRISPRidentify works)
+Using the arrays parsed from CCTyper output, CRISPRidentify has two seperate steps to come to its final conclusion: Candidate generation and Candidate evaluation.
+In Candidate generation, CRISPRidentify uses Vmatch to find putative repeat pairs. Which, by default, need to be between 21 and 55 nucleotides in size and 18 to 78 nucleotides apart. 
+This process is relatively sensitive where more than one repeat candidate is usually generated. All the repeat candidates are then aligned, this alignment is created from a maximum element and a minimum element. 
+The maximum element is the largest repeat string generated from the most common nucleotides in each base of all candidates. 
+The minimum element is generated from the most common substring of all repeats, this is also by definition has 100% identity as a substring of the maximum element. 
+Every possible repeat is then generated between the maximum and minimum element and put alongside the matches found by Vmatch and has duplicates filtered out, forming the set of repeat candidates. 
+This set of candidates is then even further extended by omitting up to 3 nucleotides on each side of the repeats, generating an additional 15 candidates per repeat. In essence many possible repeats are considered for analysis.
+
+CRISPR array candidates are then created by string searching the different repeats in the provided sequence and attempts to minimise the amount of editing operations needed for the consensus repeat, while still allowing mutations in the repeats to be detected. 
 
 ## 2.3 Calculating CRISPR confidence
 
-(Brief description of what the machine learning thing does)
+After all CRISPR array candidates are generated, they are then evaluated by CRISPRidentify's internal scoring system. This scoring system was created by considering 13 features that can predict array viability in multiple ways, further details of which can be found in the publication's Supplementary 1, table S2. 
+Performing feature subset selection on all combinations of these 13 features, three models containing 8, 9 and 10 of the 13 features achieved similar and sufficient accuracy. 
+By default, CRISPRidentify uses the average of these three models to score the candidate arrays. 
+The scoring is then divided into three possible categories: 0-0.4 are low scoring candidates which are unlikely to be CRISPR, 0.4-0.75 which are possible candidates which are possibly CRISPR arrays and 0.75-1.0 which are all Bona-Fide CRISPR arrays and are very likely to be valid CRISPR arrays. 
+In cases where CRISPR array candidates are overlapping but both Bona-Fide, the lower scoring arrays are instead put into the alternative candidate category.
 
 ## 2.4 Combining the output with CCTyper's
 
