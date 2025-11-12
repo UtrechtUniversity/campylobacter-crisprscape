@@ -154,7 +154,7 @@ rule concatenate_mlst_batches:
 echo -e "Genome\tST" > {output}
 find $(dirname {input}) -mindepth 1 -maxdepth 1 -type f -name "*.txt" -print0 |\
  parallel -0 --jobs {threads} --retry-failed --halt='now,fail=1'\
- 'tail -n 1 {{}} | cut -f 1-2 >> {output}'
+ 'tail -n +2 {{}} | cut -f 1-2 >> {output}'
         """
 
 
@@ -256,7 +256,7 @@ rule concatenate_padloc_batches:
 file_array=( $(find $(dirname {input}) -mindepth 2 -maxdepth 2 -type f -name "*_padloc.csv") )
 head -1 ${{file_array[0]}} > {output}
 parallel --jobs {threads} --retry-failed --halt='now,fail=1'\
- 'tail -n 1 {{}} >> {output}' ::: ${{file_array[@]}}
+ 'tail -n +2 {{}} >> {output}' ::: ${{file_array[@]}}
         """
 
 
