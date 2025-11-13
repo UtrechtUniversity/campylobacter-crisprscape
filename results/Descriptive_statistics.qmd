@@ -201,12 +201,12 @@ The output of CCTyper only contains sample accession IDs that can be
 used to identify samples. Import a minimal set of ENA metadata and
 species identifications by Sylph:
 
-```{r import_metadata}
-#| fig-width: 5
-#| fig-height: 1
+```{r}
 #| label: fig-number_of_species
-#| fig-cap: "Number of species present in dataset"
-#| message: false
+#| message: true
+#| fig-cap: Number of species present in dataset
+#| fig-height: 1
+#| fig-width: 5
 
 campylobacter_metadata_file <- here("data/processed/Campylobacter_ATB_metadata.tsv")
 
@@ -218,51 +218,74 @@ if(file.exists(campylobacter_metadata_file)) {
 
 } else {
   message("Creating Campylobacter metadata file...")
-  total_campylobacter_metadata <- read_delim(
-    here("data/ATB/ena_metadata.20240801.selection-only_Campylobacter.tsv.gz"),
+  metadata_df <- read_delim(
+    here("data/ATB/ena_metadata.20240801-filtered.tsv.gz"),
     delim = "\t",
     col_names = F,
     show_col_types = F)
-
-  older_campylobacter_metadata <- read_delim(
-    here("data/ATB/ena_metadata.0.2.20240606.selection-only_Campylobacter.tsv.gz"),
-    delim = "\t",
-    col_names = F,
-    show_col_types = F)
-
-  # Remove the older entries to keep only the Campylobacter genomes
-  # from the incremental update
-  campylobacter_metadata <- total_campylobacter_metadata %>%
-    filter(! X2 %in% older_campylobacter_metadata$X1)
 
   # Take the column names from the table before grepping
-  colnames(campylobacter_metadata) <- read_delim(
-    file = here("data/ATB/ena_metadata.20240801.selection.tsv.gz"),
+  colnames(metadata_df) <- read_delim(
+    file = here("data/ATB/ena_metadata.20240801.tsv.gz"),
     n_max = 1,
     delim = "\t",
     show_col_types = F
   ) %>% colnames()
 
   # Remove columns that contain only NA values
-  campylobacter_metadata <- campylobacter_metadata %>%
+  metadata_df <- metadata_df %>%
     select_if(~sum(!is.na(.)) > 0)
 
+  # Lookup samples contained in current folder
+  current_sample_files <- list.files(
+    here("data/tmp/ATB"),
+    recursive = T, include.dirs = F
+  )
+  current_samples <- current_sample_files[
+    current_sample_files %>% grepl(
+      pattern = "batch_[0-9]*\\/.*\\.fa$", x = .)
+    ] %>%
+    gsub(pattern = "batch_[0-9]*\\/", replacement = "", x = .) %>%
+    gsub(pattern = "\\.fa", replacement = "", x = .)
+
+  metadata_df <- metadata_df %>%
+    filter(sample_accession %in% current_samples)
+
+  # Match metadata with species calls
   simplified_species <- read_delim(
     file = here("data/ATB/sylph.tsv.gz"),
     delim = "\t",
     show_col_types = F) %>%
     select(Sample, Species)
 
-  campylobacter_metadata <- left_join(
-    x = campylobacter_metadata,
-    y = simplified_species,
-    by = c("sample_accession" = "Sample")
-  )
-
   # Remove all genomes whose taxonomic annotation (species) does
-  # not start with 'Campylobacter'
-  campylobacter_metadata <- campylobacter_metadata %>%
+  # not start with 'Campylobacter_D [jejuni/coli]'
+  simplified_species <- simplified_species %>%
     filter(grepl("Campylobacter_D jejuni|Campylobacter_D coli", Species))
+
+  campylobacter_metadata <- inner_join(
+    x = simplified_species,
+    y = metadata_df,
+    by = c("Sample" = "sample_accession"),
+    multiple = "first"
+  ) %>%
+    distinct()
+
+  ### NOTE: By picking the first sample from the metadata, I circumvent
+  # the 'issue' of having multiple runs per sample. This may happen with
+  # hybrid runs (Illumina + ONT) but also with multiple runs from the same
+  # sample collected over a period of sime (see SAMN04579139).
+  # These samples may be very interesting to analyse, but would have to be
+  # downloaded and assembled separate from ATB, as ATB has only one assembly
+  # per sample accession!
+
+  # Remove runs of long-read technologies if Illumina is also
+  # available. For example, two runs relate to sample SAMEA114571711,
+  # of which DRR378482 is MinION and DRR378464 Illumina (PE MiSeq).
+  # The assembly has 172 contigs, so I assume it is short-read-based.
+  # The same applies to ~770 samples, where the number of contigs is high,
+  # suggesting the short-read data were used for the assembly.
+
 
   write_delim(x = campylobacter_metadata,
               file = campylobacter_metadata_file,
@@ -296,29 +319,6 @@ stacked_species_plot <- ggplot(data = campylobacter_species_numbers,
             color = "black")
 
 stacked_species_plot
-```
-
-```{r new_metadata_import}
-# Read metadata without column names
-test_metadata <- read_delim(here("data/ATB/ena_metadata.20240801-filtered.tsv.gz"),
-                            col_names = F)
-
-# Collect the column names from the original metadata file
-test_metadata_colnames <- read.table(
-  here("data/ATB/ena_metadata.20240801.tsv.gz"),
-  nrows = 1
-)
-
-current_samples <- list.files(
-  here("data/tmp/ATB/"),
-  recursive = T, include.dirs = F
-)
-
-# Insert column names
-colnames(test_metadata) <- test_metadata_colnames[1,]
-
-# Remove columns with only NA values
-test_metadata <- test_metadata[colSums(!is.na(test_metadata)) > 0]
 ```
 
 # CRISPR arrays per genome {#crispr-arrays-per-genome}
