@@ -102,4 +102,11 @@ do
 done
 rmdir --ignore-fail-on-non-empty data/tmp/ATB/batch_*
 echo "----------"
+
+# Step 7: Download functional annotations (Bakta)
+echo "Step 7: download functional (gene) annotations"
+bash bin/download_bakta_annotations.sh ${part}
+echo "Finished downloading!"
+echo "The batches have been downloaded to 'data/tmp/ATB/batch_*/bakta'"
+echo "----------"
 echo "Genome files have been prepared!"
