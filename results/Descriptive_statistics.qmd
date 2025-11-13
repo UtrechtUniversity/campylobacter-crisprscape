@@ -236,6 +236,15 @@ if(file.exists(campylobacter_metadata_file)) {
   metadata_df <- metadata_df %>%
     select_if(~sum(!is.na(.)) > 0)
 
+  # Filter metadata according to AllTheBacteria selection criteria
+  metadata_df <- metadata_df %>%
+    filter(
+      instrument_platform == "ILLUMINA" &
+        library_strategy == "WGS" &
+        library_source == "GENOMIC" &
+        library_layout == "PAIRED"
+    )
+
   # Lookup samples contained in current folder
   current_sample_files <- list.files(
     here("data/tmp/ATB"),
@@ -267,25 +276,30 @@ if(file.exists(campylobacter_metadata_file)) {
     x = simplified_species,
     y = metadata_df,
     by = c("Sample" = "sample_accession"),
-    multiple = "first"
+    multiple = "last"
   ) %>%
     distinct()
 
-  ### NOTE: By picking the first sample from the metadata, I circumvent
-  # the 'issue' of having multiple runs per sample. This may happen with
-  # hybrid runs (Illumina + ONT) but also with multiple runs from the same
-  # sample collected over a period of sime (see SAMN04579139).
+  ### NOTE: By picking the last sample from the metadata, I circumvent
+  # the 'issue' of having multiple runs per sample. This happens when there
+  # are multiple runs from the same sample, e.g. SAMN04579139.
   # These samples may be very interesting to analyse, but would have to be
   # downloaded and assembled separate from ATB, as ATB has only one assembly
   # per sample accession!
-
-  # Remove runs of long-read technologies if Illumina is also
-  # available. For example, two runs relate to sample SAMEA114571711,
-  # of which DRR378482 is MinION and DRR378464 Illumina (PE MiSeq).
-  # The assembly has 172 contigs, so I assume it is short-read-based.
-  # The same applies to ~770 samples, where the number of contigs is high,
-  # suggesting the short-read data were used for the assembly.
-
+  # Since ATB does not mention this explicitly, and downloads paired-end
+  # reads for each run accession, I assume they would just download each
+  # run one by one and assemble them, so that in the end the last one
+  # will overwrite the 'sample' assembly.
+  #
+  # This issue has been raised on GitHub:
+  # https://github.com/AllTheBacteria/AllTheBacteria/issues/35
+  # and a file has been provided to match samples with runs.
+  # Use this if necessary.
+  # run_lookup <- read_delim(file = here("data/ATB/status.202408.plus_runs.tsv.gz")) %>% select(Sample, Run) %>% filter(Run != "unknown")
+  # Another part, however, is in a separate file:
+  # run_lookup_2 <- read_delim(file = here("data/ATB/File9_all_metadata_ena_661K.txt.gz")) %>% select(sample_id, run_accession)
+  # (In this part, multiple runs seem to have been assembled together,
+  # making things more complicated.)
 
   write_delim(x = campylobacter_metadata,
               file = campylobacter_metadata_file,
