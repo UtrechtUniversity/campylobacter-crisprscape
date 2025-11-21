@@ -42,6 +42,11 @@ echo "----------"
 #  and cut column 1 which contains the accession IDs
 echo "Step 2: extracting sample accession IDs of species of interest"
 species_samples_file="${output_dir}all_samples_of_interest.txt"
+
+echo "ATB contains $(zgrep -f config/species_of_interest.txt data/ATB/species_calls.tsv.gz | wc -l) genomes of your species of interest."
+echo "Of those, $(zgrep -f config/species_of_interest.txt data/ATB/species_calls.tsv.gz | grep "F$" | wc -l) are labeled as low-quality, which are not included for further analyses."
+echo "That means, $(zgrep -f config/species_of_interest.txt data/ATB/species_calls.tsv.gz | grep "T$" | wc -l) are available to work with."
+
 zgrep -f config/species_of_interest.txt ${output_dir}species_calls.tsv.gz |\
  grep -v -e "F$" | cut -f 1 > ${species_samples_file}
 
