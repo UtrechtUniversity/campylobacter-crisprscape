@@ -3,6 +3,16 @@ set -euo pipefail
 IFS=$'\n'
 
 # Above thanks to Aaron Maxwell: http://redsymbol.net/articles/unofficial-bash-strict-mode/
+# This script does:
+# 1. Look for the batches of interest,
+# 2. download them from ATB,
+# 3. check their md5 checksum (file integrity)
+# 4. extract to 'data/tmp/assemblies'
+
+# Note: If the md5sum does not match (for example, the file is incomplete or missing),
+# this script does not download the archive again. You would have to re-run the script
+# to download missing batches. (It checks file presence before downloading, so you
+# will not download complete/correct files again.)
 
 part=${1:-"update"}
 
@@ -52,19 +62,16 @@ do
     fi
 
     # Extract the batch number from the file name
-    batchnumber=$(basename ${outputfile} | cut -f 6 -d '.')
-    batchdir="data/tmp/ATB/batch_${batchnumber}"
+    batchdir="data/tmp/assemblies/"
+    mkdir -p ${batchdir}
 
     # If the batch directory has not been made yet
-    if [ ! -d ${batchdir} ]
+    if [ ! -d "${batchdir}${outputfile/.tar.xz/}" ]
     then
         echo "Extracting ${outputfile}!"
 
-        mkdir -p ${batchdir}
-
-        # Decompress the XZ archive, send the output to the specified directory,
-        # and strip the leading directory from within the XZ archive.
-        tar -Jxf ${outputfile} -C ${batchdir} --strip-components 1
+        # Decompress the XZ archive and send the output to the specified directory.
+        tar -Jxf ${outputfile} -C ${batchdir}
 
     else
         echo "Fasta files have been extracted previously!"
