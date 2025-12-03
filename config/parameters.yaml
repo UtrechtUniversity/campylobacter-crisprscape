@@ -2,8 +2,8 @@
 
 ### 1. Input/output parameters ###
 
-input_directory: "data/tmp/ATB/"
-output_directory: "data/tmp/"
+working_directory: "data/tmp/"
+output_directory: "data/processed/"
 
 genomad_database: "data/genomad_db/"
 spacepharer_phage_database: "data/raw/phagescope/"
