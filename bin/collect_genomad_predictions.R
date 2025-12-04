@@ -2,8 +2,10 @@
 
 # Find output files for geNomad and create one overall prediction report.
 
-library(tidyverse)
-library(here)
+suppressPackageStartupMessages({
+  library(tidyverse)
+  library(here)
+})
 
 genomad_scores_files <- snakemake@input[["aggregated_classification"]]
 genomad_plasmid_files <- snakemake@input[["plasmid_summary"]]
