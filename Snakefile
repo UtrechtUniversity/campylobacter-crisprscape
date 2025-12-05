@@ -33,13 +33,13 @@ configfile: Path("config/parameters.yaml")
 
 # Use Python functions to automatically detect batches of genomes fasta files
 # in the input directory as 'BATCHES'
-INPUT_DIR = config["input_directory"]
+WORK_DIR = config["working_directory"]
 
-BATCH_PATHS = list(Path(INPUT_DIR).glob("batch_*"))
+BATCH_PATHS = list((Path(WORK_DIR) / "assemblies").glob("atb.assembly.*"))
 for batch in BATCH_PATHS:
     assert Path(batch).is_dir(), f"Batches must be directories, got {batch}"
 
-BATCHES = [batch.stem for batch in BATCH_PATHS]
+BATCHES = [batch.name for batch in BATCH_PATHS]
 
 OUTPUT_DIR = config["output_directory"]
 
@@ -50,15 +50,15 @@ OUTPUT_DIR = config["output_directory"]
 rule all:
     input:
         # Multilocus Sequence Types (ST) for Campylobacter
-        "data/processed/mlst_table.tsv",
+        OUTPUT_DIR + "mlst_table.tsv",
         # Virus and plasmid predictions per contig
-        "data/processed/genomad_predictions.csv",
-        "data/processed/jaeger_predictions.csv",
+        OUTPUT_DIR + "genomad_predictions.csv",
+        OUTPUT_DIR + "jaeger_predictions.csv",
         # Phage defence systems
-        "data/processed/padloc_table.csv",
+        OUTPUT_DIR + "padloc_table.csv",
         # Concatenated CCTyper output
         expand(
-            OUTPUT_DIR + "cctyper/{batch}/{filename}-{batch}.tab",
+            WORK_DIR + "cctyper/{batch}/{filename}-{batch}.tab",
             batch=BATCHES,
             filename=[
                 "CRISPR_Cas",
@@ -68,31 +68,31 @@ rule all:
                 "cas_operons",
             ],
         ),
-        expand(OUTPUT_DIR + "cctyper/{batch}/all_spacers-{batch}.fa", batch=BATCHES),
+        expand(WORK_DIR + "cctyper/{batch}/all_spacers-{batch}.fa", batch=BATCHES),
         # Combined CCTyper output as CSV + BED files
-        expand(OUTPUT_DIR + "cctyper/{batch}/parsed", batch=BATCHES),
+        expand(WORK_DIR + "cctyper/{batch}/parsed", batch=BATCHES),
         # CCTyper CRISPR spacer cluster analysis report
-        OUTPUT_DIR + "cctyper/spacer_cluster_summary.tsv",
+        WORK_DIR + "cctyper/spacer_cluster_summary.tsv",
         # Cluster unique CRISPR spacers
-        OUTPUT_DIR + "cctyper/all_spacers-clustered.clstr",
-        OUTPUT_DIR + "crispridentify/all_spacers-clustered.clstr",
-        "data/processed/all_spacers_table_identify.tsv",
-        "data/processed/all_spacers_table.tsv",
+        WORK_DIR + "cctyper/all_spacers-clustered.clstr",
+        WORK_DIR + "crispridentify/all_spacers-clustered.clstr",
+        OUTPUT_DIR + "all_spacers_table_identify.tsv",
+        OUTPUT_DIR + "all_spacers_table.tsv",
         # Extracted CRISPR arrays (as fasta)
-        expand(OUTPUT_DIR + "arrays/{batch}/complete", batch=BATCHES),
+        expand(WORK_DIR + "arrays/{batch}/complete", batch=BATCHES),
         #CRISPRidentify output
-        expand(OUTPUT_DIR + "crispridentify/{batch}/complete", batch=BATCHES),
+        expand(WORK_DIR + "crispridentify/{batch}/complete", batch=BATCHES),
         #concatenated CRISPRidentify output
-        OUTPUT_DIR + "crispridentify/complete_summary.csv",
-        OUTPUT_DIR + "crispridentify/all_spacers.fa",
+        WORK_DIR + "crispridentify/complete_summary.csv",
+        WORK_DIR + "crispridentify/all_spacers.fa",
         #merged CRISPRidentify and CCtyper output
-        "data/processed/all_CRISPRS_with_identify.tab",
+        OUTPUT_DIR + "all_CRISPRS_with_identify.tab",
         #spacepharer output
-        "data/processed/phage_matches.tsv",
-        "data/processed/plasmid_matches.tsv",
+        OUTPUT_DIR + "phage_matches.tsv",
+        OUTPUT_DIR + "plasmid_matches.tsv",
         #KMA output
-        OUTPUT_DIR + "kma/output/CRISPR.frag.gz",
-        OUTPUT_DIR + "kma/CRISPR_alignment"
+        WORK_DIR + "kma/output/CRISPR.frag.gz",
+        WORK_DIR + "kma/CRISPR_alignment",
 
 
 ### Step 3: Define processing steps that generate the output ###
@@ -100,7 +100,7 @@ rule all:
 
 rule download_mlst_database:
     output:
-        OUTPUT_DIR + "mlst/campylobacter.db",
+        WORK_DIR + "mlst/campylobacter.db",
     params:
         species=config["mlst"]["species"],
     conda:
@@ -118,10 +118,10 @@ claMLST import -r pubmlst --no-prompt {output} {params.species} > {log} 2>&1
 
 rule mlst:
     input:
-        batch=INPUT_DIR + "{batch}/",
-        db=OUTPUT_DIR + "mlst/campylobacter.db",
+        batch=WORK_DIR + "assemblies/{batch}/",
+        db=WORK_DIR + "mlst/campylobacter.db",
     output:
-        OUTPUT_DIR + "mlst/{batch}/complete",
+        WORK_DIR + "mlst/{batch}/complete",
     conda:
         "envs/pymlst.yaml"
     threads: config["mlst"]["threads"]
@@ -141,9 +141,9 @@ touch {output}
 
 rule concatenate_mlst_batches:
     input:
-        OUTPUT_DIR + "mlst/{batch}/complete",
+        WORK_DIR + "mlst/{batch}/complete",
     output:
-        OUTPUT_DIR + "mlst/{batch}-concatenated.tsv",
+        WORK_DIR + "mlst/{batch}-concatenated.tsv",
     threads: config["mlst"]["threads"]
     log:
         "log/concatenate_mlst/{batch}.txt",
@@ -154,18 +154,18 @@ rule concatenate_mlst_batches:
 echo -e "Genome\tST" > {output}
 find $(dirname {input}) -mindepth 1 -maxdepth 1 -type f -name "*.txt" -print0 |\
  parallel -0 --jobs {threads} --retry-failed --halt='now,fail=1'\
- 'tail -n 1 {{}} | cut -f 1-2 >> {output}'
+ 'tail -n +2 {{}} | cut -f 1-2 >> {output}'
         """
 
 
 rule concatenate_mlst_all:
     input:
-        expand(OUTPUT_DIR + "mlst/{batch}-concatenated.tsv", batch=BATCHES)
+        expand(WORK_DIR + "mlst/{batch}-concatenated.tsv", batch=BATCHES),
     output:
-        "data/processed/mlst_table.tsv"
+        OUTPUT_DIR + "mlst_table.tsv",
     threads: 1
     log:
-        "log/concatenate_mlst_all.txt"
+        "log/concatenate_mlst_all.txt",
     benchmark:
         "log/benchmark/concatenate_mlst_all.txt"
     shell:
@@ -178,11 +178,11 @@ sed --separate 1d ${{batches[@]}} >> {output}
 
 rule crisprcastyper:
     input:
-        batch=INPUT_DIR + "{batch}/",
+        batch=WORK_DIR + "assemblies/{batch}/",
     output:
-        OUTPUT_DIR + "cctyper/{batch}/complete",
+        WORK_DIR + "cctyper/{batch}/complete",
     params:
-        out_dir=OUTPUT_DIR + "cctyper/{batch}/",
+        out_dir=WORK_DIR + "cctyper/{batch}/",
     conda:
         "envs/cctyper.yaml"
     threads: config["cctyper"]["threads"]
@@ -203,7 +203,7 @@ touch {output}
 
 rule download_padloc_database:
     output:
-        OUTPUT_DIR + "padloc/database",
+        WORK_DIR + "padloc/database",
     conda:
         "envs/padloc.yaml"
     threads: 1
@@ -220,10 +220,10 @@ touch {output}
 
 rule padloc:
     input:
-        batch=INPUT_DIR + "{batch}/",
-        db=OUTPUT_DIR + "padloc/database",
+        batch=WORK_DIR + "assemblies/{batch}/",
+        db=WORK_DIR + "padloc/database",
     output:
-        OUTPUT_DIR + "padloc/{batch}/complete",
+        WORK_DIR + "padloc/{batch}/complete",
     conda:
         "envs/padloc.yaml"
     threads: config["padloc"]["threads"]
@@ -243,9 +243,9 @@ touch {output}
 
 rule concatenate_padloc_batches:
     input:
-        OUTPUT_DIR + "padloc/{batch}/complete",
+        WORK_DIR + "padloc/{batch}/complete",
     output:
-        OUTPUT_DIR + "padloc/{batch}-concatenated.csv",
+        WORK_DIR + "padloc/{batch}-concatenated.csv",
     threads: config["padloc"]["threads"]
     log:
         "log/concatenate_padloc/{batch}.txt",
@@ -256,18 +256,18 @@ rule concatenate_padloc_batches:
 file_array=( $(find $(dirname {input}) -mindepth 2 -maxdepth 2 -type f -name "*_padloc.csv") )
 head -1 ${{file_array[0]}} > {output}
 parallel --jobs {threads} --retry-failed --halt='now,fail=1'\
- 'tail -n 1 {{}} >> {output}' ::: ${{file_array[@]}}
+ 'tail -n +2 {{}} >> {output}' ::: ${{file_array[@]}}
         """
 
 
 rule concatenate_padloc_all:
     input:
-        expand(OUTPUT_DIR + "padloc/{batch}-concatenated.csv", batch=BATCHES)
+        expand(WORK_DIR + "padloc/{batch}-concatenated.csv", batch=BATCHES),
     output:
-        "data/processed/padloc_table.csv"
+        OUTPUT_DIR + "padloc_table.csv",
     threads: 1
     log:
-        "log/concatenate_padloc_all.txt"
+        "log/concatenate_padloc_all.txt",
     benchmark:
         "log/benchmark/concatenate_padloc_all.txt"
     shell:
@@ -280,9 +280,9 @@ sed --separate 1d ${{batches[@]}} >> {output}
 
 rule parse_cctyper:
     input:
-        OUTPUT_DIR + "cctyper/{batch}/complete",
+        WORK_DIR + "cctyper/{batch}/complete",
     output:
-        OUTPUT_DIR + "cctyper/{batch}/parsed",
+        WORK_DIR + "cctyper/{batch}/parsed",
     conda:
         "envs/pandas.yaml"
     threads: config["parse_cctyper"]["threads"]
@@ -302,9 +302,9 @@ touch {output}
 
 rule extract_sequences:
     input:
-        OUTPUT_DIR + "cctyper/{batch}/parsed",
+        WORK_DIR + "cctyper/{batch}/parsed",
     output:
-        OUTPUT_DIR + "cctyper/{batch}/subseq",
+        WORK_DIR + "cctyper/{batch}/subseq",
     conda:
         "envs/seqkit.yaml"
     threads: config["extract_sequences"]["threads"]
@@ -324,19 +324,17 @@ touch {output}
 
 rule collect_cctyper:
     input:
-        cctyper=OUTPUT_DIR + "cctyper/{batch}/complete",
-        parser=OUTPUT_DIR + "cctyper/{batch}/parsed",
+        cctyper=WORK_DIR + "cctyper/{batch}/complete",
+        parser=WORK_DIR + "cctyper/{batch}/parsed",
     output:
-        crispr_cas=OUTPUT_DIR + "cctyper/{batch}/CRISPR_Cas-{batch}.tab",
-        crisprs_all=OUTPUT_DIR + "cctyper/{batch}/crisprs_all-{batch}.tab",
-        crisprs_near_cas=OUTPUT_DIR + "cctyper/{batch}/crisprs_near_cas-{batch}.tab",
-        crisprs_orphan=OUTPUT_DIR + "cctyper/{batch}/crisprs_orphan-{batch}.tab",
-        spacers=OUTPUT_DIR + "cctyper/{batch}/all_spacers-{batch}.fa",
-        cas_putative=temp(
-            OUTPUT_DIR + "cctyper/{batch}/cas_operons_putative-{batch}.tab"
-        ),
-        cas=OUTPUT_DIR + "cctyper/{batch}/cas_operons-{batch}.tab",
-        csv=OUTPUT_DIR + "cctyper/{batch}/CRISPR-Cas-{batch}.csv",
+        crispr_cas=WORK_DIR + "cctyper/{batch}/CRISPR_Cas-{batch}.tab",
+        crisprs_all=WORK_DIR + "cctyper/{batch}/crisprs_all-{batch}.tab",
+        crisprs_near_cas=WORK_DIR + "cctyper/{batch}/crisprs_near_cas-{batch}.tab",
+        crisprs_orphan=WORK_DIR + "cctyper/{batch}/crisprs_orphan-{batch}.tab",
+        spacers=WORK_DIR + "cctyper/{batch}/all_spacers-{batch}.fa",
+        cas_putative=temp(WORK_DIR + "cctyper/{batch}/cas_operons_putative-{batch}.tab"),
+        cas=WORK_DIR + "cctyper/{batch}/cas_operons-{batch}.tab",
+        csv=WORK_DIR + "cctyper/{batch}/CRISPR-Cas-{batch}.csv",
     threads: 1
     log:
         "log/cctyper/collect_{batch}.txt",
@@ -354,9 +352,9 @@ find $(dirname {input.cctyper}) -mindepth 3 -maxdepth 3 -name "*.fa" -exec cat {
 
 rule extract_crispr_cas_locations:
     input:
-        OUTPUT_DIR + "cctyper/{batch}/CRISPR_Cas-{batch}.tab",
+        WORK_DIR + "cctyper/{batch}/CRISPR_Cas-{batch}.tab",
     output:
-        OUTPUT_DIR + "cctyper/{batch}/CRISPR_Cas-{batch}.bed",
+        WORK_DIR + "cctyper/{batch}/CRISPR_Cas-{batch}.bed",
     threads: 1
     log:
         "log/extract_crispr_cas_location/{batch}.txt",
@@ -370,12 +368,12 @@ python bin/create_CCTyper_bedfile.py -i {input} -o {output} > {log} 2>&1
 
 rule extract_crispr_array:
     input:
-        batch=INPUT_DIR + "{batch}/",
-        bed=OUTPUT_DIR + "cctyper/{batch}/CRISPR_Cas-{batch}.bed",
+        batch=WORK_DIR + "assemblies/{batch}/",
+        bed=WORK_DIR + "cctyper/{batch}/CRISPR_Cas-{batch}.bed",
     output:
-        OUTPUT_DIR + "arrays/{batch}/complete",
+        WORK_DIR + "arrays/{batch}/complete",
     params:
-        out_dir=OUTPUT_DIR + "arrays/{batch}/",
+        out_dir=WORK_DIR + "arrays/{batch}/",
     conda:
         "envs/seqkit.yaml"
     threads: config["extract_arrays"]["threads"]
@@ -399,9 +397,9 @@ touch {output}
 
 rule concatenate_all_spacers:
     input:
-        expand(OUTPUT_DIR + "cctyper/{batch}/all_spacers-{batch}.fa", batch=BATCHES),
+        expand(WORK_DIR + "cctyper/{batch}/all_spacers-{batch}.fa", batch=BATCHES),
     output:
-        OUTPUT_DIR + "cctyper/all_spacers.fa",
+        WORK_DIR + "cctyper/all_spacers.fa",
     threads: 1
     log:
         "log/concatenate_all_spacers.txt",
@@ -415,19 +413,19 @@ cat {input} > {output} 2> {log}
 
 rule cluster_all_spacers:
     input:
-        OUTPUT_DIR + "cctyper/all_spacers.fa",
+        WORK_DIR + "cctyper/all_spacers.fa",
     output:
         clusters=expand(
-            OUTPUT_DIR + "cctyper/all_spacers-clustered-{cutoff}.clstr",
+            WORK_DIR + "cctyper/all_spacers-clustered-{cutoff}.clstr",
             cutoff=[1, 0.96, 0.93, 0.9, 0.87, 0.84, 0.81],
         ),
         spacers=expand(
-            OUTPUT_DIR + "cctyper/all_spacers-clustered-{cutoff}",
+            WORK_DIR + "cctyper/all_spacers-clustered-{cutoff}",
             cutoff=[1, 0.96, 0.93, 0.9, 0.87, 0.84, 0.81],
         ),
-        summary=OUTPUT_DIR + "cctyper/spacer_cluster_summary.tsv",
+        summary=WORK_DIR + "cctyper/spacer_cluster_summary.tsv",
     params:
-        output_dir=OUTPUT_DIR + "cctyper/",
+        WORK_DIR=WORK_DIR + "cctyper/",
         log_dir="log/spacer_clustering/",
     conda:
         "envs/cdhit.yaml"
@@ -440,18 +438,18 @@ rule cluster_all_spacers:
         """
 bash bin/cluster_all_spacers.sh\
     {input}\
-    {params.output_dir}\
+    {params.WORK_DIR}\
     {params.log_dir} > {log} 2>&1
         """
 
 
 rule cluster_unique_spacers:
     input:
-        OUTPUT_DIR + "cctyper/all_spacers.fa",
+        WORK_DIR + "cctyper/all_spacers.fa",
     output:
-        clusters=OUTPUT_DIR + "cctyper/all_spacers-clustered.clstr",
-        spacers=OUTPUT_DIR + "cctyper/all_spacers-clustered",
-        distribution=OUTPUT_DIR + "cctyper/all_spacers-clustered-distribution.tsv",
+        clusters=WORK_DIR + "cctyper/all_spacers-clustered.clstr",
+        spacers=WORK_DIR + "cctyper/all_spacers-clustered",
+        distribution=WORK_DIR + "cctyper/all_spacers-clustered-distribution.tsv",
     conda:
         "envs/cdhit.yaml"
     threads: 1
@@ -473,10 +471,10 @@ plot_len1.pl {output.clusters}\
 
 rule create_crispr_cluster_table:
     input:
-        clstr=OUTPUT_DIR + "cctyper/all_spacers-clustered.clstr",
-        fasta=OUTPUT_DIR + "cctyper/all_spacers.fa",
+        clstr=WORK_DIR + "cctyper/all_spacers-clustered.clstr",
+        fasta=WORK_DIR + "cctyper/all_spacers.fa",
     output:
-        "data/processed/all_spacers_table.tsv",
+        OUTPUT_DIR + "all_spacers_table.tsv",
     conda:
         "envs/pyfaidx.yaml"
     threads: 1
@@ -490,12 +488,12 @@ rule create_crispr_cluster_table:
 
 rule crispridentify:
     input:
-        OUTPUT_DIR + "cctyper/{batch}/subseq",
+        WORK_DIR + "cctyper/{batch}/subseq",
     output:
-        OUTPUT_DIR + "crispridentify/{batch}/complete",
+        WORK_DIR + "crispridentify/{batch}/complete",
     params:
-        out_dir=OUTPUT_DIR + "crispridentify/{batch}",
-        arrays=OUTPUT_DIR + "cctyper/{batch}",
+        out_dir=WORK_DIR + "crispridentify/{batch}",
+        arrays=WORK_DIR + "cctyper/{batch}",
     conda:
         "envs/crispridentify.yml"
     threads: config["crispridentify"]["threads"]
@@ -518,21 +516,21 @@ rule crispridentify:
 
 rule merge_crispridentify_batches:
     input:
-        expand(OUTPUT_DIR + "crispridentify/{batch}/complete", batch=BATCHES),
+        expand(WORK_DIR + "crispridentify/{batch}/complete", batch=BATCHES),
     params:
         spacers_crispr=expand(
-            OUTPUT_DIR
+            WORK_DIR
             + "crispridentify/{batch}/CRISPR_arrays-with_flanks/Complete_spacer_dataset.fasta",
             batch=BATCHES,
         ),
         summary_crispr=expand(
-            OUTPUT_DIR
+            WORK_DIR
             + "crispridentify/{batch}/CRISPR_arrays-with_flanks/Complete_summary.csv",
             batch=BATCHES,
         ),
     output:
-        spacers_crispr=OUTPUT_DIR + "crispridentify/all_spacers.fa",
-        summary_crispr=OUTPUT_DIR + "crispridentify/complete_summary.csv",
+        spacers_crispr=WORK_DIR + "crispridentify/all_spacers.fa",
+        summary_crispr=WORK_DIR + "crispridentify/complete_summary.csv",
     threads: 1
     log:
         "log/merge_crispridentify_batches.txt",
@@ -555,16 +553,18 @@ rule merge_crispridentify_batches:
 
 rule merge_cctyper_identify:
     input:
-        identify=OUTPUT_DIR + "crispridentify/complete_summary.csv",
-        cctyper=expand(OUTPUT_DIR + "cctyper/{batch}/crisprs_all-{batch}.tab", batch=BATCHES)
-    output: 
-        "data/processed/all_CRISPRS_with_identify.tab"
+        identify=WORK_DIR + "crispridentify/complete_summary.csv",
+        cctyper=expand(
+            WORK_DIR + "cctyper/{batch}/crisprs_all-{batch}.tab", batch=BATCHES
+        ),
+    output:
+        OUTPUT_DIR + "all_CRISPRS_with_identify.tab",
     params:
         tmp1="tmp_file1",
-        tmp2="tmp_file2"
+        tmp2="tmp_file2",
     threads: 1
     log:
-        "log/merge_cctyper_identify"
+        "log/merge_cctyper_identify",
     shell:
         """
     first=True
@@ -617,11 +617,11 @@ rule merge_cctyper_identify:
 
 rule cluster_unique_spacers_crispridentify:
     input:
-        OUTPUT_DIR + "crispridentify/all_spacers.fa",
+        WORK_DIR + "crispridentify/all_spacers.fa",
     output:
-        clusters=OUTPUT_DIR + "crispridentify/all_spacers-clustered.clstr",
-        spacers=OUTPUT_DIR + "crispridentify/all_spacers-clustered",
-        distribution=OUTPUT_DIR + "crispridentify/all_spacers-clustered-distribution.tsv",
+        clusters=WORK_DIR + "crispridentify/all_spacers-clustered.clstr",
+        spacers=WORK_DIR + "crispridentify/all_spacers-clustered",
+        distribution=WORK_DIR + "crispridentify/all_spacers-clustered-distribution.tsv",
     conda:
         "envs/cdhit.yaml"
     threads: 1
@@ -640,12 +640,13 @@ plot_len1.pl {output.clusters}\
  > {output.distribution}
         """
 
+
 rule create_crispr_cluster_table_identify:
     input:
-        clstr=OUTPUT_DIR + "crispridentify/all_spacers-clustered.clstr",
-        fasta=OUTPUT_DIR + "crispridentify/all_spacers.fa",
+        clstr=WORK_DIR + "crispridentify/all_spacers-clustered.clstr",
+        fasta=WORK_DIR + "crispridentify/all_spacers.fa",
     output:
-        "data/processed/all_spacers_table_identify.tsv",
+        OUTPUT_DIR + "all_spacers_table_identify.tsv",
     conda:
         "envs/pyfaidx.yaml"
     threads: 1
@@ -656,14 +657,15 @@ rule create_crispr_cluster_table_identify:
     script:
         "bin/make_cluster_table_identify.py"
 
+
 rule concatenate_batches:
     input:
-        INPUT_DIR + "{batch}"
+        WORK_DIR + "assemblies/{batch}",
     output:
-        temp(OUTPUT_DIR + "{batch}.fasta")
+        temp(WORK_DIR + "assemblies/{batch}.fasta"),
     threads: 1
     log:
-        "log/concatenate_{batch}.txt"
+        "log/concatenate_{batch}.txt",
     benchmark:
         "log/benchmark/concatenate_{batch}.txt"
     shell:
@@ -671,19 +673,20 @@ rule concatenate_batches:
 cat {input}/*.fa > {output} 2> {log}
         """
 
+
 rule genomad:
     input:
-        fasta=OUTPUT_DIR + "{batch}.fasta",
+        fasta=WORK_DIR + "assemblies/{batch}.fasta",
         db=config["genomad_database"],
     output:
-        aggregated_classification=OUTPUT_DIR
+        aggregated_classification=WORK_DIR
         + "genomad/{batch}/{batch}_aggregated_classification/{batch}_aggregated_classification.tsv",
-        plasmid_summary=OUTPUT_DIR
+        plasmid_summary=WORK_DIR
         + "genomad/{batch}/{batch}_summary/{batch}_plasmid_summary.tsv",
-        virus_summary=OUTPUT_DIR
+        virus_summary=WORK_DIR
         + "genomad/{batch}/{batch}_summary/{batch}_virus_summary.tsv",
     params:
-        output_dir=OUTPUT_DIR + "genomad/{batch}/",
+        work_dir=WORK_DIR + "genomad/{batch}/",
     conda:
         "envs/genomad.yaml"
     threads: config["genomad"]["threads"]
@@ -694,38 +697,43 @@ rule genomad:
     shell:
         """
 genomad end-to-end -t {threads} --cleanup --enable-score-calibration\
- {input.fasta} {params.output_dir} {input.db} > {log} 2>&1
+ {input.fasta} {params.work_dir} {input.db} > {log} 2>&1
         """
 
 
 rule collect_genomad_predictions:
     input:
-        aggregated_classification=expand(OUTPUT_DIR
-        + "genomad/{batch}/{batch}_aggregated_classification/{batch}_aggregated_classification.tsv",
-        batch = BATCHES),
-        plasmid_summary=expand(OUTPUT_DIR
-        + "genomad/{batch}/{batch}_summary/{batch}_plasmid_summary.tsv",
-        batch = BATCHES),
-        virus_summary=expand(OUTPUT_DIR
-        + "genomad/{batch}/{batch}_summary/{batch}_virus_summary.tsv",
-        batch = BATCHES),
+        aggregated_classification=expand(
+            WORK_DIR
+            + "genomad/{batch}/{batch}_aggregated_classification/{batch}_aggregated_classification.tsv",
+            batch=BATCHES,
+        ),
+        plasmid_summary=expand(
+            WORK_DIR + "genomad/{batch}/{batch}_summary/{batch}_plasmid_summary.tsv",
+            batch=BATCHES,
+        ),
+        virus_summary=expand(
+            WORK_DIR + "genomad/{batch}/{batch}_summary/{batch}_virus_summary.tsv",
+            batch=BATCHES,
+        ),
     output:
-        "data/processed/genomad_predictions.csv"
+        OUTPUT_DIR + "genomad_predictions.csv",
     conda:
         "envs/tidy_here.yaml"
     threads: 1
     log:
-        "log/collect_genomad_predictions.txt"
+        "log/collect_genomad_predictions.txt",
     benchmark:
         "log/benchmark/collect_genomad_predictions.txt"
-    script: "bin/collect_genomad_predictions.R"
+    script:
+        "bin/collect_genomad_predictions.R"
 
 
 rule jaeger:
     input:
-        batch=INPUT_DIR + "{batch}/",
+        batch=WORK_DIR + "assemblies/{batch}/",
     output:
-        OUTPUT_DIR + "jaeger/{batch}/complete",
+        WORK_DIR + "jaeger/{batch}/complete",
     conda:
         "envs/jaeger.yaml"
     threads: config["jaeger"]["threads"]
@@ -745,42 +753,43 @@ touch {output}
 
 rule collect_jaeger_batch:
     input:
-        OUTPUT_DIR + "jaeger/{batch}/complete"
+        WORK_DIR + "jaeger/{batch}/complete",
     output:
-        OUTPUT_DIR + "jaeger/{batch}/jaeger-{batch}.csv"
+        WORK_DIR + "jaeger/{batch}/jaeger-{batch}.csv",
     params:
-        batch="{batch}"
+        batch="{batch}",
     conda:
         "envs/tidy_here.yaml"
     threads: 1
     log:
-        "log/collect_jaeger_{batch}.txt"
+        "log/collect_jaeger_{batch}.txt",
     benchmark:
         "log/benchmark/collect_jaeger_{batch}.txt"
-    script: "bin/collect_jaeger_batch.R"
+    script:
+        "bin/collect_jaeger_batch.R"
 
 
 rule collect_jaeger_predictions:
     input:
-        expand(OUTPUT_DIR + "jaeger/{batch}/jaeger-{batch}.csv",
-        batch = BATCHES),
+        expand(WORK_DIR + "jaeger/{batch}/jaeger-{batch}.csv", batch=BATCHES),
     output:
-        "data/processed/jaeger_predictions.csv"
+        OUTPUT_DIR + "jaeger_predictions.csv",
     threads: 1
     log:
-        "log/collect_jaeger_predictions.txt"
+        "log/collect_jaeger_predictions.txt",
     benchmark:
         "log/benchmark/collect_jaeger_predictions.txt"
-    script: "bin/collect_jaeger_predictions.sh"
+    script:
+        "bin/collect_jaeger_predictions.sh"
 
 
 rule spacepharer_spacer_setup:
     input:
-        spacers=OUTPUT_DIR + "crispridentify/all_spacers.fa",
+        spacers=WORK_DIR + "crispridentify/all_spacers.fa",
     output:
-        spacer_DB=OUTPUT_DIR + "spacepharer/DB_CRISPR/querysetDB",
+        spacer_DB=WORK_DIR + "spacepharer/DB_CRISPR/querysetDB",
     params:
-        tmp_folder=OUTPUT_DIR + "spacepharer/tmpFolder",
+        tmp_folder=WORK_DIR + "spacepharer/tmpFolder",
     conda:
         "envs/spacepharer.yml"
     threads: 48
@@ -798,10 +807,10 @@ rule spacepharer_spacer_setup:
 
 rule spacepharer_phage_setup:
     output:
-        phage_DB=OUTPUT_DIR + "spacepharer/phage_DB/targetsetDB",
-        phage_control_DB=OUTPUT_DIR + "spacepharer/phage_DB/controlsetDB",
+        phage_DB=WORK_DIR + "spacepharer/phage_DB/targetsetDB",
+        phage_control_DB=WORK_DIR + "spacepharer/phage_DB/controlsetDB",
     params:
-        tmp_folder=OUTPUT_DIR + "spacepharer/tmpFolder",
+        tmp_folder=WORK_DIR + "spacepharer/tmpFolder",
         DB=config["spacepharer_phage_database"] + "*.fasta",
     conda:
         "envs/spacepharer.yml"
@@ -821,14 +830,14 @@ rule spacepharer_phage_setup:
 
 rule spacepharer_phage:
     input:
-        spacer_DB=OUTPUT_DIR + "spacepharer/DB_CRISPR/querysetDB",
-        phage_DB=OUTPUT_DIR + "spacepharer/phage_DB/targetsetDB",
-        phage_control_DB=OUTPUT_DIR + "spacepharer/phage_DB/controlsetDB",
+        spacer_DB=WORK_DIR + "spacepharer/DB_CRISPR/querysetDB",
+        phage_DB=WORK_DIR + "spacepharer/phage_DB/targetsetDB",
+        phage_control_DB=WORK_DIR + "spacepharer/phage_DB/controlsetDB",
     output:
-        result=OUTPUT_DIR + "spacepharer/predicted_phage_matches.tsv",
-        result_sanitised=OUTPUT_DIR + "spacepharer/predicted_phage_matches_san.tsv",
+        result=WORK_DIR + "spacepharer/predicted_phage_matches.tsv",
+        result_sanitised=WORK_DIR + "spacepharer/predicted_phage_matches_san.tsv",
     params:
-        tmp_folder=OUTPUT_DIR + "spacepharer/tmpFolder",
+        tmp_folder=WORK_DIR + "spacepharer/tmpFolder",
     conda:
         "envs/spacepharer.yml"
     threads: 48
@@ -848,10 +857,10 @@ rule spacepharer_plasmid_setup:
     input:
         DB=config["spacepharer_plasmid_database"] + "sequences.fasta",
     output:
-        DB=OUTPUT_DIR + "spacepharer/plasmid_DB/targetsetDB",
-        control_DB=OUTPUT_DIR + "spacepharer/plasmid_DB/controlsetDB",
+        DB=WORK_DIR + "spacepharer/plasmid_DB/targetsetDB",
+        control_DB=WORK_DIR + "spacepharer/plasmid_DB/controlsetDB",
     params:
-        tmp_folder=OUTPUT_DIR + "spacepharer/tmpFolder",
+        tmp_folder=WORK_DIR + "spacepharer/tmpFolder",
     conda:
         "envs/spacepharer.yml"
     threads: 48
@@ -870,14 +879,14 @@ rule spacepharer_plasmid_setup:
 
 rule spacepharer_plasmid:
     input:
-        phage_DB=OUTPUT_DIR + "spacepharer/plasmid_DB/targetsetDB",
-        phage_control_DB=OUTPUT_DIR + "spacepharer/plasmid_DB/controlsetDB",
-        spacer_DB=OUTPUT_DIR + "spacepharer/DB_CRISPR/querysetDB",
+        phage_DB=WORK_DIR + "spacepharer/plasmid_DB/targetsetDB",
+        phage_control_DB=WORK_DIR + "spacepharer/plasmid_DB/controlsetDB",
+        spacer_DB=WORK_DIR + "spacepharer/DB_CRISPR/querysetDB",
     output:
-        result=OUTPUT_DIR + "spacepharer/predicted_plasmid_matches.tsv",
-        result_sanitised=OUTPUT_DIR + "spacepharer/predicted_plasmid_matches_san.tsv",
+        result=WORK_DIR + "spacepharer/predicted_plasmid_matches.tsv",
+        result_sanitised=WORK_DIR + "spacepharer/predicted_plasmid_matches_san.tsv",
     params:
-        tmp_folder=OUTPUT_DIR + "spacepharer/tmpFolder",
+        tmp_folder=WORK_DIR + "spacepharer/tmpFolder",
     conda:
         "envs/spacepharer.yml"
     threads: 48
@@ -892,48 +901,35 @@ rule spacepharer_plasmid:
         rm -r {params.tmp_folder} >> {log} 2>&1
         """
 
+
 rule create_spacepharer_table:
     input:
-        phage=OUTPUT_DIR + "spacepharer/predicted_phage_matches_san.tsv",
+        phage=WORK_DIR + "spacepharer/predicted_phage_matches_san.tsv",
         meta_phage=config["spacepharer_phage_database"],
-        plasmid=OUTPUT_DIR + "spacepharer/predicted_plasmid_matches_san.tsv",
-        meta_plasmid=config["spacepharer_plasmid_database"]
+        plasmid=WORK_DIR + "spacepharer/predicted_plasmid_matches_san.tsv",
+        meta_plasmid=config["spacepharer_plasmid_database"],
     output:
-        phage="data/processed/phage_matches.tsv",
-        plasmid="data/processed/plasmid_matches.tsv"
+        phage=OUTPUT_DIR + "phage_matches.tsv",
+        plasmid=OUTPUT_DIR + "plasmid_matches.tsv",
     threads: 1
     log:
-        "log/create_spacepharer_table.txt"
-    shell:
-        """
-        echo -e "sample_accession\tphage_accession\tp_best_hit\tspacer_start\tspacer_end\tphage_start\tphage_end\t5_3_PAM\t3_5_PAM\tLength\tGC_content\ttaxonomy\tcompleteness\thost\tlifestyle" > {output.phage}
-        while read line; do
-            ID=$(echo $line | cut -f 2 -d " ")
-            metadata_match=$(grep -w "$ID" {input.meta_phage}/merged_metadata.tsv | cut -f 2-7)
-            echo -e "$line $metadata_match" >> {output.phage}
-        done < {input.phage}
-        
-        echo "starting plasmid"
-        echo -e "sample_accession\tphage_accession\tp_best_hit\tspacer_start\tspacer_end\tphage_start\tphage_end\t5_3_PAM\t3_5_PAM\ttaxonomy" > {output.plasmid}
-        while read line; do
-            ID=$(echo $line | cut -f 2 -d " ")
-            nuccore_match=$(grep -w "$ID" {input.meta_plasmid}/nuccore.csv | cut -f 13 -d ",")
-            taxonomy_match=$(grep -w "^$nuccore_match" {input.meta_plasmid}/taxonomy.csv | cut -f 3 -d ",")
-            echo -e "$line $taxonomy_match" >> {output.plasmid}
-        done < {input.plasmid}
-        """
+        "log/create_spacepharer_table.txt",
+    script:
+        "bin/create_spacepharer_table.sh"
+
 
 rule kma_indexing:
     input:
-        spacers=OUTPUT_DIR + "crispridentify/all_spacers.fa"
+        spacers=WORK_DIR + "crispridentify/all_spacers.fa",
     output:
-        indexed_spacers=OUTPUT_DIR + "kma/spacer_DB/spacers.name"
+        indexed_spacers=WORK_DIR + "kma/spacer_DB/spacers.name",
     params:
-        OUTPUT_DIR + "kma/spacer_DB/spacers"
+        WORK_DIR + "kma/spacer_DB/spacers",
     conda:
         "envs/kma.yaml"
     threads: 12
-    log: "log/kma/kma_index.txt"
+    log:
+        "log/kma/kma_index.txt",
     benchmark:
         "log/benchmark/kma/kma_index.txt"
     shell:
@@ -941,21 +937,22 @@ rule kma_indexing:
         kma index -i {input.spacers} -o {params} > {log} 2>&1
         """
 
+
 rule kma:
     input:
-        genomes=expand(INPUT_DIR + "{batch}/", batch=BATCHES),
-        indexed_spacers=OUTPUT_DIR + "kma/spacer_DB/spacers.name"
+        genomes=expand(WORK_DIR + "assemblies/{batch}/", batch=BATCHES),
+        indexed_spacers=WORK_DIR + "kma/spacer_DB/spacers.name",
     output:
-        OUTPUT_DIR + "kma/output/CRISPR.frag.gz"
+        WORK_DIR + "kma/output/CRISPR.frag.gz",
     params:
-        output=OUTPUT_DIR + "kma/output/CRISPR",
-        indexed_spacers=OUTPUT_DIR + "kma/spacer_DB/spacers",
-        spacers=OUTPUT_DIR + "crispridentify/all_spacers.fa"      
+        output=WORK_DIR + "kma/output/CRISPR",
+        indexed_spacers=WORK_DIR + "kma/spacer_DB/spacers",
+        spacers=WORK_DIR + "crispridentify/all_spacers.fa",
     conda:
         "envs/kma.yaml"
     threads: 24
     log:
-        "log/kma/kma.txt"
+        "log/kma/kma.txt",
     benchmark:
         "log/benchmark/kma/kma.txt"
     shell:
@@ -967,13 +964,14 @@ rule kma:
         rm tmp_file all_genomes.txt
         """
 
+
 rule collect_kma:
-    input: 
-        OUTPUT_DIR + "kma/output/CRISPR.frag.gz"
+    input:
+        WORK_DIR + "kma/output/CRISPR.frag.gz",
     output:
-        OUTPUT_DIR + "kma/CRISPR_alignment"
+        WORK_DIR + "kma/CRISPR_alignment",
     log:
-        "log/kma/collect_kma.txt"
+        "log/kma/collect_kma.txt",
     benchmark:
         "log/benchmark/kma/collect_kma.txt"
     shell:

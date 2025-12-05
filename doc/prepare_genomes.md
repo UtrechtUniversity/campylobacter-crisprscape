@@ -23,9 +23,11 @@ And it does the following things:
 
 4. [Identify the right batches](#4-find-batches-that-contain-species-of-interest)
 
-5. [Download genome batches](#5-download-the-genomes)
+5. [Download genomes in batches](#5-download-the-genomes)
 
 6. [Remove non-target species](#6-remove-other-species)
+
+7. [Download functional annotations in batches](#7-download-functional-annotations)
 
 ## 1. Download ATB metadata
 
@@ -47,9 +49,11 @@ This script downloads:
 6. Species calls (an interpretation of the Sylph and CheckM2 output)
     - three columns: accession ID, species name and high-quality (T/F)
 
-7. A list of all files
-    - this is actually a table with accession IDs, species name, which
+7. Two lists of 'all' files
+    - One is actually a table with accession IDs, species name, which
     ATB batch file they are part of, batch MD5 checksum and file size
+    - The other has no sample accessions, but lists all 'projects' within
+    ATB along with its respective filename, URL, MD5 checksum and filesize.
 
 ### Output files
 
@@ -65,6 +69,7 @@ You then get:
 6   checkm2.tsv.gz
 7   species_calls.tsv.gz
 8   file_list.all.20240805.tsv.gz
+9   all_atb_files.tsv
 ```
 
 ## 2. Look up accession IDs of species of interest
@@ -111,6 +116,13 @@ the species of interest, the script:
 
 5. and stores this in a separate file: `data/ATB/batches_to_download.tsv`
 
+Next to the genomes of interest, these batches also contain lower-quality
+genomes and sometimes different species are put together in a batch.
+To remove these 'not of interest'-genomes and exclude them from further
+analyses, the script also makes a list of their sample accession IDs so
+that they can be removed after downloading.
+Also see [step 6](#6-remove-other-species).
+
 ## 5. Download the genomes
 
 The actual downloading of the genomes happens here! :material-file-download:
@@ -153,32 +165,40 @@ AllTheBacteria has its own
 Some batches may contain more than only the species of interest.
 In those cases, FASTA files that contain genomes from other species are
 deleted.
-To do this, the final script `bin/remove_other_species.sh` is called.
-This script compares the accession IDs (samples) of the species of interest
-with the accession IDs present in the downloaded batches to
-compose a list of samples with other species (`data/tmp/other_species-samples.txt`).
-It counts how many samples have other species and then the corresponding
-FASTA files are removed.
-For curious users, the other species names and numbers are stored as:
-`data/tmp/other_species_calls.tsv` and `data/tmp/other_species_numbers.txt`.
+This is based on sample accession IDs listed for each batch:
+accessions that do not match high-quality genomes of the species of interest
+are automatically removed.
+For the curious, a list of the other genomes is stored as:
+`data/tmp/other_genomes-numbers.txt`.
+These samples are removed and this list shows what was in there.
+
+## 7. Download functional annotations
+
+For each genome assembled in ATB, functional (gene) annotations have also
+been generated using [Bakta](https://github.com/oschwengers/bakta).
+ATB stores only the JSON files, also wrapped in batches, and the download
+script also automatically downloads them so they may be used in your
+analyses!
 
 ## General remarks
 
 - The whole process is set up as Bash script, and uses GNU tools such
 as `grep` and `wget`. This should work on most Unix-like systems.
 
-- The script can use a command-line option to donwload genomes from the
+- The script can use a command-line option to download genomes from the
 complete ATB, only the first version, or the incremental update.
 For this, it uses options 'all', 'original' or 'update', respectively.
 By default, the script uses 'update', which has the smallest file sizes.
-The option can be provided as:
+The option can be provided as, for example:
 
 ```bash
 bash bin/prepare_genomes.sh all
 ```
 
-This option is most relevant to `bin/download_genomes.sh`.
+This option is most relevant to `bin/download_genomes.sh`
 [(Step 5)](#5-download-the-genomes)
+and `bin/download_bakta_annotations.sh`
+[(step 7)](#7-download-functional-annotations).
 
 - The script reads whether files exist already. If they are already there,
 they will not be downloaded again.

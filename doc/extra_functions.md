@@ -38,3 +38,10 @@ be used to identify 'free' phages as well as integrated prophages.
 
 We map the identified CRISPR spacers back to the input genomes and use
 these plasmid/phage predictions to estimate the targets of the CRISPRs.
+
+## Mapping spacers back to input genomes
+
+...
+By using the KMA flag `-hmm`, the output files (`*.frag.gz`) become easier
+to interpret: it add columns with (1) target name, (2) start and (3) stop
+positions. With this option enabled, KMA "uses a HMM to assign template".

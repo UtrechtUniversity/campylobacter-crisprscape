@@ -1,30 +1,23 @@
-#! /usr/bin/env bash
+#!/usr/bin/env bash
 set -euo pipefail
 IFS=$'\n'
 
 # Above thanks to Aaron Maxwell: http://redsymbol.net/articles/unofficial-bash-strict-mode/
-# This script does:
-# 1. Look for the batches of interest,
-# 2. download them from ATB,
-# 3. check their md5 checksum (file integrity)
-# 4. extract to 'data/tmp/assemblies'
-
-# Note: If the md5sum does not match (for example, the file is incomplete or missing),
-# this script does not download the archive again. You would have to re-run the script
-# to download missing batches. (It checks file presence before downloading, so you
-# will not download complete/correct files again.)
 
 part=${1:-"update"}
 
 if [ "${part}" == "update" ]
 then
     download_list=$(grep "incr_release" data/ATB/batches_to_download.tsv)
+
 elif [ "${part}" == "original" ]
 then
     download_list=$(grep -v "incr_release" data/ATB/batches_to_download.tsv)
+
 elif [ "${part}" == "all" ]
 then
     download_list=$(cat data/ATB/batches_to_download.tsv)
+
 else
     download_list=""
     echo "Unknown argument provided! Please use 'all', 'original', or 'update'."
@@ -33,9 +26,9 @@ fi
 
 for line in ${download_list}
 do
-    filename=$(echo ${line} | cut -f 1)
-    url=$(echo ${line} | cut -f 2)
-    checksum=$(echo ${line} | cut -f 3)
+    filename=$(echo ${line} | cut -f 1 | sed -e 's/assembly/bakta/')
+    url=$(grep ${filename} data/ATB/all_atb_files.tsv | cut -f 4)
+    checksum=$(grep ${filename} data/ATB/all_atb_files.tsv | cut -f 5)
     echo -e "Filename: ${filename}\tURL: ${url}\tmd5sum: ${checksum}"
 
     mkdir -p data/tmp/ATB
@@ -62,7 +55,7 @@ do
     fi
 
     # Extract the batch number from the file name
-    batchdir="data/tmp/assemblies/"
+    batchdir="data/tmp/annotations"
     mkdir -p ${batchdir}
 
     # If the batch directory has not been made yet
@@ -74,6 +67,6 @@ do
         tar -Jxf ${outputfile} -C ${batchdir}
 
     else
-        echo "Fasta files have been extracted previously!"
+        echo "Bakta files have been extracted previously!"
     fi
 done

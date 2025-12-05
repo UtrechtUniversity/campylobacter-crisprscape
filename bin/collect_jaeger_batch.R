@@ -3,8 +3,10 @@
 # Concatenate Jaeger output files per batch while selecting only the most
 # relevant, easy-to-use columns.
 
-library(here)
-library(tidyverse)
+suppressPackageStartupMessages({
+  library(tidyverse)
+  library(here)
+})
 
 # Read all output files in a batch (one per genome)
 jaeger_files <- Sys.glob(paths = here("data", "tmp", "jaeger", snakemake@params[["batch"]], "*", "*_default_jaeger.tsv"))

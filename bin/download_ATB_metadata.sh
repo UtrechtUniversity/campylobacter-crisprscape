@@ -42,4 +42,7 @@ download_if_not_present ${output_dir}checkm2.tsv.gz https://osf.io/download/289f
 download_if_not_present ${output_dir}species_calls.tsv.gz https://osf.io/download/7t9qd/
 
 # Get a list of all files:
+download_if_not_present ${output_dir}all_atb_files.tsv https://osf.io/download/r6gcp/
+
+# And a list with sample - batch matches
 download_if_not_present ${output_dir}file_list.all.20240805.tsv.gz https://osf.io/download/dw3h7

@@ -4,7 +4,7 @@ cctyper_dir=$1
 
 sample_name=$(basename ${cctyper_dir})
 batch_name=$(basename $(dirname ${cctyper_dir}))
-fasta_file="data/tmp/ATB/${batch_name}/${sample_name}.fa"
+fasta_file="data/tmp/assemblies/${batch_name}/${sample_name}.fa"
 
 bed_files=( $(find $1 -mindepth 1 -maxdepth 1 -name "*bed") )
 
