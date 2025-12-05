@@ -26,51 +26,41 @@ which includes a quick start guide as well as a detailed step-by-step descriptio
 
 ## Release roadmap
 
-- Version 0.1 updates:
+- Version 0.2: tidy code
+   - remove outdated steps
+   - move long commands in Snakefile to separate script
+   - (re)apply linting (Black, Styler)
+   - apply 'bash strict mode' and suppress R messages
+   - move parts of Snakefile to separate scripts?
+    
+- Version 0.3: solid foundation
+   - validate proper functioning of CCTyper + CRISPRidentify
+      - adjust helper scripts where necessary
+   - correct scripts for making tables, integrate with Snakemake and test!
+      - CRISPR spacer table (#24)
+      - CRISPR-Cas locus table
+      - (make sure every analysis part produces an output: include in 'rule all')
 
-    - Updates in documentation of implemented functions and output files
-(e.g., expanding documentation on the use of CRISPRidentify)
+- Version 0.4: clear documentation
+   -  review and update README and docs
 
-    - Functions to concatenate and combine existing outputs
-
-    - Code clean-up (moving long commands to separate scripts,
-applying standardised formatting, remove unnecessary code)
-
-- Versions 0.2 and further:
-
-    - New functionality (e.g., all-vs-all genome comparisons)
-
-## To do
-
-- [x] Add CRISPRidentify to workflow
-
-   - [x] And make sure it works on a clean install
-
-- [x] Combine results from CCTyper with CRISPRidentify
-
-- [ ] Make and/or correct scripts for combining results into 'Output files' (write to `data/processed/`)
-
-   - [x] Concatenate MLST results
-
-   - [x] Enable spacer table creation script in Snakefile (add to `rule all`)
-
-- [x] Collect and combine results from geNomad and Jaeger
-
-- [x] Map spacers to genomes and phage/plasmid databases
-
-- [x] Add PADLOC for identifying other anti-phage systems
-
-- [ ] Write documentation for output files
-
-- [x] Rewrite 'Problems encountered' into a rationale for our tool selection (as separate document)
-
-- [x] Write detailed and technical step-by-step description of the workflow
-
-    - [ ] While reviewing the workflow, remove unnecessary pieces and clean-up where possible
-
-- [x] Setup MkDocs-powered documentation (at least locally, integrate with GitHub pages later)
-
-(_Note to self: Remove this list when finished and use issues or roadmap instead!_)
+- Future additions:
+   - genome deduplication (dRep)
+   - CRISPR spacer target prediction
+      - map to
+         - masked ATB genomes
+         - PLSDB
+         - PhageScope
+         - VIRE
+         - MEGAISurv metagenomes
+      - mini-benchmark different mapping algorithms
+         - Sassy
+         - KMA
+         - SpacePHARER
+      - (where feasible) connect spacer hits with functional annotations!
+   - Integrate downstream analyses with Snakemake?
+      - run RMarkdown/Quarto notebooks automatically
+   - build a database like [this spacerdb](https://spacers.jgi.doe.gov/database/overview/)?
 
 ## Workflow description
 
