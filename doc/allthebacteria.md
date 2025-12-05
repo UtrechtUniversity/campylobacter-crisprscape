@@ -9,29 +9,34 @@ After downloading all metadata using the bundled script, you have:
 ``` bash
 $ ls -sh data/ATB/
 total 1.4G
+460K all_atb_files.tsv
 679M ena_metadata.20240801.tsv.gz            74M assembly-stats.tsv.gz
  18M file_list.all.20240805.tsv.gz           63M checkm2.tsv.gz
 5.5M sample_list.txt.gz                     371M ena_metadata.0.2.20240606.tsv.gz
 17M species_calls.tsv.gz                    104M sylph.tsv.gz
 ```
 
+- A list of files `all_atb_files.tsv` 460kB
+    - Lists all batch and metadata files present in AllTheBacteria with their
+    respective file name, url, md5 checksum and file size (not per sample)
+
 - Assembly statistics `assembly-stats.tsv.gz` 74MB
-  - Lists per sample accession the total length, number of contigs, N50 and
-   more statistics of the assembly.
+    - Lists per sample accession the total length, number of contigs, N50 and
+     more statistics of the assembly.
 
 - CheckM2 results `checkm2.tsv.gz` 63MB
-  - Lists per sample accession the results of CheckM2 including assembly
-   completeness and contamination in percentages.
+    - Lists per sample accession the results of CheckM2 including assembly
+     completeness and contamination in percentages.
 
 - ENA sample metadata `ena_metadata.20240801.tsv.gz` 677MB
-  - Lists per sample all the metadata that have been deposited in the European
-   Nucleotide Archive - this is a table with over 100 columns!
+    - Lists per sample all the metadata that have been deposited in the European
+     Nucleotide Archive - this is a table with over 100 columns!
 
 - File list `file_list.all.20240805.tsv.gz` 17MB
-  - This file lists per sample accession the corresponding batch in which it is
-   archived, with download URL, md5sum and file size of the batch archive.
-    It can be used to identify which batch archives contain species of interest,
-    e.g.
+    - This file lists per sample accession the corresponding batch in which it is
+     archived, with download URL, md5sum and file size of the batch archive.
+      It can be used to identify which batch archives contain species of interest,
+      e.g.:
 
 ```bash
 zgrep -f data/ATB/all_samples_of_interest.txt\
@@ -43,14 +48,14 @@ the script `bin/prepare_genomes.sh`. Also see the
 [manual](manual.md#download-input-genomes).)
 
 - Sample list `sample_list.txt.gz` 5.4MB
-  - This file simply lists all the sample accessions that are present in the dataset.
+    - This file simply lists all the sample accessions that are present in the dataset.
 
 - Species calls `species_calls.tsv.gz` 17MB
-  - Lists per sample accession the species identified and whether or not it is of
-   high-quality (T/F).
-    This file can be used to identify which sample accessions contain
-     high-quality genomes of the species of interest,
-    e.g.
+    - Lists per sample accession the species identified and whether or not it is of
+     high-quality (T/F).
+      This file can be used to identify which sample accessions contain
+       high-quality genomes of the species of interest,
+      e.g.:
 
 ```bash
 zless species_calls.tsv.gz | grep "Campylobacter_D jejuni" |\
@@ -58,8 +63,8 @@ zless species_calls.tsv.gz | grep "Campylobacter_D jejuni" |\
 ```
 
 - Sylph results `sylph.tsv.gz` 103MB
-  - Lists per sample accession the output from Sylph, including relative
-   abundance (%) Average Nucleotide Identity score (%) and assigned species name.
+    - Lists per sample accession the output from Sylph, including relative
+     abundance (%) Average Nucleotide Identity score (%) and assigned species name.
 
 ## Note on file sizes per batch
 
