@@ -1,5 +1,6 @@
 ### Refine CRISPR-Cas identifation
 
+
 rule crispridentify:
     input:
         WORK_DIR + "cctyper/{batch}/subseq",

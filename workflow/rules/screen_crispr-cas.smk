@@ -1,6 +1,7 @@
 ### Screen for CRISPR-Cas
 ## Run CCTyper and parse/merge its output
 
+
 rule crisprcastyper:
     input:
         batch=WORK_DIR + "assemblies/{batch}/",

@@ -24,17 +24,22 @@ N.B. Variables are set in the configuration files under `config`.
 # Step 1: Load configuration
 # ---------------------------------------------------------
 
+
 configfile: Path("config/parameters.yaml")
+
 
 # Log messages
 onstart:
     print("\n--- Starting analysis! ---\n")
 
+
 onsuccess:
     print("\n --- Workflow finished! ---\n")
 
+
 onerror:
     print("\n --- An error occurred! ---\n")
+
 
 # Step 2: Load rules that do the work
 # ---------------------------------------------------------
@@ -48,6 +53,7 @@ include: "rules/map_spacers.smk"
 
 # Step 3: specify target outputs
 # ---------------------------------------------------------
+
 
 rule all:
     input:

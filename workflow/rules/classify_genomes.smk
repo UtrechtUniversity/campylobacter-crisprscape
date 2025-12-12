@@ -1,6 +1,7 @@
 ### Classify genomes
 ## 1: determine multilocus sequence type (MLST)
 
+
 rule download_mlst_database:
     output:
         WORK_DIR + "mlst/campylobacter.db",
@@ -82,6 +83,7 @@ sed --separate 1d ${{batches[@]}} >> {output}
 ## 2. identify whether contig derive from a chromosome, plasmid or virus
 # Using both geNomad (chromosome/plasmid/virus)
 
+
 rule genomad:
     input:
         fasta=WORK_DIR + "assemblies/{batch}.fasta",
@@ -138,6 +140,7 @@ rule collect_genomad_predictions:
 
 
 # And Jaeger (virus (phage/prophage) or not)
+
 
 rule jaeger:
     input:

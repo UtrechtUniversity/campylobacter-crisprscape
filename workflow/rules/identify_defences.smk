@@ -1,5 +1,6 @@
 ## Identify anti-phage defence systems using PADLOC
 
+
 rule download_padloc_database:
     output:
         WORK_DIR + "padloc/database",

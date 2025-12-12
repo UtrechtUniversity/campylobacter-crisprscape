@@ -15,6 +15,7 @@ BATCHES = [batch.name for batch in BATCH_PATHS]
 
 ## Helper rules (not fitting any particular goal)
 
+
 rule concatenate_batches:
     input:
         WORK_DIR + "assemblies/{batch}",

@@ -1,6 +1,7 @@
 ### Map spacers to putative targets/protospacers
 ## 2. By using SpacePHARER
 
+
 rule spacepharer_spacer_setup:
     input:
         spacers=WORK_DIR + "crispridentify/all_spacers.fa",
@@ -151,6 +152,7 @@ rule create_spacepharer_table:
 
 
 ## 2. By using KMA to the input genomes
+
 
 rule kma_indexing:
     input:

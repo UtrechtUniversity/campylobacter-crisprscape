@@ -17,13 +17,13 @@ read_stats <- function(filename, name_position) {
   sample_name <- str_split_1(string = filename, pattern = "/") %>%
     tail(name_position) %>%
     head(1)
-  
+
   df <- read_delim(
     file = filename,
     show_col_types = FALSE
   ) %>%
     mutate(batch = sample_name)
-  
+
   return(df)
 }
 
@@ -34,10 +34,11 @@ genomad_scores <- do.call(
   rename("contig" = "seq_name")
 
 genomad_scores <- genomad_scores %>%
-  mutate(genome = gsub(pattern = "\\.contig[0-9]*",
-                       replacement = "",
-                       x = contig)
-  )
+  mutate(genome = gsub(
+    pattern = "\\.contig[0-9]*",
+    replacement = "",
+    x = contig
+  ))
 
 plasmid_classifications <- do.call(
   rbind,
@@ -78,10 +79,10 @@ genomad_df <- left_join(
       !is.na(plasmid_topology) ~ "plasmid",
       !is.na(virus_topology) ~ "virus",
       TRUE ~ "chromosome"
-      )
+    )
   )
 
 write_csv(
   x = genomad_df,
-  file = snakemake@output[[1]] #here("data", "processed", "genomad_predictions.csv")
+  file = snakemake@output[[1]] # here("data", "processed", "genomad_predictions.csv")
 )
