@@ -49,6 +49,7 @@ OUTPUT_DIR = config["output_directory"]
 
 rule all:
     input:
+        ## Extra outputs (non-CRISPR)
         # Multilocus Sequence Types (ST) for Campylobacter
         OUTPUT_DIR + "mlst_table.tsv",
         # Virus and plasmid predictions per contig
@@ -56,7 +57,8 @@ rule all:
         OUTPUT_DIR + "jaeger_predictions.csv",
         # Phage defence systems
         OUTPUT_DIR + "padloc_table.csv",
-        # Concatenated CCTyper output
+        ## CRISPR-related outputs: 1. pre-screening
+        # Concatenated CCTyper output (CRISPR arrays and spacers)
         expand(
             WORK_DIR + "cctyper/{batch}/{filename}-{batch}.tab",
             batch=BATCHES,
@@ -69,28 +71,24 @@ rule all:
             ],
         ),
         expand(WORK_DIR + "cctyper/{batch}/all_spacers-{batch}.fa", batch=BATCHES),
-        # Combined CCTyper output as CSV + BED files
-        expand(WORK_DIR + "cctyper/{batch}/parsed", batch=BATCHES),
         # CCTyper CRISPR spacer cluster analysis report
         WORK_DIR + "cctyper/spacer_cluster_summary.tsv",
         # Cluster unique CRISPR spacers
         WORK_DIR + "cctyper/all_spacers-clustered.clstr",
-        WORK_DIR + "crispridentify/all_spacers-clustered.clstr",
-        OUTPUT_DIR + "all_spacers_table_identify.tsv",
         OUTPUT_DIR + "all_spacers_table.tsv",
-        # Extracted CRISPR arrays (as fasta)
-        expand(WORK_DIR + "arrays/{batch}/complete", batch=BATCHES),
-        #CRISPRidentify output
+        # CRISPR output 2. CRISPRidentify output (refinement)
         expand(WORK_DIR + "crispridentify/{batch}/complete", batch=BATCHES),
-        #concatenated CRISPRidentify output
+        # Concatenated CRISPRidentify output
         WORK_DIR + "crispridentify/complete_summary.csv",
         WORK_DIR + "crispridentify/all_spacers.fa",
-        #merged CRISPRidentify and CCtyper output
+        WORK_DIR + "crispridentify/all_spacers-clustered.clstr",
+        OUTPUT_DIR + "all_spacers_table_identify.tsv",
+        # Merged CRISPRidentify and CCtyper output
         OUTPUT_DIR + "all_CRISPRS_with_identify.tab",
-        #spacepharer output
+        # Spacepharer output (spacer targets, putative protospacers)
         OUTPUT_DIR + "phage_matches.tsv",
         OUTPUT_DIR + "plasmid_matches.tsv",
-        #KMA output
+        # KMA output (mapping spacers to input Campy genomes)
         WORK_DIR + "kma/output/CRISPR.frag.gz",
         WORK_DIR + "kma/CRISPR_alignment",
 
