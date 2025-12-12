@@ -52,27 +52,8 @@ rule merge_crispridentify_batches:
         "log/merge_crispridentify_batches.txt",
     benchmark:
         "log/benchmark/merge_crispridentify_batches.txt"
-    shell:
-        """
-cat {params.spacers_crispr} > {output.spacers_crispr}
-
-for summary in {params.summary_crispr}
-do
-    header=$(head -n 1 "$summary")
-    if [ "$header" == "No arrays found" ]
-    then
-        continue
-    else
-        echo $header | tee {output.summary_crispr}
-        break
-    fi
-done
-
-for summary in {params.summary_crispr}
-do
-    tail -n +2 "$summary" >> {output.summary_crispr}
-done
-        """
+    script:
+        "../scripts/merge_identify_batches.sh"
 
 
 rule merge_cctyper_identify:
@@ -82,65 +63,12 @@ rule merge_cctyper_identify:
             WORK_DIR + "cctyper/{batch}/crisprs_all-{batch}.tab", batch=BATCHES
         ),
     output:
-        OUTPUT_DIR + "all_CRISPRS_with_identify.tab",
-    params:
-        tmp1="tmp_file1",
-        tmp2="tmp_file2",
+        table=OUTPUT_DIR + "all_CRISPRS_with_identify.tab",
     threads: 1
     log:
         "log/merge_cctyper_identify",
-    shell:
-        """
-first=True
-for summary in {input.cctyper}
-do
-    if [ $first == True ]
-    then
-        cat $summary > {params.tmp1}
-        first=False
-    else
-        tail -n +2 $summary >> {params.tmp1}
-    fi
-done
-
-header=$(head -n 1 {input.identify} | cut -f 1,5,6,7,8,9,10,11,14 -d "," | tr "," "\t")
-tail -n +2 {input.identify} | cut -f 1,5,6,7,8,9,10,11,14 -d "," | tr "," "\t" > {params.tmp2}
-first=True
-while read line
-do
-    if [ $first == True ]
-    then
-        first=False
-        echo -e "$line\t$header" > {output}
-    else
-        sample=$(echo -e "$line" | cut -f 1)
-        start_cc=$(echo -e "$line" | cut -f 3)
-        start_id=$(expr "$start_cc" + 1)
-        match=$(grep "${{sample}}_$start_id" {params.tmp2} || true)
-        if [ -z "$match" ]
-        then
-            echo -e "$line" >> {output}
-        else
-            while read line2
-            do
-                if [ "$start_cc" -lt 5000 ];
-                then
-                    echo -e "$line\t$match" >> {output}
-                else
-                    start=$(echo -e "$line2" | cut -f 2)
-                    start=$(expr "$start" + "$start_cc" - 5000)
-                    length=$(echo -e "$line2" | cut -f 4)
-                    end=$(expr "$length" + "$start" - 1)
-                    begin=$(echo -e "$line2" | cut -f 1)
-                    rest=$(echo -e "$line2" | cut -f 4-9)
-                    echo -e "$line\t$begin\t$start\t$end\t$rest" >> {output}
-                fi
-            done <<< "$match"
-        fi
-    fi
-done < {params.tmp1}
-rm -f {params.tmp1} {params.tmp2}
-        """
+    script:
+        "../scripts/merge_cctyper_crispridentify.sh"
 
 
 rule cluster_unique_spacers_crispridentify:
