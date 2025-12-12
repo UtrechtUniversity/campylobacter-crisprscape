@@ -5,7 +5,7 @@ rule download_padloc_database:
     output:
         WORK_DIR + "padloc/database",
     conda:
-        "envs/padloc.yaml"
+        "../envs/padloc.yaml"
     threads: 1
     log:
         "log/download_padloc_database.txt",
@@ -13,7 +13,7 @@ rule download_padloc_database:
         "log/benchmark/download_padloc_database.txt"
     shell:
         """
-padloc --db-install v2.0.0
+padloc --db-install v2.0.0 > {log} 2>&1
 touch {output}
         """
 
@@ -25,7 +25,7 @@ rule padloc:
     output:
         WORK_DIR + "padloc/{batch}/complete",
     conda:
-        "envs/padloc.yaml"
+        "../envs/padloc.yaml"
     threads: config["padloc"]["threads"]
     log:
         "log/padloc/{batch}.txt",

@@ -10,7 +10,7 @@ rule crispridentify:
         out_dir=WORK_DIR + "crispridentify/{batch}",
         arrays=WORK_DIR + "cctyper/{batch}",
     conda:
-        "../envs/crispridentify.yml"
+        "../envs/crispridentify.yaml"
     threads: config["crispridentify"]["threads"]
     log:
         "log/crispridentify/{batch}.txt",

@@ -63,7 +63,7 @@ rule spacepharer_phage:
     params:
         tmp_folder=WORK_DIR + "spacepharer/tmpFolder",
     conda:
-        "../envs/spacepharer.yml"
+        "../envs/spacepharer.yaml"
     threads: 48
     log:
         "log/spacepharer/spacepharer_phage.txt",
@@ -89,7 +89,7 @@ rule spacepharer_plasmid_setup:
     params:
         tmp_folder=WORK_DIR + "spacepharer/tmpFolder",
     conda:
-        "../envs/spacepharer.yml"
+        "../envs/spacepharer.yaml"
     threads: 48
     log:
         "log/spacepharer/spacepharer_plasmid_setup.txt",
@@ -118,7 +118,7 @@ rule spacepharer_plasmid:
     params:
         tmp_folder=WORK_DIR + "spacepharer/tmpFolder",
     conda:
-        "../envs/spacepharer.yml"
+        "../envs/spacepharer.yaml"
     threads: 48
     log:
         "log/spacepharer/spacepharer_phage.txt",

@@ -43,7 +43,7 @@ rule parse_cctyper:
         """
 find $(dirname {input}) -mindepth 1 -maxdepth 1 -type d -print0 |\
 parallel -0 --jobs {threads} --retry-failed --halt='now,fail=1'\
-    python rules/scripts/cctyper_extender.py -d {{.}} > {log} 2>&1
+    python worflow/scripts/cctyper_extender.py -d {{.}} > {log} 2>&1
 
 touch {output}
         """
@@ -65,7 +65,7 @@ rule extract_sequences:
         """
 find $(dirname {input}) -mindepth 1 -maxdepth 1 -type d -print0 |\
 parallel -0 --jobs {threads} --retry-failed --halt='now,fail=1'\
-    bash rules/scripts/extract_crispr-cas_from_fasta.sh {{}} > {log} 2>&1
+    bash workflow/scripts/extract_crispr-cas_from_fasta.sh {{}} > {log} 2>&1
 
 touch {output}
         """
@@ -112,7 +112,7 @@ rule cluster_all_spacers:
         "log/benchmark/cluster_all_spacers.txt"
     shell:
         """
-bash rules/scripts/cluster_all_spacers.sh\
+bash workflow/scripts/cluster_all_spacers.sh\
     {input}\
     {params.WORK_DIR}\
     {params.log_dir} > {log} 2>&1
