@@ -428,14 +428,15 @@ rule crispridentify:
         "log/benchmark/crispridentify/{batch}.txt"
     shell:
         """
-    
-    cd bin/CRISPRidentify
-    find ../../{params.arrays}/*/fasta/CRISPR_arrays-with_flanks.fasta -size +0c -print0 | \
-    parallel -0 --jobs {threads} --retry-failed --halt='now,fail=1'\
-    python CRISPRidentify.py --file {{}} --result_folder "../../{params.out_dir}/{{/.}}" --fasta_report True --strand False > ../../{log} 2>&1   
+cd bin/CRISPRidentify
 
-    touch ../../{output}
-    
+find ../../{params.arrays}/*/fasta/CRISPR_arrays-with_flanks.fasta -size +0c -print0 |\
+parallel -0 --jobs {threads} --retry-failed --halt='now,fail=1'\
+'python CRISPRidentify.py --file {{}}\
+ --result_folder "../../{params.out_dir}/{{/.}}"\
+ --fasta_report True --strand False' > ../../{log} 2>&1
+
+touch ../../{output}
         """
 
 
@@ -463,16 +464,24 @@ rule merge_crispridentify_batches:
         "log/benchmark/merge_crispridentify_batches.txt"
     shell:
         """
-    cat {params.spacers_crispr} > {output.spacers_crispr}
-    for summary in {params.summary_crispr} ; do header=$(head -n 1 "$summary"); if [ "$header" == "No arrays found" ];
+cat {params.spacers_crispr} > {output.spacers_crispr}
+
+for summary in {params.summary_crispr}
+do
+    header=$(head -n 1 "$summary")
+    if [ "$header" == "No arrays found" ]
     then
-        continue;
-    else 
-        echo $header | tee {output.summary_crispr};
-        break;
+        continue
+    else
+        echo $header | tee {output.summary_crispr}
+        break
     fi
-    done
-    for summary in {params.summary_crispr} ; do tail -n +2 "$summary" >> {output.summary_crispr} ; done
+done
+
+for summary in {params.summary_crispr}
+do
+    tail -n +2 "$summary" >> {output.summary_crispr}
+done
         """
 
 
@@ -492,51 +501,55 @@ rule merge_cctyper_identify:
         "log/merge_cctyper_identify",
     shell:
         """
-    first=True
-    for summary in {input.cctyper} ; do
-        if [ $first == True ];
-        then
-            cat $summary > {params.tmp1}
-            first=False
-        else
-            tail -n +2 $summary >> {params.tmp1}
-        fi
-    done
+first=True
+for summary in {input.cctyper}
+do
+    if [ $first == True ]
+    then
+        cat $summary > {params.tmp1}
+        first=False
+    else
+        tail -n +2 $summary >> {params.tmp1}
+    fi
+done
 
-    header=$(head -n 1 {input.identify} | cut -f 1,5,6,7,8,9,10,11,14 -d "," | tr "," "\t")
-    tail -n +2 {input.identify} | cut -f 1,5,6,7,8,9,10,11,14 -d "," | tr "," "\t" > {params.tmp2}
-    first=True
-    while read line; do
-        if [ $first == True ];
+header=$(head -n 1 {input.identify} | cut -f 1,5,6,7,8,9,10,11,14 -d "," | tr "," "\t")
+tail -n +2 {input.identify} | cut -f 1,5,6,7,8,9,10,11,14 -d "," | tr "," "\t" > {params.tmp2}
+first=True
+while read line
+do
+    if [ $first == True ]
+    then
+        first=False
+        echo -e "$line\t$header" > {output}
+    else
+        sample=$(echo -e "$line" | cut -f 1)
+        start_cc=$(echo -e "$line" | cut -f 3)
+        start_id=$(expr "$start_cc" + 1)
+        match=$(grep "${{sample}}_$start_id" {params.tmp2} || true)
+        if [ -z "$match" ]
         then
-            first=False
-            echo -e "$line\t$header" > {output}
+            echo -e "$line" >> {output}
         else
-            sample=$(echo -e "$line" | cut -f 1)
-            start_cc=$(echo -e "$line" | cut -f 3)
-            start_id=$(expr "$start_cc" + 1)
-            match=$(grep "${{sample}}_$start_id" {params.tmp2} || true)
-            if [ -z "$match" ]; then
-                echo -e "$line" >> {output}
-            else
-                while read line2; do
-                    if [ "$start_cc" -lt 5000 ];
-                    then
-                        echo -e "$line\t$match" >> {output}
-                    else
-                        start=$(echo -e "$line2" | cut -f 2)
-                        start=$(expr "$start" + "$start_cc" - 5000)
-                        length=$(echo -e "$line2" | cut -f 4)
-                        end=$(expr "$length" + "$start" - 1)
-                        begin=$(echo -e "$line2" | cut -f 1)
-                        rest=$(echo -e "$line2" | cut -f 4-9)
-                        echo -e "$line\t$begin\t$start\t$end\t$rest" >> {output}
-                    fi
-                done <<< "$match"
-            fi
+            while read line2
+            do
+                if [ "$start_cc" -lt 5000 ];
+                then
+                    echo -e "$line\t$match" >> {output}
+                else
+                    start=$(echo -e "$line2" | cut -f 2)
+                    start=$(expr "$start" + "$start_cc" - 5000)
+                    length=$(echo -e "$line2" | cut -f 4)
+                    end=$(expr "$length" + "$start" - 1)
+                    begin=$(echo -e "$line2" | cut -f 1)
+                    rest=$(echo -e "$line2" | cut -f 4-9)
+                    echo -e "$line\t$begin\t$start\t$end\t$rest" >> {output}
+                fi
+            done <<< "$match"
         fi
-    done < {params.tmp1}
-    rm -f {params.tmp1} {params.tmp2}
+    fi
+done < {params.tmp1}
+rm -f {params.tmp1} {params.tmp2}
         """
 
 
@@ -724,9 +737,11 @@ rule spacepharer_spacer_setup:
         "log/benchmark/spacepharer/spacepharer_spacer_setup.txt"
     shell:
         """
-        spacer_DB=$(dirname {output.spacer_DB})
-        rm -rf $spacer_DB/* > {log} 2>&1 
-        spacepharer createsetdb {input.spacers} {output.spacer_DB} {params.tmp_folder} --extractorf-spacer 1 --threads {threads} >> {log} 2>&1
+spacer_DB=$(dirname {output.spacer_DB})
+rm -rf $spacer_DB/* > {log} 2>&1
+
+spacepharer createsetdb {input.spacers} {output.spacer_DB} {params.tmp_folder}\
+ --extractorf-spacer 1 --threads {threads} >> {log} 2>&1
         """
 
 
@@ -746,10 +761,13 @@ rule spacepharer_phage_setup:
         "log/benchmark/spacepharer/spacepharer_setup.txt"
     shell:
         """
-        phage_DB=$(dirname {output.phage_DB})
-        rm -rf $phage_DB/* > {log} 2>&1
-        spacepharer createsetdb {params.DB} {output.phage_DB} {params.tmp_folder} --threads {threads} >> {log} 2>&1
-        spacepharer createsetdb {params.DB} {output.phage_control_DB} {params.tmp_folder} --reverse-fragments 1 --threads {threads} >> {log} 2>&1
+phage_DB=$(dirname {output.phage_DB})
+rm -rf $phage_DB/* > {log} 2>&1
+
+spacepharer createsetdb {params.DB} {output.phage_DB} {params.tmp_folder}\
+ --threads {threads} >> {log} 2>&1
+spacepharer createsetdb {params.DB} {output.phage_control_DB}\
+ {params.tmp_folder} --reverse-fragments 1 --threads {threads} >> {log} 2>&1
         """
 
 
@@ -772,9 +790,12 @@ rule spacepharer_phage:
         "log/benchmark/spacepharer/spacepharer_phage.txt"
     shell:
         """
-        spacepharer predictmatch {input.spacer_DB} {input.phage_DB} {input.phage_control_DB} {output.result} {params.tmp_folder} --threads {threads} > {log} 2>&1
-        grep -v "#" {output.result} > {output.result_sanitised} 
-        rm -r {params.tmp_folder} >> {log} 2>&1
+spacepharer predictmatch {input.spacer_DB} {input.phage_DB
+ {input.phage_control_DB} {output.result} {params.tmp_folder}\
+ --threads {threads} > {log} 2>&1
+
+grep -v "#" {output.result} > {output.result_sanitised}
+rm -r {params.tmp_folder} >> {log} 2>&1
         """
 
 
@@ -795,10 +816,13 @@ rule spacepharer_plasmid_setup:
         "log/benchmark/spacepharer/spacepharer_plasmid_setup.txt"
     shell:
         """
-        plasmid_DB=$(dirname {output.DB})
-        rm -f $plasmid_DB/* > {log} 2>&1
-        spacepharer createsetdb {input.DB} {output.DB} {params.tmp_folder} --threads {threads} >> {log} 2>&1
-        spacepharer createsetdb {input.DB} {output.control_DB} {params.tmp_folder} --reverse-fragments 1 --threads {threads} >> {log} 2>&1
+plasmid_DB=$(dirname {output.DB})
+rm -f $plasmid_DB/* > {log} 2>&1
+
+spacepharer createsetdb {input.DB} {output.DB} {params.tmp_folder
+ --threads {threads} >> {log} 2>&1
+spacepharer createsetdb {input.DB} {output.control_DB} {params.tmp_folder}\
+ --reverse-fragments 1 --threads {threads} >> {log} 2>&1
         """
 
 
@@ -821,9 +845,12 @@ rule spacepharer_plasmid:
         "log/benchmark/spacepharer/spacepharer_phage.txt"
     shell:
         """
-        spacepharer predictmatch {input.spacer_DB} {input.phage_DB} {input.phage_control_DB} {output.result} {params.tmp_folder} --threads {threads} > {log} 2>&1
-        grep -v "#" {output.result} > {output.result_sanitised} 
-        rm -r {params.tmp_folder} >> {log} 2>&1
+spacepharer predictmatch {input.spacer_DB} {input.phage_DB
+ {input.phage_control_DB} {output.result} {params.tmp_folder
+  --threads {threads} > {log} 2>&1
+
+grep -v "#" {output.result} > {output.result_sanitised}
+rm -r {params.tmp_folder} >> {log} 2>&1
         """
 
 
@@ -859,7 +886,7 @@ rule kma_indexing:
         "log/benchmark/kma/kma_index.txt"
     shell:
         """
-        kma index -i {input.spacers} -o {params} > {log} 2>&1
+kma index -i {input.spacers} -o {params} > {log} 2>&1
         """
 
 
@@ -882,11 +909,12 @@ rule kma:
         "log/benchmark/kma/kma.txt"
     shell:
         """     
-        grep ">" {params.spacers} | cut -f 2 -d ">" | cut -f 1 -d "-" | sort -u > tmp_file
-        find -L {input.genomes} -mindepth 1 -maxdepth 1 -type f -name "*.fa" > all_genomes.txt
-        genomes=$(grep -x ".*[0-9]\\.fa" all_genomes.txt | grep -v -f tmp_file)
-        kma -hmm -i $genomes -o {params.output} -t_db {params.indexed_spacers} > {log} 2>&1
-        rm tmp_file all_genomes.txt
+grep ">" {params.spacers} | cut -f 2 -d ">" | cut -f 1 -d "-" | sort -u > tmp_file
+find -L {input.genomes} -mindepth 1 -maxdepth 1 -type f -name "*.fa" > all_genomes.txt
+genomes=$(grep -x ".*[0-9]\\.fa" all_genomes.txt | grep -v -f tmp_file)
+
+kma -hmm -i $genomes -o {params.output} -t_db {params.indexed_spacers} > {log} 2>&1
+rm tmp_file all_genomes.txt
         """
 
 
@@ -901,12 +929,12 @@ rule collect_kma:
         "log/benchmark/kma/collect_kma.txt"
     shell:
         """
-        echo -e "spacer\tgenome" > {output}
-        zcat {input} | cut -f 6,7 | cut -f 1 -d " " > tmp_file
-        while read line; do
-            match=$(echo $line | cut -f 2)
-            crispr=$(echo $line | cut -f 1 | cut -f 1,6,7,10,11 -d "_")
-            echo -e "$crispr\t$match" >> {output}
-        done < tmp_file
-        rm tmp_file
+echo -e "spacer\tgenome" > {output}
+zcat {input} | cut -f 6,7 | cut -f 1 -d " " > tmp_file
+while read line; do
+    match=$(echo $line | cut -f 2)
+    crispr=$(echo $line | cut -f 1 | cut -f 1,6,7,10,11 -d "_")
+    echo -e "$crispr\t$match" >> {output}
+done < tmp_file
+rm tmp_file
         """
