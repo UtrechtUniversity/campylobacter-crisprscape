@@ -1,0 +1,96 @@
+"""
+Author: Sam Nooij
+Organisation: Utrecht University
+Department: Clinical Infectiology (KLIF), Infectious Diseases & Immunology,
+  Biomolecular Health Sciences, Faculty of Veterinary Medicine
+Date: 2024-11-06
+
+Workflow for testing CRISPR analysis options
+In contrast to the 'regular' Snakefile workflow, which works
+per genome file, this workflow works per batch and runs GNU
+parallel to parallelise processing of the genomes within
+each batch.
+
+
+Input: Fasta files of Campylobacter whole-genomes
+Output: (various)
+
+Example use:
+    $ snakemake --profile config
+
+N.B. Variables are set in the configuration files under `config`.
+"""
+
+# Step 1: Load configuration
+# ---------------------------------------------------------
+
+configfile: Path("config/parameters.yaml")
+
+# Log messages
+onstart:
+    print("\n--- Starting analysis! ---\n")
+
+onsuccess:
+    print("\n --- Workflow finished! ---\n")
+
+onerror:
+    print("\n --- An error occurred! ---\n")
+
+# Step 2: Load rules that do the work
+# ---------------------------------------------------------
+include: "rules/helper_rules.smk"
+include: "rules/screen_crispr-cas.smk"
+include: "rules/refine_crispr-cas.smk"
+include: "rules/classify_genomes.smk"
+include: "rules/identify_defences.smk"
+include: "rules/map_spacers.smk"
+
+
+# Step 3: specify target outputs
+# ---------------------------------------------------------
+
+rule all:
+    input:
+        ## Extra outputs (non-CRISPR)
+        # Multilocus Sequence Types (ST) for Campylobacter
+        OUTPUT_DIR + "mlst_table.tsv",
+        # Virus and plasmid predictions per contig
+        OUTPUT_DIR + "genomad_predictions.csv",
+        OUTPUT_DIR + "jaeger_predictions.csv",
+        # Phage defence systems
+        OUTPUT_DIR + "padloc_table.csv",
+        ## CRISPR-related outputs: 1. pre-screening
+        # Concatenated CCTyper output (CRISPR arrays and spacers)
+        expand(
+            WORK_DIR + "cctyper/{batch}/{filename}-{batch}.tab",
+            batch=BATCHES,
+            filename=[
+                "CRISPR_Cas",
+                "crisprs_all",
+                "crisprs_near_cas",
+                "crisprs_orphan",
+                "cas_operons",
+            ],
+        ),
+        expand(WORK_DIR + "cctyper/{batch}/all_spacers-{batch}.fa", batch=BATCHES),
+        # CCTyper CRISPR spacer cluster analysis report
+        WORK_DIR + "cctyper/spacer_cluster_summary.tsv",
+        # Cluster unique CRISPR spacers
+        WORK_DIR + "cctyper/all_spacers-clustered.clstr",
+        OUTPUT_DIR + "all_spacers_table.tsv",
+        # CRISPR output 2. CRISPRidentify output (refinement)
+        expand(WORK_DIR + "crispridentify/{batch}/complete", batch=BATCHES),
+        # Concatenated CRISPRidentify output
+        WORK_DIR + "crispridentify/complete_summary.csv",
+        WORK_DIR + "crispridentify/all_spacers.fa",
+        WORK_DIR + "crispridentify/all_spacers-clustered.clstr",
+        OUTPUT_DIR + "all_spacers_table_identify.tsv",
+        # Merged CRISPRidentify and CCtyper output
+        OUTPUT_DIR + "all_CRISPRS_with_identify.tab",
+        # Spacepharer output (spacer targets, putative protospacers)
+        OUTPUT_DIR + "phage_matches.tsv",
+        OUTPUT_DIR + "plasmid_matches.tsv",
+        # KMA output (mapping spacers to input Campy genomes)
+        WORK_DIR + "kma/output/CRISPR.frag.gz",
+        WORK_DIR + "kma/CRISPR_alignment",
+    default_target: True
