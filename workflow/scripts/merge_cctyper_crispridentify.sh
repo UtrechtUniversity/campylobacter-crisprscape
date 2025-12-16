@@ -29,7 +29,7 @@ do
         start_cc=$(echo -e "${line}" | cut -f 3)
         start_id=$(expr "${start_cc}" + 1)
         match=$(grep "${sample}_${start_id}" tmp_file2 || true)
-        
+
         if [ -z "${match}" ]
         then
             echo -e "${line}" >> ${snakemak_output[table]}

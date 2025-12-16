@@ -193,7 +193,7 @@ rule kma:
     benchmark:
         "log/benchmark/kma/kma.txt"
     shell:
-        """     
+        """
 grep ">" {params.spacers} | cut -f 2 -d ">" | cut -f 1 -d "-" | sort -u > tmp_file
 find -L {input.genomes} -mindepth 1 -maxdepth 1 -type f -name "*.fa" > all_genomes.txt
 genomes=$(grep -x ".*[0-9]\\.fa" all_genomes.txt | grep -v -f tmp_file)
