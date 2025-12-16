@@ -2,12 +2,10 @@
 
 ### 1. Input/output parameters ###
 
-working_directory: "data/tmp/"
-output_directory: "data/processed/"
+genomad_database: "resources/genomad_db/"
+spacepharer_phage_database: "resources/phagescope/"
+spacepharer_plasmid_database: "resources/PLSDB/"
 
-genomad_database: "data/genomad_db/"
-spacepharer_phage_database: "data/raw/phagescope/"
-spacepharer_plasmid_database: "data/raw/PLSDB/"
 ### 2. Tool-specific parameters ###
 
 mlst:

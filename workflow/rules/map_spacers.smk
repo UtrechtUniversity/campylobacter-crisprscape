@@ -4,11 +4,11 @@
 
 rule spacepharer_spacer_setup:
     input:
-        spacers=WORK_DIR + "crispridentify/all_spacers.fa",
+        spacers="data/tmp/crispridentify/all_spacers.fa",
     output:
-        spacer_DB=WORK_DIR + "spacepharer/DB_CRISPR/querysetDB",
+        spacer_DB="data/tmp/spacepharer/DB_CRISPR/querysetDB",
     params:
-        tmp_folder=WORK_DIR + "spacepharer/tmpFolder",
+        tmp_folder=subpath("{output.spacer_DB}", parent=True),
     conda:
         "../envs/spacepharer.yaml"
     threads: 48
@@ -21,17 +21,18 @@ rule spacepharer_spacer_setup:
 spacer_DB=$(dirname {output.spacer_DB})
 rm -rf $spacer_DB/* > {log} 2>&1
 
-spacepharer createsetdb {input.spacers} {output.spacer_DB} {params.tmp_folder}\
- --extractorf-spacer 1 --threads {threads} >> {log} 2>&1
+spacepharer createsetdb {input.spacers} {output.spacer_DB}\
+ "{params.tmp_folder}/tmpFolder" --extractorf-spacer 1\
+ --threads {threads} >> {log} 2>&1
         """
 
 
 rule spacepharer_phage_setup:
     output:
-        phage_DB=WORK_DIR + "spacepharer/phage_DB/targetsetDB",
-        phage_control_DB=WORK_DIR + "spacepharer/phage_DB/controlsetDB",
+        phage_DB="data/tmp/spacepharer/phage_DB/targetsetDB",
+        phage_control_DB="data/tmp/spacepharer/phage_DB/controlsetDB",
     params:
-        tmp_folder=WORK_DIR + "spacepharer/tmpFolder",
+        tmp_folder=subpath("{output.phage_DB}", ancestor=2),
         DB=config["spacepharer_phage_database"] + "*.fasta",
     conda:
         "../envs/spacepharer.yaml"
@@ -45,23 +46,23 @@ rule spacepharer_phage_setup:
 phage_DB=$(dirname {output.phage_DB})
 rm -rf $phage_DB/* > {log} 2>&1
 
-spacepharer createsetdb {params.DB} {output.phage_DB} {params.tmp_folder}\
- --threads {threads} >> {log} 2>&1
+spacepharer createsetdb {params.DB} {output.phage_DB}\
+ "{params.tmp_folder}/tmpFolder" --threads {threads} >> {log} 2>&1
 spacepharer createsetdb {params.DB} {output.phage_control_DB}\
- {params.tmp_folder} --reverse-fragments 1 --threads {threads} >> {log} 2>&1
+ "{params.tmp_folder}/tmpFolder" --reverse-fragments 1 --threads {threads} >> {log} 2>&1
         """
 
 
 rule spacepharer_phage:
     input:
-        spacer_DB=WORK_DIR + "spacepharer/DB_CRISPR/querysetDB",
-        phage_DB=WORK_DIR + "spacepharer/phage_DB/targetsetDB",
-        phage_control_DB=WORK_DIR + "spacepharer/phage_DB/controlsetDB",
+        spacer_DB="data/tmp/spacepharer/DB_CRISPR/querysetDB",
+        phage_DB="data/tmp/spacepharer/phage_DB/targetsetDB",
+        phage_control_DB="data/tmp/spacepharer/phage_DB/controlsetDB",
     output:
-        result=WORK_DIR + "spacepharer/predicted_phage_matches.tsv",
-        result_sanitised=WORK_DIR + "spacepharer/predicted_phage_matches_san.tsv",
+        result="data/tmp/spacepharer/predicted_phage_matches.tsv",
+        result_sanitised="data/tmp/spacepharer/predicted_phage_matches_san.tsv",
     params:
-        tmp_folder=WORK_DIR + "spacepharer/tmpFolder",
+        tmp_folder="data/tmp/spacepharer/tmpFolder",
     conda:
         "../envs/spacepharer.yaml"
     threads: 48
@@ -84,10 +85,10 @@ rule spacepharer_plasmid_setup:
     input:
         DB=config["spacepharer_plasmid_database"] + "sequences.fasta",
     output:
-        DB=WORK_DIR + "spacepharer/plasmid_DB/targetsetDB",
-        control_DB=WORK_DIR + "spacepharer/plasmid_DB/controlsetDB",
+        DB="data/tmp/spacepharer/plasmid_DB/targetsetDB",
+        control_DB="data/tmp/spacepharer/plasmid_DB/controlsetDB",
     params:
-        tmp_folder=WORK_DIR + "spacepharer/tmpFolder",
+        tmp_folder="data/tmp/spacepharer/tmpFolder",
     conda:
         "../envs/spacepharer.yaml"
     threads: 48
@@ -109,14 +110,14 @@ spacepharer createsetdb {input.DB} {output.control_DB} {params.tmp_folder}\
 
 rule spacepharer_plasmid:
     input:
-        phage_DB=WORK_DIR + "spacepharer/plasmid_DB/targetsetDB",
-        phage_control_DB=WORK_DIR + "spacepharer/plasmid_DB/controlsetDB",
-        spacer_DB=WORK_DIR + "spacepharer/DB_CRISPR/querysetDB",
+        phage_DB="data/tmp/spacepharer/plasmid_DB/targetsetDB",
+        phage_control_DB="data/tmp/spacepharer/plasmid_DB/controlsetDB",
+        spacer_DB="data/tmp/spacepharer/DB_CRISPR/querysetDB",
     output:
-        result=WORK_DIR + "spacepharer/predicted_plasmid_matches.tsv",
-        result_sanitised=WORK_DIR + "spacepharer/predicted_plasmid_matches_san.tsv",
+        result="data/tmp/spacepharer/predicted_plasmid_matches.tsv",
+        result_sanitised="data/tmp/spacepharer/predicted_plasmid_matches_san.tsv",
     params:
-        tmp_folder=WORK_DIR + "spacepharer/tmpFolder",
+        tmp_folder="data/tmp/spacepharer/tmpFolder",
     conda:
         "../envs/spacepharer.yaml"
     threads: 48
@@ -137,13 +138,13 @@ rm -r {params.tmp_folder} >> {log} 2>&1
 
 rule create_spacepharer_table:
     input:
-        phage=WORK_DIR + "spacepharer/predicted_phage_matches_san.tsv",
+        phage="data/tmp/spacepharer/predicted_phage_matches_san.tsv",
         meta_phage=config["spacepharer_phage_database"],
-        plasmid=WORK_DIR + "spacepharer/predicted_plasmid_matches_san.tsv",
+        plasmid="data/tmp/spacepharer/predicted_plasmid_matches_san.tsv",
         meta_plasmid=config["spacepharer_plasmid_database"],
     output:
-        phage=OUTPUT_DIR + "phage_matches.tsv",
-        plasmid=OUTPUT_DIR + "plasmid_matches.tsv",
+        phage="data/processed/phage_matches.tsv",
+        plasmid="data/processed/plasmid_matches.tsv",
     threads: 1
     log:
         "log/create_spacepharer_table.txt",
@@ -156,11 +157,11 @@ rule create_spacepharer_table:
 
 rule kma_indexing:
     input:
-        spacers=WORK_DIR + "crispridentify/all_spacers.fa",
+        spacers="data/tmp/crispridentify/all_spacers.fa",
     output:
-        indexed_spacers=WORK_DIR + "kma/spacer_DB/spacers.name",
+        indexed_spacers="data/tmp/kma/spacer_DB/spacers.name",
     params:
-        WORK_DIR + "kma/spacer_DB/spacers",
+        "data/tmp/kma/spacer_DB/spacers",
     conda:
         "../envs/kma.yaml"
     threads: 12
@@ -176,14 +177,14 @@ kma index -i {input.spacers} -o {params} > {log} 2>&1
 
 rule kma:
     input:
-        genomes=expand(WORK_DIR + "assemblies/{batch}/", batch=BATCHES),
-        indexed_spacers=WORK_DIR + "kma/spacer_DB/spacers.name",
+        genomes=expand("data/tmp/assemblies/{batch}/", batch=BATCHES),
+        indexed_spacers="data/tmp/kma/spacer_DB/spacers.name",
     output:
-        WORK_DIR + "kma/output/CRISPR.frag.gz",
+        "data/tmp/kma/output/CRISPR.frag.gz",
     params:
-        output=WORK_DIR + "kma/output/CRISPR",
-        indexed_spacers=WORK_DIR + "kma/spacer_DB/spacers",
-        spacers=WORK_DIR + "crispridentify/all_spacers.fa",
+        output=subpath("{output}", parent=True),
+        indexed_spacers=subpath("{input.indexed_spacers}", parent=True),
+        spacers="data/tmp/crispridentify/all_spacers.fa",
     conda:
         "../envs/kma.yaml"
     threads: 24
@@ -197,16 +198,16 @@ grep ">" {params.spacers} | cut -f 2 -d ">" | cut -f 1 -d "-" | sort -u > tmp_fi
 find -L {input.genomes} -mindepth 1 -maxdepth 1 -type f -name "*.fa" > all_genomes.txt
 genomes=$(grep -x ".*[0-9]\\.fa" all_genomes.txt | grep -v -f tmp_file)
 
-kma -hmm -i $genomes -o {params.output} -t_db {params.indexed_spacers} > {log} 2>&1
+kma -hmm -i $genomes -o {params.output} -t_db "{params.indexed_spacers}/spacers" > {log} 2>&1
 rm tmp_file all_genomes.txt
         """
 
 
 rule collect_kma:
     input:
-        WORK_DIR + "kma/output/CRISPR.frag.gz",
+        "data/tmp/kma/output/CRISPR.frag.gz",
     output:
-        WORK_DIR + "kma/CRISPR_alignment",
+        "data/tmp/kma/CRISPR_alignment",
     log:
         "log/kma/collect_kma.txt",
     benchmark:

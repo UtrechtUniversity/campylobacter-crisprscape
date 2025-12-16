@@ -4,11 +4,11 @@
 
 rule crisprcastyper:
     input:
-        batch=WORK_DIR + "assemblies/{batch}/",
+        batch="data/tmp/assemblies/{batch}/",
     output:
-        WORK_DIR + "cctyper/{batch}/complete",
+        "data/tmp/cctyper/{batch}/complete",
     params:
-        out_dir=WORK_DIR + "cctyper/{batch}/",
+        out_dir=subpath("{output}", parent=True),
     conda:
         "../envs/cctyper.yaml"
     threads: config["cctyper"]["threads"]
@@ -29,9 +29,9 @@ touch {output}
 
 rule parse_cctyper:
     input:
-        WORK_DIR + "cctyper/{batch}/complete",
+        "data/tmp/cctyper/{batch}/complete",
     output:
-        WORK_DIR + "cctyper/{batch}/parsed",
+        "data/tmp/cctyper/{batch}/parsed",
     conda:
         "../envs/pandas.yaml"
     threads: config["parse_cctyper"]["threads"]
@@ -51,9 +51,9 @@ touch {output}
 
 rule extract_sequences:
     input:
-        WORK_DIR + "cctyper/{batch}/parsed",
+        "data/tmp/cctyper/{batch}/parsed",
     output:
-        WORK_DIR + "cctyper/{batch}/subseq",
+        "data/tmp/cctyper/{batch}/subseq",
     conda:
         "../envs/seqkit.yaml"
     threads: config["extract_sequences"]["threads"]
@@ -73,9 +73,9 @@ touch {output}
 
 rule concatenate_all_spacers:
     input:
-        expand(WORK_DIR + "cctyper/{batch}/all_spacers-{batch}.fa", batch=BATCHES),
+        expand("data/tmp/cctyper/{batch}/all_spacers-{batch}.fa", batch=BATCHES),
     output:
-        WORK_DIR + "cctyper/all_spacers.fa",
+        "data/tmp/cctyper/all_spacers.fa",
     threads: 1
     log:
         "log/concatenate_all_spacers.txt",
@@ -89,20 +89,20 @@ cat {input} > {output} 2> {log}
 
 rule cluster_all_spacers:
     input:
-        WORK_DIR + "cctyper/all_spacers.fa",
+        "data/tmp/cctyper/all_spacers.fa",
     output:
         clusters=expand(
-            WORK_DIR + "cctyper/all_spacers-clustered-{cutoff}.clstr",
+            "data/tmp/cctyper/all_spacers-clustered-{cutoff}.clstr",
             cutoff=[1, 0.96, 0.93, 0.9, 0.87, 0.84, 0.81],
         ),
         spacers=expand(
-            WORK_DIR + "cctyper/all_spacers-clustered-{cutoff}",
+            "data/tmp/cctyper/all_spacers-clustered-{cutoff}",
             cutoff=[1, 0.96, 0.93, 0.9, 0.87, 0.84, 0.81],
         ),
-        summary=WORK_DIR + "cctyper/spacer_cluster_summary.tsv",
+        summary="data/tmp/cctyper/spacer_cluster_summary.tsv",
     params:
-        WORK_DIR=WORK_DIR + "cctyper/",
-        log_dir="log/spacer_clustering/",
+        work_dir=subpath("{input}", parent=True),
+        log_dir=subpath("{log}", parent=True),
     conda:
         "../envs/cdhit.yaml"
     threads: 1
@@ -114,18 +114,18 @@ rule cluster_all_spacers:
         """
 bash workflow/scripts/cluster_all_spacers.sh\
     {input}\
-    {params.WORK_DIR}\
+    {params.work_dir}\
     {params.log_dir} > {log} 2>&1
         """
 
 
 rule cluster_unique_spacers:
     input:
-        WORK_DIR + "cctyper/all_spacers.fa",
+        "data/tmp/cctyper/all_spacers.fa",
     output:
-        clusters=WORK_DIR + "cctyper/all_spacers-clustered.clstr",
-        spacers=WORK_DIR + "cctyper/all_spacers-clustered",
-        distribution=WORK_DIR + "cctyper/all_spacers-clustered-distribution.tsv",
+        clusters="data/tmp/cctyper/all_spacers-clustered.clstr",
+        spacers="data/tmp/cctyper/all_spacers-clustered",
+        distribution="data/tmp/cctyper/all_spacers-clustered-distribution.tsv",
     conda:
         "../envs/cdhit.yaml"
     threads: 1
@@ -147,10 +147,10 @@ plot_len1.pl {output.clusters}\
 
 rule create_crispr_cluster_table:
     input:
-        clstr=WORK_DIR + "cctyper/all_spacers-clustered.clstr",
-        fasta=WORK_DIR + "cctyper/all_spacers.fa",
+        clstr="data/tmp/cctyper/all_spacers-clustered.clstr",
+        fasta="data/tmp/cctyper/all_spacers.fa",
     output:
-        OUTPUT_DIR + "all_spacers_table.tsv",
+        "data/processed/all_spacers_table.tsv",
     conda:
         "../envs/pyfaidx.yaml"
     threads: 1

@@ -3,7 +3,7 @@
 
 rule download_padloc_database:
     output:
-        WORK_DIR + "padloc/database",
+        "data/tmp/padloc/database",
     conda:
         "../envs/padloc.yaml"
     threads: 1
@@ -20,10 +20,10 @@ touch {output}
 
 rule padloc:
     input:
-        batch=WORK_DIR + "assemblies/{batch}/",
-        db=WORK_DIR + "padloc/database",
+        batch="data/tmp/assemblies/{batch}/",
+        db="data/tmp/padloc/database",
     output:
-        WORK_DIR + "padloc/{batch}/complete",
+        "data/tmp/padloc/{batch}/complete",
     conda:
         "../envs/padloc.yaml"
     threads: config["padloc"]["threads"]
@@ -43,9 +43,9 @@ touch {output}
 
 rule concatenate_padloc_batches:
     input:
-        WORK_DIR + "padloc/{batch}/complete",
+        "data/tmp/padloc/{batch}/complete",
     output:
-        WORK_DIR + "padloc/{batch}-concatenated.csv",
+        "data/tmp/padloc/{batch}-concatenated.csv",
     threads: config["padloc"]["threads"]
     log:
         "log/concatenate_padloc/{batch}.txt",
@@ -62,9 +62,9 @@ parallel --jobs {threads} --retry-failed --halt='now,fail=1'\
 
 rule concatenate_padloc_all:
     input:
-        expand(WORK_DIR + "padloc/{batch}-concatenated.csv", batch=BATCHES),
+        expand("data/tmp/padloc/{batch}-concatenated.csv", batch=BATCHES),
     output:
-        OUTPUT_DIR + "padloc_table.csv",
+        "data/processed/padloc_table.csv",
     threads: 1
     log:
         "log/concatenate_padloc_all.txt",

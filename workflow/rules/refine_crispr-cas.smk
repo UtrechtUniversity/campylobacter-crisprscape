@@ -3,12 +3,12 @@
 
 rule crispridentify:
     input:
-        WORK_DIR + "cctyper/{batch}/subseq",
+        "data/tmp/cctyper/{batch}/subseq",
     output:
-        WORK_DIR + "crispridentify/{batch}/complete",
+        "data/tmp/crispridentify/{batch}/complete",
     params:
-        out_dir=WORK_DIR + "crispridentify/{batch}",
-        arrays=WORK_DIR + "cctyper/{batch}",
+        out_dir=subpath("{output}", parent=True),
+        arrays=subpath("{input}", parent=True),
     conda:
         "../envs/crispridentify.yaml"
     threads: config["crispridentify"]["threads"]
@@ -32,21 +32,19 @@ touch ../../{output}
 
 rule merge_crispridentify_batches:
     input:
-        expand(WORK_DIR + "crispridentify/{batch}/complete", batch=BATCHES),
+        expand("data/tmp/crispridentify/{batch}/complete", batch=BATCHES),
     params:
         spacers_crispr=expand(
-            WORK_DIR
-            + "crispridentify/{batch}/CRISPR_arrays-with_flanks/Complete_spacer_dataset.fasta",
+            "data/tmp/crispridentify/{batch}/CRISPR_arrays-with_flanks/Complete_spacer_dataset.fasta",
             batch=BATCHES,
         ),
         summary_crispr=expand(
-            WORK_DIR
-            + "crispridentify/{batch}/CRISPR_arrays-with_flanks/Complete_summary.csv",
+            "data/tmp/crispridentify/{batch}/CRISPR_arrays-with_flanks/Complete_summary.csv",
             batch=BATCHES,
         ),
     output:
-        spacers_crispr=WORK_DIR + "crispridentify/all_spacers.fa",
-        summary_crispr=WORK_DIR + "crispridentify/complete_summary.csv",
+        spacers_crispr="data/tmp/crispridentify/all_spacers.fa",
+        summary_crispr="data/tmp/crispridentify/complete_summary.csv",
     threads: 1
     log:
         "log/merge_crispridentify_batches.txt",
@@ -58,12 +56,12 @@ rule merge_crispridentify_batches:
 
 rule merge_cctyper_identify:
     input:
-        identify=WORK_DIR + "crispridentify/complete_summary.csv",
+        identify="data/tmp/crispridentify/complete_summary.csv",
         cctyper=expand(
-            WORK_DIR + "cctyper/{batch}/crisprs_all-{batch}.tab", batch=BATCHES
+            "data/tmp/cctyper/{batch}/crisprs_all-{batch}.tab", batch=BATCHES
         ),
     output:
-        table=OUTPUT_DIR + "all_CRISPRS_with_identify.tab",
+        table="data/processed/all_CRISPRS_with_identify.tab",
     threads: 1
     log:
         "log/merge_cctyper_identify",
@@ -73,11 +71,11 @@ rule merge_cctyper_identify:
 
 rule cluster_unique_spacers_crispridentify:
     input:
-        WORK_DIR + "crispridentify/all_spacers.fa",
+        "data/tmp/crispridentify/all_spacers.fa",
     output:
-        clusters=WORK_DIR + "crispridentify/all_spacers-clustered.clstr",
-        spacers=WORK_DIR + "crispridentify/all_spacers-clustered",
-        distribution=WORK_DIR + "crispridentify/all_spacers-clustered-distribution.tsv",
+        clusters="data/tmp/crispridentify/all_spacers-clustered.clstr",
+        spacers="data/tmp/crispridentify/all_spacers-clustered",
+        distribution="data/tmp/crispridentify/all_spacers-clustered-distribution.tsv",
     conda:
         "../envs/cdhit.yaml"
     threads: 1
@@ -99,10 +97,10 @@ plot_len1.pl {output.clusters}\
 
 rule create_crispr_cluster_table_identify:
     input:
-        clstr=WORK_DIR + "crispridentify/all_spacers-clustered.clstr",
-        fasta=WORK_DIR + "crispridentify/all_spacers.fa",
+        clstr="data/tmp/crispridentify/all_spacers-clustered.clstr",
+        fasta="data/tmp/crispridentify/all_spacers.fa",
     output:
-        OUTPUT_DIR + "all_spacers_table_identify.tsv",
+        "data/processed/all_spacers_table_identify.tsv",
     conda:
         "../envs/pyfaidx.yaml"
     threads: 1
