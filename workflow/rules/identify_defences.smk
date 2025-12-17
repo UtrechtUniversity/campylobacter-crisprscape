@@ -20,7 +20,7 @@ touch {output}
 
 rule padloc:
     input:
-        batch="data/tmp/assemblies/{batch}/",
+        batch="resources/ATB/assemblies/{batch}/",
         db="data/tmp/padloc/database",
     output:
         "data/tmp/padloc/{batch}/complete",

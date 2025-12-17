@@ -3,7 +3,7 @@ from pathlib import Path
 
 # Use Python functions to automatically detect batches of genomes fasta files
 # in the input directory as 'BATCHES'
-BATCH_PATHS = list(Path("data/tmp/assemblies").glob("atb.assembly.*"))
+BATCH_PATHS = list(Path("resources/ATB/assemblies").glob("atb.assembly.*"))
 for batch in BATCH_PATHS:
     assert Path(batch).is_dir(), f"Batches must be directories, got {batch}"
 
@@ -15,9 +15,9 @@ BATCHES = [batch.name for batch in BATCH_PATHS]
 
 rule concatenate_batches:
     input:
-        "data/tmp/assemblies/{batch}",
+        "resources/ATB/assemblies/{batch}",
     output:
-        temp("data/tmp/assemblies/{batch}.fasta"),
+        temp("resources/ATB/assemblies/{batch}.fasta"),
     conda:
         "../envs/bash.yaml"
     threads: 1

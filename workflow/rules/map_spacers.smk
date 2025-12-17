@@ -197,7 +197,7 @@ kma index -i {input.spacers} -o {params} > {log} 2>&1
 
 rule kma:
     input:
-        genomes=expand("data/tmp/assemblies/{batch}/", batch=BATCHES),
+        genomes=expand("resources/ATB/assemblies/{batch}/", batch=BATCHES),
         indexed_spacers="data/tmp/kma/spacer_DB/spacers.name",
     output:
         "data/tmp/kma/output/CRISPR.frag.gz",

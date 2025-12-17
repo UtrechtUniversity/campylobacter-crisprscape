@@ -4,7 +4,7 @@
 
 rule crisprcastyper:
     input:
-        batch="data/tmp/assemblies/{batch}/",
+        batch="resources/ATB/assemblies/{batch}/",
     output:
         "data/tmp/cctyper/{batch}/complete",
     params:

@@ -22,7 +22,7 @@ claMLST import -r pubmlst --no-prompt {output} {params.species} > {log} 2>&1
 
 rule mlst:
     input:
-        batch="data/tmp/assemblies/{batch}/",
+        batch="resources/ATB/assemblies/{batch}/",
         db="data/tmp/mlst/campylobacter.db",
     output:
         "data/tmp/mlst/{batch}/complete",
@@ -90,7 +90,7 @@ sed --separate 1d ${{batches[@]}} >> {output}
 
 rule genomad:
     input:
-        fasta="data/tmp/assemblies/{batch}.fasta",
+        fasta="resources/ATB/assemblies/{batch}.fasta",
         db=config["genomad_database"],
     output:
         aggregated_classification="data/tmp/genomad/{batch}/{batch}_aggregated_classification/{batch}_aggregated_classification.tsv",
@@ -144,7 +144,7 @@ rule collect_genomad_predictions:
 
 rule jaeger:
     input:
-        batch="data/tmp/assemblies/{batch}/",
+        batch="resources/ATB/assemblies/{batch}/",
     output:
         "data/tmp/jaeger/{batch}/complete",
     conda:
