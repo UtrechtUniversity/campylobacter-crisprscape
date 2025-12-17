@@ -43,7 +43,7 @@ rule parse_cctyper:
         """
 find $(dirname {input}) -mindepth 1 -maxdepth 1 -type d -print0 |\
 parallel -0 --jobs {threads} --retry-failed --halt='now,fail=1'\
-    python worflow/scripts/cctyper_extender.py -d {{.}} > {log} 2>&1
+    python workflow/scripts/cctyper_extender.py -d {{.}} > {log} 2>&1
 
 touch {output}
         """
