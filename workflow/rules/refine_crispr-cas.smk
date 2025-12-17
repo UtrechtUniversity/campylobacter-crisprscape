@@ -45,6 +45,8 @@ rule merge_crispridentify_batches:
     output:
         spacers_crispr="data/tmp/crispridentify/all_spacers.fa",
         summary_crispr="data/tmp/crispridentify/complete_summary.csv",
+    conda:
+        "../envs/bash.yaml"
     threads: 1
     log:
         "log/merge_crispridentify_batches.txt",
@@ -62,6 +64,8 @@ rule merge_cctyper_identify:
         ),
     output:
         table="data/processed/all_CRISPRS_with_identify.tab",
+    conda:
+        "../envs/bash.yaml"
     threads: 1
     log:
         "log/merge_cctyper_identify",

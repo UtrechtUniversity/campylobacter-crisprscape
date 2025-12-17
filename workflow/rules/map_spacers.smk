@@ -31,6 +31,8 @@ rule download_spacepharer_databases:
     output:
         phage=config["spacepharer_phage_database"] + "*.fasta",
         plasmid=config["spacepharer_plasmid_database"] + "sequences.fasta",
+    conda:
+        "../envs/bash.yaml"
     threads: config["download_spacepharer_databases"]["threads"]
     log:
         "log/download_spacepharer_databases.txt",
@@ -161,6 +163,8 @@ rule create_spacepharer_table:
     params:
         meta_phage=config["spacepharer_phage_database"],
         meta_plasmid=config["spacepharer_plasmid_database"],
+    conda:
+        "../envs/bash.yaml"
     threads: 1
     log:
         "log/create_spacepharer_table.txt",
@@ -224,6 +228,8 @@ rule collect_kma:
         "data/tmp/kma/output/CRISPR.frag.gz",
     output:
         "data/tmp/kma/CRISPR_alignment",
+    conda:
+        "../envs/bash.yaml"
     threads: 1
     log:
         "log/kma/collect_kma.txt",

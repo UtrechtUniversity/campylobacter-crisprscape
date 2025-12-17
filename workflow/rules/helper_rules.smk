@@ -18,6 +18,8 @@ rule concatenate_batches:
         "data/tmp/assemblies/{batch}",
     output:
         temp("data/tmp/assemblies/{batch}.fasta"),
+    conda:
+        "../envs/bash.yaml"
     threads: 1
     log:
         "log/concatenate_{batch}.txt",

@@ -84,6 +84,8 @@ rule collect_cctyper:
         cas_putative="data/tmp/cctyper/{batch}/cas_operons_putative-{batch}.tab",
         cas="data/tmp/cctyper/{batch}/cas_operons-{batch}.tab",
         csv="data/tmp/cctyper/{batch}/CRISPR-Cas-{batch}.csv",
+    conda:
+        "../envs/bash.yaml"
     threads: 1
     log:
         "log/cctyper/collect_{batch}.txt",
@@ -104,6 +106,8 @@ rule concatenate_all_spacers:
         expand("data/tmp/cctyper/{batch}/all_spacers-{batch}.fa", batch=BATCHES),
     output:
         "data/tmp/cctyper/all_spacers.fa",
+    conda:
+        "../envs/bash.yaml"
     threads: 1
     log:
         "log/concatenate_all_spacers.txt",

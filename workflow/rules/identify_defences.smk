@@ -46,6 +46,8 @@ rule concatenate_padloc_batches:
         "data/tmp/padloc/{batch}/complete",
     output:
         "data/tmp/padloc/{batch}-concatenated.csv",
+    conda:
+        "../envs/bash.yaml"
     threads: config["padloc"]["threads"]
     log:
         "log/concatenate_padloc/{batch}.txt",
@@ -65,6 +67,8 @@ rule concatenate_padloc_all:
         expand("data/tmp/padloc/{batch}-concatenated.csv", batch=BATCHES),
     output:
         "data/processed/padloc_table.csv",
+    conda:
+        "../envs/bash.yaml"
     threads: 1
     log:
         "log/concatenate_padloc_all.txt",

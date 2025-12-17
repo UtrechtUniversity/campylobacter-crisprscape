@@ -48,6 +48,8 @@ rule concatenate_mlst_batches:
         "data/tmp/mlst/{batch}/complete",
     output:
         "data/tmp/mlst/{batch}-concatenated.tsv",
+    conda:
+        "../envs/bash.yaml"
     threads: config["mlst"]["threads"]
     log:
         "log/concatenate_mlst/{batch}.txt",
@@ -67,6 +69,8 @@ rule concatenate_mlst_all:
         expand("data/tmp/mlst/{batch}-concatenated.tsv", batch=BATCHES),
     output:
         "data/processed/mlst_table.tsv",
+    conda:
+        "../envs/bash.yaml"
     threads: 1
     log:
         "log/concatenate_mlst_all.txt",
@@ -183,6 +187,8 @@ rule collect_jaeger_predictions:
         expand("data/tmp/jaeger/{batch}/jaeger-{batch}.csv", batch=BATCHES),
     output:
         "data/processed/jaeger_predictions.csv",
+    conda:
+        "../envs/bash.yaml"
     threads: 1
     log:
         "log/collect_jaeger_predictions.txt",
