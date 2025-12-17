@@ -27,6 +27,21 @@ spacepharer createsetdb {input.spacers} {output.spacer_DB}\
         """
 
 
+rule download_spacepharer_databases:
+    output:
+        phage=config["spacepharer_phage_database"] + "*.fasta",
+        plasmid=config["spacepharer_plasmid_database"] + "sequences.fasta",
+    threads: config["download_spacepharer_databases"]["threads"]
+    log:
+        "log/download_spacepharer_databases.txt",
+    benchmark:
+        "log/benchmark/download_spacepharer_databases.txt"
+    shell:
+        """
+bash workflow/scripts/download_spacepharer_database.sh {threads} > {log} 2>&1
+        """
+
+
 rule spacepharer_phage_setup:
     output:
         phage_DB="data/tmp/spacepharer/phage_DB/targetsetDB",
@@ -36,7 +51,7 @@ rule spacepharer_phage_setup:
         DB=config["spacepharer_phage_database"] + "*.fasta",
     conda:
         "../envs/spacepharer.yaml"
-    threads: 48
+    threads: config["spacepharer"]["threads"]
     log:
         "log/spacepharer/spacepharer_phage_setup.txt",
     benchmark:
@@ -65,7 +80,7 @@ rule spacepharer_phage:
         tmp_folder="data/tmp/spacepharer/tmpFolder",
     conda:
         "../envs/spacepharer.yaml"
-    threads: 48
+    threads: config["spacepharer"]["threads"]
     log:
         "log/spacepharer/spacepharer_phage.txt",
     benchmark:
@@ -91,7 +106,7 @@ rule spacepharer_plasmid_setup:
         tmp_folder="data/tmp/spacepharer/tmpFolder",
     conda:
         "../envs/spacepharer.yaml"
-    threads: 48
+    threads: config["spacepharer"]["threads"]
     log:
         "log/spacepharer/spacepharer_plasmid_setup.txt",
     benchmark:
@@ -120,7 +135,7 @@ rule spacepharer_plasmid:
         tmp_folder="data/tmp/spacepharer/tmpFolder",
     conda:
         "../envs/spacepharer.yaml"
-    threads: 48
+    threads: config["spacepharer"]["threads"]
     log:
         "log/spacepharer/spacepharer_phage.txt",
     benchmark:
@@ -164,7 +179,7 @@ rule kma_indexing:
         "data/tmp/kma/spacer_DB/spacers",
     conda:
         "../envs/kma.yaml"
-    threads: 12
+    threads: config["kma"]["threads"]
     log:
         "log/kma/kma_index.txt",
     benchmark:
@@ -187,7 +202,7 @@ rule kma:
         spacers="data/tmp/crispridentify/all_spacers.fa",
     conda:
         "../envs/kma.yaml"
-    threads: 24
+    threads: config["kma"]["threads"]
     log:
         "log/kma/kma.txt",
     benchmark:
@@ -208,6 +223,7 @@ rule collect_kma:
         "data/tmp/kma/output/CRISPR.frag.gz",
     output:
         "data/tmp/kma/CRISPR_alignment",
+    threads: 1
     log:
         "log/kma/collect_kma.txt",
     benchmark:

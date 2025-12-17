@@ -35,3 +35,12 @@ jaeger:
 
 crispridentify:
   threads: 20
+
+download_spacepharer_databases:
+  threads: 4
+
+spacepharer:
+  threads: 20
+
+kma:
+  threads: 16

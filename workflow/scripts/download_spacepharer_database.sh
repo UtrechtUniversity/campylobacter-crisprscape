@@ -7,7 +7,7 @@
 ## Usage: download_spacepharer_database.sh [threads]
 ## [threads]: the amount of threads used for extracting and merging phagescope data. can at maximum use 14 threads, default is 1. 
 threads="${1:-"1"}"
-#PLSDB download
+# PLSDB download
 mkdir -p resources/PLSDB
 if  [ -f resources/PLSDB/download_meta.tar.gz ]; then
     echo "Already downloaded PLSDB, skipping..."
@@ -28,7 +28,7 @@ bzip2 -d resources/PLSDB/sequences.fasta.bz2
 echo "correcting metadata delims"
 sed -i -E ':a;s/"([^"]*),([^"]*)"/"\1\2"/g;ta' nuccore.csv
 
-#Phagescope download
+# Phagescope download
 mkdir -p resources/phagescope
 
 echo "Downloading Phagescope databases"
