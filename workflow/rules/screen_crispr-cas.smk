@@ -71,6 +71,34 @@ touch {output}
         """
 
 
+rule collect_cctyper:
+    input:
+        cctyper="data/tmp/cctyper/{batch}/complete",
+        parser="data/tmp/cctyper/{batch}/parsed",
+    output:
+        crispr_cas="data/tmp/cctyper/{batch}/CRISPR_Cas-{batch}.tab",
+        crisprs_all="data/tmp/cctyper/{batch}/crisprs_all-{batch}.tab",
+        crisprs_near_cas="data/tmp/cctyper/{batch}/crisprs_near_cas-{batch}.tab",
+        crisprs_orphan="data/tmp/cctyper/{batch}/crisprs_orphan-{batch}.tab",
+        spacers="data/tmp/cctyper/{batch}/all_spacers-{batch}.fa",
+        cas_putative="data/tmp/cctyper/{batch}/cas_operons_putative-{batch}.tab",
+        cas="data/tmp/cctyper/{batch}/cas_operons-{batch}.tab",
+        csv="data/tmp/cctyper/{batch}/CRISPR-Cas-{batch}.csv",
+    threads: 1
+    log:
+        "log/cctyper/collect_{batch}.txt",
+    benchmark:
+        "log/benchmark/cctyper/collect_{batch}.txt"
+    shell:
+        """
+bash workflow/scripts/concatenate_cctyper_output.sh $(dirname {input.cctyper}) > {log} 2>&1
+echo "\n========================" >> {log}
+bash workflow_scripts/concatenate_cctyper_csv.sh $(dirname {input.parser}) >> {log} 2>&1
+
+find $(dirname {input.cctyper}) -mindepth 3 -maxdepth 3 -name "*.fa" -exec cat {{}} + > {output.spacers} 2>> {log}
+        """
+
+
 rule concatenate_all_spacers:
     input:
         expand("data/tmp/cctyper/{batch}/all_spacers-{batch}.fa", batch=BATCHES),
