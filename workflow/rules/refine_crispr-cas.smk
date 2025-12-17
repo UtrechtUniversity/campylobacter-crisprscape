@@ -7,8 +7,8 @@ rule crispridentify:
     output:
         "data/tmp/crispridentify/{batch}/complete",
     params:
-        out_dir=subpath("{output}", parent=True),
-        arrays=subpath("{input}", parent=True),
+        out_dir=subpath(output[0], parent=True),
+        arrays=subpath(input[0], parent=True),
     conda:
         "../envs/crispridentify.yaml"
     threads: config["crispridentify"]["threads"]

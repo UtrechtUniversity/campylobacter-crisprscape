@@ -8,7 +8,7 @@ rule spacepharer_spacer_setup:
     output:
         spacer_DB="data/tmp/spacepharer/DB_CRISPR/querysetDB",
     params:
-        tmp_folder=subpath("{output.spacer_DB}", parent=True),
+        tmp_folder=subpath(output.spacer_DB, parent=True),
     conda:
         "../envs/spacepharer.yaml"
     threads: 48
@@ -32,7 +32,7 @@ rule spacepharer_phage_setup:
         phage_DB="data/tmp/spacepharer/phage_DB/targetsetDB",
         phage_control_DB="data/tmp/spacepharer/phage_DB/controlsetDB",
     params:
-        tmp_folder=subpath("{output.phage_DB}", ancestor=2),
+        tmp_folder=subpath(output.phage_DB, ancestor=2),
         DB=config["spacepharer_phage_database"] + "*.fasta",
     conda:
         "../envs/spacepharer.yaml"
@@ -182,8 +182,8 @@ rule kma:
     output:
         "data/tmp/kma/output/CRISPR.frag.gz",
     params:
-        output=subpath("{output}", parent=True),
-        indexed_spacers=subpath("{input.indexed_spacers}", parent=True),
+        output=subpath(output[0], parent=True),
+        indexed_spacers=subpath(input.indexed_spacers, parent=True),
         spacers="data/tmp/crispridentify/all_spacers.fa",
     conda:
         "../envs/kma.yaml"

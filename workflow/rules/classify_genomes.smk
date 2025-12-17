@@ -93,7 +93,7 @@ rule genomad:
         plasmid_summary="data/tmp/genomad/{batch}/{batch}_summary/{batch}_plasmid_summary.tsv",
         virus_summary="data/tmp/genomad/{batch}/{batch}_summary/{batch}_virus_summary.tsv",
     params:
-        work_dir=subpath("{output.aggregated_classification}", ancestor=2),
+        work_dir=subpath(output.aggregated_classification, ancestor=2),
     conda:
         "../envs/genomad.yaml"
     threads: config["genomad"]["threads"]

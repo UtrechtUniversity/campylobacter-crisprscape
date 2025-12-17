@@ -8,7 +8,7 @@ rule crisprcastyper:
     output:
         "data/tmp/cctyper/{batch}/complete",
     params:
-        out_dir=subpath("{output}", parent=True),
+        out_dir=subpath(output[0], parent=True),
     conda:
         "../envs/cctyper.yaml"
     threads: config["cctyper"]["threads"]
@@ -101,8 +101,8 @@ rule cluster_all_spacers:
         ),
         summary="data/tmp/cctyper/spacer_cluster_summary.tsv",
     params:
-        work_dir=subpath("{input}", parent=True),
-        log_dir=subpath("{log}", parent=True),
+        work_dir=subpath(input[0], parent=True),
+        log_dir="log/spacer_clustering",
     conda:
         "../envs/cdhit.yaml"
     threads: 1
