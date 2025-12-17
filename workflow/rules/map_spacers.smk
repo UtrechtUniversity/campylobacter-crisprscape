@@ -154,12 +154,13 @@ rm -r {params.tmp_folder} >> {log} 2>&1
 rule create_spacepharer_table:
     input:
         phage="data/tmp/spacepharer/predicted_phage_matches_san.tsv",
-        meta_phage=config["spacepharer_phage_database"],
         plasmid="data/tmp/spacepharer/predicted_plasmid_matches_san.tsv",
-        meta_plasmid=config["spacepharer_plasmid_database"],
     output:
         phage="data/processed/phage_matches.tsv",
         plasmid="data/processed/plasmid_matches.tsv",
+    params:
+        meta_phage=config["spacepharer_phage_database"],
+        meta_plasmid=config["spacepharer_plasmid_database"],
     threads: 1
     log:
         "log/create_spacepharer_table.txt",
