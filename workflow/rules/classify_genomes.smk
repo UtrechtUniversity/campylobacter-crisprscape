@@ -111,7 +111,7 @@ genomad end-to-end -t {threads} --cleanup --enable-score-calibration\
 rule collect_genomad_predictions:
     input:
         aggregated_classification=expand(
-            "data/tmpgenomad/{batch}/{batch}_aggregated_classification/{batch}_aggregated_classification.tsv",
+            "data/tmp/genomad/{batch}/{batch}_aggregated_classification/{batch}_aggregated_classification.tsv",
             batch=BATCHES,
         ),
         plasmid_summary=expand(
