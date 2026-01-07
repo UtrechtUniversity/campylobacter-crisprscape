@@ -68,7 +68,9 @@ rule merge_cctyper_identify:
         "../envs/bash.yaml"
     threads: 1
     log:
-        "log/merge_cctyper_identify",
+        "log/merge_cctyper_identify.txt",
+    benchmark:
+        "log/benchmark/merge_cctyper_identify.txt"
     script:
         "../scripts/merge_cctyper_crispridentify.sh"
 
