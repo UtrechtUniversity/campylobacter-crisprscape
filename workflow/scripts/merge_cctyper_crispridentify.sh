@@ -1,10 +1,12 @@
 #!/usr/bin/env bash
 set -euo pipefail
-IFS=$'\n\t'
+
+exec 2> "${snakemake_log[0]}" # send all stderr to the log file
+
+cctyper=(${snakemake_input[cctyper]})
 
 first=True
-# For each CCTyper CRISPRs file...
-for summary in ${snakemake_input[cctyper]}
+for summary in "${cctyper[@]}"
 do
     # If it is the first, copy the whole file (including header)
     if [ "${first}" == True ]

@@ -21,8 +21,8 @@ rule crispridentify:
 cd bin/CRISPRidentify
 
 find ../../{params.arrays}/*/fasta/CRISPR_arrays-with_flanks.fasta -size +0c -print0 |\
-parallel -0 --jobs {threads} --retry-failed --halt='now,fail=1'\
-'python CRISPRidentify.py --file {{}}\
+ parallel -0 --jobs {threads} --retry-failed --halt='now,fail,1'\
+ 'python CRISPRidentify.py --file {{}}\
  --result_folder "../../{params.out_dir}/{{/.}}"\
  --fasta_report True --strand False' > ../../{log} 2>&1
 
@@ -32,8 +32,7 @@ touch ../../{output}
 
 rule merge_crispridentify_batches:
     input:
-        expand("data/tmp/crispridentify/{batch}/complete", batch=BATCHES),
-    params:
+        flag=expand("data/tmp/crispridentify/{batch}/complete", batch=BATCHES),
         spacers_crispr=expand(
             "data/tmp/crispridentify/{batch}/CRISPR_arrays-with_flanks/Complete_spacer_dataset.fasta",
             batch=BATCHES,
@@ -53,7 +52,7 @@ rule merge_crispridentify_batches:
     benchmark:
         "log/benchmark/merge_crispridentify_batches.txt"
     script:
-        "../scripts/merge_identify_batches.sh"
+        "../scripts/merge_crispridentify_batches.sh"
 
 
 rule merge_cctyper_identify:
@@ -108,7 +107,7 @@ rule create_crispr_cluster_table_identify:
     output:
         "data/processed/all_spacers_table_identify.tsv",
     conda:
-        "../envs/pyfaidx.yaml"
+        "../envs/pyfaidx_pandas.yaml"
     threads: 1
     log:
         "log/create_crispr_cluster_table_identify.txt",

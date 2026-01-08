@@ -184,7 +184,7 @@ rule create_crispr_cluster_table:
     output:
         "data/processed/all_spacers_table.tsv",
     conda:
-        "../envs/pyfaidx.yaml"
+        "../envs/pyfaidx_pandas.yaml"
     threads: 1
     log:
         "log/create_crispr_cluster_table.txt",

@@ -1,4 +1,4 @@
-name: pyfaidx
+name: pyfaidx_pandas
 
 channels:
  - conda-forge
@@ -6,3 +6,4 @@ channels:
 
 dependencies:
  - pyfaidx=0.8.1.3
+ - pandas=2.2.3

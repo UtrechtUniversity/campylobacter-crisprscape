@@ -1,101 +1,147 @@
 #!/usr/bin/env python3
 
-## This is a slightly adjusted script from bin/make_cluster_table.py as the identify input is different.
+################################################################
+# Read CD-HIT's output cluster file, along with the FASTA used #
+# to generate it to create a table of clustered sequences.     #
+# - Aim of the program:                                        #
+#   1) read the cluster file                                   #
+#      a) create a cluster-based dictionary (cluster #,        #
+#         representative)                                      #
+#      b) create a sequence-based dictionary (ID, length,      #
+#         representative or % identity and strand)             #
+#   2) combine the two dictionaries into a dataframe with      #
+#       columns: genome, contig, locus, cluster ID, length,    #
+#       longest_sequence (CD-HIT representative), sequence,    #
+#       identity (%), strand                                   #
+#   3) for each cluster, also mark the shortest and most common#
+#       sequence (as alternative representatives)              #
+#   4) write the dataframe to a tab-separated table file       #
+################################################################
+
+## This is a slightly adjusted script from make_cluster_table.py as the CRISPRidentify output is different.
 
 import re
 from pyfaidx import Fasta
+import pandas as pd
 
 cluster_file = snakemake.input["clstr"]
 fasta_file = snakemake.input["fasta"]
 table_file = snakemake.output[0]
 
 
-def read_clusters(clstr, table, fasta):
+def read_clstr_file(inputfile=str):
     """
-    Read a CD-HIT generated file of clusters and the fasta file that was
-    used by CD-HIT to generate a tab-separated report of the clusters.
-
-        clstr: the CD-HIT output file with .clstr extensin
-        table: output file to write tab-separated output file to
-        fasta: fasta file with input sequences
+    Read a CD-HIT generated .clstr file and parse its elements into
+     two dictionaries: 1) cluster ID + representative (locus ID),
+                       2) sequences (locus ID) with length and
+                        representative/identity
     """
-    sequence_dict = find_sequences(fasta)
+    cluster_dict = {"Cluster": [], "Longest_sequence": []}
+    locus_dict = {
+        "Genome": [],
+        "Contig": [],
+        "Locus": [],
+        "Full_locus": [],
+        "Length": [],
+        "Cluster": [],
+        "Strand_to_longest": [],
+        "Identity_to_longest": [],
+    }
 
-    HEADER = "Genome\tContig\tLocus\tCluster\tLength\tCluster_representative\tSequence\tIdentity\tStrand\n"
     cluster_regex = r"(>Cluster *)(\d*)"
-    locus_regex = r"^(\d+)\s+(\d+nt), >(\w+).(contig[\d]+_.+)\.\.\. (.*)$"
+    locus_regex = r"^(\d+)\s+(\d+nt), >(\w+).(contig[\d-]+_.+)\.\.\. (.*)$"
 
-    with open(table, "w") as outfile:
-        outfile.write(HEADER)
+    with open(inputfile, "r") as infile:
+        for line in infile:
+            line = line.strip()  # Remove funny characters
 
-        with open(clstr, "r") as infile:
-            for line in infile:
-                line = line.strip()
+            if line.startswith(">"):
+                # Extract the digits from the cluster ID
+                cluster = re.search(cluster_regex, line).group(2)
 
-                if line.startswith(">"):
-                    # Extract the digits from the cluster ID
-                    cluster = re.search(cluster_regex, line).group(2)
+            elif len(line) > 1:
+                # Use RegEx to extract information
+                crispr_info = re.search(locus_regex, line)
 
-                elif len(line) > 1:
-                    # Use RegEx to extract information
-                    crispr_info = re.search(locus_regex, line)
+                member_nr = crispr_info.group(1)  # not used
+                length = int(crispr_info.group(2).rstrip("nt"))
+                genome = crispr_info.group(3)
+                locus = crispr_info.group(4)
+                full_locus = f"{genome}-{locus}"
+                contig = locus.split("_")[0]
+                extra = crispr_info.group(5)
 
-                    member_nr = crispr_info.group(1)  # not used
-                    length = crispr_info.group(2)
-                    genome = crispr_info.group(3)
-                    locus = crispr_info.group(4)
-                    full_locus = "%s-%s" % (genome, locus)
-                    contig = locus.split("_")[0]
-                    crispr = locus.split("_")[6]
-                    spacer = locus.split("_")[10]
-                    full_locus_readable = "%s-%s_%s:%s" % (
-                        genome,
-                        contig,
-                        crispr,
-                        spacer,
-                    )
-                    extra = crispr_info.group(5)
+                # Check the final group for representative ('*') or other
+                if extra == "*":
+                    strand = "NA"
+                    identity = "NA"
+                    cluster_dict["Cluster"].append(cluster)
+                    cluster_dict["Longest_sequence"].append(full_locus)
 
-                    sequence = sequence_dict[full_locus]
-
-                    # Check the final group for representative ('*') or other
-                    if extra == "*":
-                        representative = full_locus_readable
-                        strand = "NA"
-                        identity = "NA"
-                    else:
-                        strand_and_identity = extra.split("/")
-                        strand = strand_and_identity[0].replace("at ", "")
-                        identity = strand_and_identity[1]
-
-                    # Write the information to the output file
-                    crispr_line = "%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n" % (
-                        genome,
-                        contig,
-                        full_locus_readable,
-                        cluster,
-                        length,
-                        representative,
-                        sequence,
-                        identity,
-                        strand,
-                    )
-                    outfile.write(crispr_line)
-
-                # If the line does not start with '>' or have length > 1, stop
                 else:
-                    break
+                    strand_and_identity = extra.split("/")
+                    strand = strand_and_identity[0].replace("at ", "")
+                    identity = strand_and_identity[1]
+
+                locus_dict["Genome"].append(genome)
+                locus_dict["Contig"].append(contig)
+                locus_dict["Locus"].append(locus)
+                locus_dict["Full_locus"].append(full_locus)
+                locus_dict["Length"].append(length)
+                locus_dict["Cluster"].append(cluster)
+                locus_dict["Strand_to_longest"].append(strand)
+                locus_dict["Identity_to_longest"].append(identity)
+
+            # If the line does not start with '>' or have length > 1, stop
+            else:
+                break
+
+        return cluster_dict, locus_dict
+
+
+def generate_sequence_df(fasta=str, ids=list):
+    """
+    Given a fasta file and list of identifiers, create a dataframe
+    of DNA sequences that can be merged with the cluster/locus dataframe.
+    """
+    sequence_dict = Fasta(fasta, duplicate_action="first")
+    sequence_list = []
+    for locus in ids:
+        sequence_list.append(sequence_dict[locus][:].seq)
+
+    return pd.DataFrame({"Full_locus": ids, "Sequence": sequence_list})
+
+
+def main():
+    """
+    Main function, running the whole script.
+    """
+    # Read clstr file, store as dictionaries
+    cluster_dict, locus_dict = read_clstr_file(inputfile=cluster_file)
+
+    # Convert dictionaries to dataframes
+    cluster_df = pd.DataFrame(cluster_dict)
+    locus_df = pd.DataFrame(locus_dict)
+
+    # Merge dataframes
+    combined_df = locus_df.merge(cluster_df, how="inner", on="Cluster")
+
+    # Add sequences
+    sequence_df = generate_sequence_df(fasta=fasta_file, ids=locus_df["Full_locus"])
+
+    combined_with_sequences = combined_df.merge(
+        sequence_df, how="inner", on="Full_locus"
+    )
+
+    ## Not yet implemented:
+    # Find shortest sequence per cluster
+    # Find most common sequence per cluster
+
+    # Save as tab-separated text file
+    combined_with_sequences.to_csv(table_file, sep="\t", index=False)
 
     return 0
 
 
-def find_sequences(fasta_file):
-    """
-    Look up the DNA sequence in a fasta file and return as dictionary.
-    """
-    sequence_dict = Fasta(fasta_file, duplicate_action="first")
-    return sequence_dict
-
-
 if __name__ == "__main__":
-    exit(read_clusters(clstr=cluster_file, table=table_file, fasta=fasta_file))
+    exit(main())
