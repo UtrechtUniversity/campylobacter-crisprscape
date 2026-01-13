@@ -1,13 +1,5 @@
 # Snakemake config file for CRISPR screening workflow
 
-### 1. Input/output parameters ###
-
-genomad_database: "resources/genomad_db/"
-spacepharer_phage_database: "resources/phagescope/"
-spacepharer_plasmid_database: "resources/PLSDB/"
-
-### 2. Tool-specific parameters ###
-
 mlst:
   threads: 20
   species: "campylobacter jejuni/coli"

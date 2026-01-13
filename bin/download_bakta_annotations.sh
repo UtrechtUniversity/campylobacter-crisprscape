@@ -6,7 +6,7 @@ IFS=$'\n'
 
 part=${1:-"update"}
 atb_dir=${2:-"resources/ATB/"}
-output_dir="${work_dir}archives/"
+output_dir="${atb_dir}archives/"
 
 if [ "${part}" == "update" ]
 then

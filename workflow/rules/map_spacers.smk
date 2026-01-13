@@ -4,9 +4,9 @@
 
 rule spacepharer_spacer_setup:
     input:
-        spacers="data/tmp/crispridentify/all_spacers.fa",
+        spacers="results/crispridentify/all_spacers.fa",
     output:
-        spacer_DB="data/tmp/spacepharer/DB_CRISPR/querysetDB",
+        spacer_DB="results/spacepharer/DB_CRISPR/querysetDB",
     params:
         tmp_folder=subpath(output.spacer_DB, parent=True),
     conda:
@@ -29,8 +29,24 @@ spacepharer createsetdb {input.spacers} {output.spacer_DB}\
 
 rule download_spacepharer_databases:
     output:
-        phage=config["spacepharer_phage_database"] + "*.fasta",
-        plasmid=config["spacepharer_plasmid_database"] + "sequences.fasta",
+        phage_fasta=expand(
+            "resources/phagescope/{database}.fasta",
+            database=[
+                "DDBJ",
+                "EMBL",
+                "Genbank",
+                "GPD",
+                "GVD",
+                "MGV",
+                "PhagesDB",
+                "RefSeq",
+                "TemPhD",
+            ],
+        ),
+        phage_meta="resources/phagescope/merged_metadata.tsv",
+        plasmid_fasta="resources/PLSDB/sequences.fasta",
+        plasmid_nuccore="resources/PLSDB/nuccore.csv",
+        plasmid_taxonomy="resources/PLSDB/taxonomy.csv",
     conda:
         "../envs/bash.yaml"
     threads: config["download_spacepharer_databases"]["threads"]
@@ -45,12 +61,26 @@ bash workflow/scripts/download_spacepharer_database.sh {threads} > {log} 2>&1
 
 
 rule spacepharer_phage_setup:
+    input:
+        db=collect(
+            "resources/phagescope/{database}.fasta",
+            database=[
+                "DDBJ",
+                "EMBL",
+                "Genbank",
+                "GPD",
+                "GVD",
+                "MGV",
+                "PhagesDB",
+                "RefSeq",
+                "TemPhD",
+            ],
+        ),
     output:
-        phage_DB="data/tmp/spacepharer/phage_DB/targetsetDB",
-        phage_control_DB="data/tmp/spacepharer/phage_DB/controlsetDB",
+        phage_DB="results/spacepharer/phage_DB/targetsetDB",
+        phage_control_DB="results/spacepharer/phage_DB/controlsetDB",
     params:
         tmp_folder=subpath(output.phage_DB, ancestor=2),
-        DB=config["spacepharer_phage_database"] + "*.fasta",
     conda:
         "../envs/spacepharer.yaml"
     threads: config["spacepharer"]["threads"]
@@ -63,23 +93,23 @@ rule spacepharer_phage_setup:
 phage_DB=$(dirname {output.phage_DB})
 rm -rf $phage_DB/* > {log} 2>&1
 
-spacepharer createsetdb {params.DB} {output.phage_DB}\
+spacepharer createsetdb {input.db} {output.phage_DB}\
  "{params.tmp_folder}/tmpFolder" --threads {threads} >> {log} 2>&1
-spacepharer createsetdb {params.DB} {output.phage_control_DB}\
+spacepharer createsetdb {input.db} {output.phage_control_DB}\
  "{params.tmp_folder}/tmpFolder" --reverse-fragments 1 --threads {threads} >> {log} 2>&1
         """
 
 
 rule spacepharer_phage:
     input:
-        spacer_DB="data/tmp/spacepharer/DB_CRISPR/querysetDB",
-        phage_DB="data/tmp/spacepharer/phage_DB/targetsetDB",
-        phage_control_DB="data/tmp/spacepharer/phage_DB/controlsetDB",
+        spacer_DB="results/spacepharer/DB_CRISPR/querysetDB",
+        phage_DB="results/spacepharer/phage_DB/targetsetDB",
+        phage_control_DB="results/spacepharer/phage_DB/controlsetDB",
     output:
-        result="data/tmp/spacepharer/predicted_phage_matches.tsv",
-        result_sanitised="data/tmp/spacepharer/predicted_phage_matches_san.tsv",
+        result="results/spacepharer/predicted_phage_matches.tsv",
+        result_sanitised="results/spacepharer/predicted_phage_matches_san.tsv",
     params:
-        tmp_folder="data/tmp/spacepharer/tmpFolder",
+        tmp_folder="results/spacepharer/tmpFolder",
     conda:
         "../envs/spacepharer.yaml"
     threads: config["spacepharer"]["threads"]
@@ -100,12 +130,12 @@ rm -r {params.tmp_folder} >> {log} 2>&1
 
 rule spacepharer_plasmid_setup:
     input:
-        DB=config["spacepharer_plasmid_database"] + "sequences.fasta",
+        db="resources/PLSDB/sequences.fasta",
     output:
-        DB="data/tmp/spacepharer/plasmid_DB/targetsetDB",
-        control_DB="data/tmp/spacepharer/plasmid_DB/controlsetDB",
+        DB="results/spacepharer/plasmid_DB/targetsetDB",
+        control_DB="results/spacepharer/plasmid_DB/controlsetDB",
     params:
-        tmp_folder="data/tmp/spacepharer/tmpFolder",
+        tmp_folder="results/spacepharer/tmpFolder",
     conda:
         "../envs/spacepharer.yaml"
     threads: config["spacepharer"]["threads"]
@@ -118,23 +148,23 @@ rule spacepharer_plasmid_setup:
 plasmid_DB=$(dirname {output.DB})
 rm -f $plasmid_DB/* > {log} 2>&1
 
-spacepharer createsetdb {input.DB} {output.DB} {params.tmp_folder}\
+spacepharer createsetdb {input.db} {output.DB} {params.tmp_folder}\
  --threads {threads} >> {log} 2>&1
-spacepharer createsetdb {input.DB} {output.control_DB} {params.tmp_folder}\
+spacepharer createsetdb {input.db} {output.control_DB} {params.tmp_folder}\
  --reverse-fragments 1 --threads {threads} >> {log} 2>&1
         """
 
 
 rule spacepharer_plasmid:
     input:
-        phage_DB="data/tmp/spacepharer/plasmid_DB/targetsetDB",
-        phage_control_DB="data/tmp/spacepharer/plasmid_DB/controlsetDB",
-        spacer_DB="data/tmp/spacepharer/DB_CRISPR/querysetDB",
+        phage_DB="results/spacepharer/plasmid_DB/targetsetDB",
+        phage_control_DB="results/spacepharer/plasmid_DB/controlsetDB",
+        spacer_DB="results/spacepharer/DB_CRISPR/querysetDB",
     output:
-        result="data/tmp/spacepharer/predicted_plasmid_matches.tsv",
-        result_sanitised="data/tmp/spacepharer/predicted_plasmid_matches_san.tsv",
+        result="results/spacepharer/predicted_plasmid_matches.tsv",
+        result_sanitised="results/spacepharer/predicted_plasmid_matches_san.tsv",
     params:
-        tmp_folder="data/tmp/spacepharer/tmpFolder",
+        tmp_folder="results/spacepharer/tmpFolder",
     conda:
         "../envs/spacepharer.yaml"
     threads: config["spacepharer"]["threads"]
@@ -155,14 +185,14 @@ rm -r {params.tmp_folder} >> {log} 2>&1
 
 rule create_spacepharer_table:
     input:
-        phage="data/tmp/spacepharer/predicted_phage_matches_san.tsv",
-        plasmid="data/tmp/spacepharer/predicted_plasmid_matches_san.tsv",
+        phage="results/spacepharer/predicted_phage_matches_san.tsv",
+        phage_meta="resources/phagescope/merged_metadata.tsv",
+        plasmid="results/spacepharer/predicted_plasmid_matches_san.tsv",
+        plasmid_nuccore="resources/PLSDB/nuccore.csv",
+        plasmid_taxonomy="resources/PLSDB/taxonomy.csv",
     output:
-        phage="data/processed/phage_matches.tsv",
-        plasmid="data/processed/plasmid_matches.tsv",
-    params:
-        meta_phage=config["spacepharer_phage_database"],
-        meta_plasmid=config["spacepharer_plasmid_database"],
+        phage="results/phage_matches.tsv",
+        plasmid="results/plasmid_matches.tsv",
     conda:
         "../envs/bash.yaml"
     threads: 1
@@ -177,11 +207,11 @@ rule create_spacepharer_table:
 
 rule kma_indexing:
     input:
-        spacers="data/tmp/crispridentify/all_spacers.fa",
+        spacers="results/crispridentify/all_spacers.fa",
     output:
-        indexed_spacers="data/tmp/kma/spacer_DB/spacers.name",
+        indexed_spacers="results/kma/spacer_DB/spacers.name",
     params:
-        "data/tmp/kma/spacer_DB/spacers",
+        "results/kma/spacer_DB/spacers",
     conda:
         "../envs/kma.yaml"
     threads: config["kma"]["threads"]
@@ -198,13 +228,13 @@ kma index -i {input.spacers} -o {params} > {log} 2>&1
 rule kma:
     input:
         genomes=expand("resources/ATB/assemblies/{batch}/", batch=BATCHES),
-        indexed_spacers="data/tmp/kma/spacer_DB/spacers.name",
+        indexed_spacers="results/kma/spacer_DB/spacers.name",
     output:
-        "data/tmp/kma/output/CRISPR.frag.gz",
+        "results/kma/output/CRISPR.frag.gz",
     params:
         output=subpath(output[0], parent=True),
         indexed_spacers=subpath(input.indexed_spacers, parent=True),
-        spacers="data/tmp/crispridentify/all_spacers.fa",
+        spacers="results/crispridentify/all_spacers.fa",
     conda:
         "../envs/kma.yaml"
     threads: config["kma"]["threads"]
@@ -225,9 +255,9 @@ rm tmp_file all_genomes.txt
 
 rule collect_kma:
     input:
-        "data/tmp/kma/output/CRISPR.frag.gz",
+        "results/kma/output/CRISPR.frag.gz",
     output:
-        "data/tmp/kma/CRISPR_alignment",
+        "results/kma/CRISPR_alignment",
     conda:
         "../envs/bash.yaml"
     threads: 1

@@ -7,7 +7,7 @@
 echo -e "sample_accession\tphage_accession\tp_best_hit\tspacer_start\tspacer_end\tphage_start\tphage_end\t5_3_PAM\t3_5_PAM\tLength\tGC_content\ttaxonomy\tcompleteness\thost\tlifestyle" > ${snakemake_output[phage]}
 while read line; do
     ID=$(echo $line | cut -f 2)
-    metadata_match=$(grep -w "$ID" ${snakemake_params[meta_phage]}/merged_metadata.tsv | cut -f 2-7)
+    metadata_match=$(grep -w "$ID" "${snakemake_input[phage_meta]}" | cut -f 2-7)
     echo -e "$line\t$metadata_match" >> ${snakemake_output[phage]}
 done < ${snakemake_input[phage]}
 
@@ -16,7 +16,7 @@ echo -e "sample_accession\tphage_accession\tp_best_hit\tspacer_start\tspacer_end
 while read line; do
     ID=$(echo $line | cut -f 2)
     #PLSDB uses a metadata system where there are many different files for differing purposes. taxonomy.csv uses a different ID so the taxonomy ID needs to be collected from nuccore and then matched to taxonomy
-    nuccore_match=$(grep -w "$ID" ${snakemake_params[meta_plasmid]}/nuccore.csv | cut -f 13 -d ",")
-    taxonomy_match=$(grep -w "^$nuccore_match" ${snakemake_params[meta_plasmid]}/taxonomy.csv | cut -f 3 -d ",")
+    nuccore_match=$(grep -w "$ID" "${snakemake_input[plasmid_nuccore]}" | cut -f 13 -d ",")
+    taxonomy_match=$(grep -w "^$nuccore_match" "${snakemake_input[plasmid_taxonomy]}" | cut -f 3 -d ",")
     echo -e "$line\t$taxonomy_match" >> ${snakemake_output[plasmid]}
 done < ${snakemake_input[plasmid]}

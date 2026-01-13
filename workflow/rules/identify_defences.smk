@@ -3,7 +3,14 @@
 
 rule download_padloc_database:
     output:
-        "data/tmp/padloc/database",
+        directory=directory("resources/padloc_db"),
+        cm=directory("resources/padloc_db/cm"),
+        cm_meta="resources/padloc_db/cm_meta.txt",
+        hmm=directory("resources/padloc_db/hmm"),
+        hmm_meta="resources/padloc_db/hmm_meta.txt",
+        sys=directory("resources/padloc_db/sys"),
+        sys_meta="resources/padloc_db/sys_meta.txt",
+        system_info="resources/padloc_db/system_info.md",
     conda:
         "../envs/padloc.yaml"
     threads: 1
@@ -13,17 +20,16 @@ rule download_padloc_database:
         "log/benchmark/download_padloc_database.txt"
     shell:
         """
-padloc --db-install v2.0.0 > {log} 2>&1
-touch {output}
+padloc --data resources/padloc_db --db-install v2.0.0 > {log} 2>&1
         """
 
 
 rule padloc:
     input:
         batch="resources/ATB/assemblies/{batch}/",
-        db="data/tmp/padloc/database",
+        db="resources/padloc_db",
     output:
-        "data/tmp/padloc/{batch}/complete",
+        "results/padloc/{batch}/complete",
     conda:
         "../envs/padloc.yaml"
     threads: config["padloc"]["threads"]
@@ -35,7 +41,8 @@ rule padloc:
         """
 find -L {input.batch} -mindepth 1 -maxdepth 1 -type f -name "*.fa" -print0 |\
  parallel -0 --jobs {threads} --retry-failed --halt='now,fail=1'\
- 'mkdir -p "$(dirname {output})/{{/.}}" && padloc --cpu 1 --fna {{}} --outdir "$(dirname {output})/{{/.}}"' > {log} 2>&1
+ 'mkdir -p "$(dirname {output})/{{/.}}" && padloc --data {input.db}\
+  --cpu 1 --fna {{}} --outdir "$(dirname {output})/{{/.}}"' > {log} 2>&1
 
 touch {output}
         """
@@ -43,9 +50,9 @@ touch {output}
 
 rule concatenate_padloc_batches:
     input:
-        "data/tmp/padloc/{batch}/complete",
+        "results/padloc/{batch}/complete",
     output:
-        "data/tmp/padloc/{batch}-concatenated.csv",
+        "results/padloc/{batch}-concatenated.csv",
     conda:
         "../envs/bash.yaml"
     threads: config["padloc"]["threads"]
@@ -64,9 +71,9 @@ parallel --jobs {threads} --retry-failed --halt='now,fail=1'\
 
 rule concatenate_padloc_all:
     input:
-        expand("data/tmp/padloc/{batch}-concatenated.csv", batch=BATCHES),
+        expand("results/padloc/{batch}-concatenated.csv", batch=BATCHES),
     output:
-        "data/processed/padloc_table.csv",
+        "results/padloc_table.csv",
     conda:
         "../envs/bash.yaml"
     threads: 1

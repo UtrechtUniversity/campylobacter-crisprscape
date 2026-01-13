@@ -59,16 +59,16 @@ rule all:
     input:
         ## Extra outputs (non-CRISPR)
         # Multilocus Sequence Types (ST) for Campylobacter
-        "data/processed/mlst_table.tsv",
+        "results/mlst_table.tsv",
         # Virus and plasmid predictions per contig
-        "data/processed/genomad_predictions.csv",
-        "data/processed/jaeger_predictions.csv",
+        "results/genomad_predictions.csv",
+        "results/jaeger_predictions.csv",
         # Phage defence systems
-        "data/processed/padloc_table.csv",
+        "results/padloc_table.csv",
         ## CRISPR-related outputs: 1. pre-screening
         # Concatenated CCTyper output (CRISPR arrays and spacers)
         expand(
-            "data/tmp/cctyper/{batch}/{filename}-{batch}.tab",
+            "results/cctyper/{batch}/{filename}-{batch}.tab",
             batch=BATCHES,
             filename=[
                 "CRISPR_Cas",
@@ -78,25 +78,32 @@ rule all:
                 "cas_operons",
             ],
         ),
-        expand("data/tmp/cctyper/{batch}/all_spacers-{batch}.fa", batch=BATCHES),
+        expand("results/cctyper/{batch}/all_spacers-{batch}.fa", batch=BATCHES),
         # CCTyper CRISPR spacer cluster analysis report
-        "data/tmp/cctyper/spacer_cluster_summary.tsv",
+        "results/cctyper/spacer_cluster_summary.tsv",
         # Cluster unique CRISPR spacers
-        "data/tmp/cctyper/all_spacers-clustered.clstr",
-        "data/processed/all_spacers_table.tsv",
+        "results/cctyper/all_spacers-clustered.clstr",
+        "results/all_spacers_table.tsv",
         # CRISPR output 2. CRISPRidentify output (refinement)
-        expand("data/tmp/crispridentify/{batch}/complete", batch=BATCHES),
+        expand(
+            "results/crispridentify/{batch}/CRISPR_arrays-with_flanks/Complete_spacer_dataset.fasta",
+            batch=BATCHES,
+        ),
+        expand(
+            "results/crispridentify/{batch}/CRISPR_arrays-with_flanks/Complete_summary.csv",
+            batch=BATCHES,
+        ),
         # Concatenated CRISPRidentify output
-        "data/tmp/crispridentify/complete_summary.csv",
-        "data/tmp/crispridentify/all_spacers.fa",
-        "data/tmp/crispridentify/all_spacers-clustered.clstr",
-        "data/processed/all_spacers_table_identify.tsv",
+        "results/crispridentify/complete_summary.csv",
+        "results/crispridentify/all_spacers.fa",
+        "results/crispridentify/all_spacers-clustered.clstr",
+        "results/all_spacers_table_identify.tsv",
         # Merged CRISPRidentify and CCtyper output
-        "data/processed/all_CRISPRS_with_identify.tab",
+        "results/all_CRISPRS_with_identify.tab",
         # Spacepharer output (spacer targets, putative protospacers)
-        "data/processed/phage_matches.tsv",
-        "data/processed/plasmid_matches.tsv",
+        "results/phage_matches.tsv",
+        "results/plasmid_matches.tsv",
         # KMA output (mapping spacers to input Campy genomes)
-        "data/tmp/kma/output/CRISPR.frag.gz",
-        "data/tmp/kma/CRISPR_alignment",
+        "results/kma/output/CRISPR.frag.gz",
+        "results/kma/CRISPR_alignment",
     default_target: True

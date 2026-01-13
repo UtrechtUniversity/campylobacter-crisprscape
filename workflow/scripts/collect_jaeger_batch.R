@@ -9,7 +9,7 @@ suppressPackageStartupMessages({
 })
 
 # Read all output files in a batch (one per genome)
-jaeger_files <- Sys.glob(paths = here("data", "tmp", "jaeger", snakemake@params[["batch"]], "*", "*_default_jaeger.tsv"))
+jaeger_files <- Sys.glob(paths = here(snakemake@params[["batch"]], "*", "*_default_jaeger.tsv"))
 
 # Concatenate them all in one dataframe
 jaeger_df <- do.call(

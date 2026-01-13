@@ -4,7 +4,7 @@
 
 rule download_mlst_database:
     output:
-        "data/tmp/mlst/campylobacter.db",
+        "resources/mlst/campylobacter.db",
     params:
         species=config["mlst"]["species"],
     conda:
@@ -23,9 +23,9 @@ claMLST import -r pubmlst --no-prompt {output} {params.species} > {log} 2>&1
 rule mlst:
     input:
         batch="resources/ATB/assemblies/{batch}/",
-        db="data/tmp/mlst/campylobacter.db",
+        db="resources/mlst/campylobacter.db",
     output:
-        "data/tmp/mlst/{batch}/complete",
+        "results/mlst/{batch}/complete",
     conda:
         "../envs/pymlst.yaml"
     threads: config["mlst"]["threads"]
@@ -45,9 +45,9 @@ touch {output}
 
 rule concatenate_mlst_batches:
     input:
-        "data/tmp/mlst/{batch}/complete",
+        "results/mlst/{batch}/complete",
     output:
-        "data/tmp/mlst/{batch}-concatenated.tsv",
+        "results/mlst/{batch}-concatenated.tsv",
     conda:
         "../envs/bash.yaml"
     threads: config["mlst"]["threads"]
@@ -66,9 +66,9 @@ find $(dirname {input}) -mindepth 1 -maxdepth 1 -type f -name "*.txt" -print0 |\
 
 rule concatenate_mlst_all:
     input:
-        expand("data/tmp/mlst/{batch}-concatenated.tsv", batch=BATCHES),
+        expand("results/mlst/{batch}-concatenated.tsv", batch=BATCHES),
     output:
-        "data/processed/mlst_table.tsv",
+        "results/mlst_table.tsv",
     conda:
         "../envs/bash.yaml"
     threads: 1
@@ -88,14 +88,31 @@ sed --separate 1d ${{batches[@]}} >> {output}
 # Using both geNomad (chromosome/plasmid/virus)
 
 
+rule download_genomad_database:
+    output:
+        db=directory("resources/genomad_db"),
+    conda:
+        "../envs/genomad.yaml"
+    threads: 1
+    log:
+        "log/download_genomad_database.txt",
+    benchmark:
+        "log/benchmark/download_genomad_database.txt"
+    shell:
+        """
+mkdir -p $(dirname {output.db})
+genomad download-database $(dirname {output.db}) > {log} 2>&1
+        """
+
+
 rule genomad:
     input:
         fasta="resources/ATB/assemblies/{batch}.fasta",
-        db=config["genomad_database"],
+        db="resources/genomad_db",
     output:
-        aggregated_classification="data/tmp/genomad/{batch}/{batch}_aggregated_classification/{batch}_aggregated_classification.tsv",
-        plasmid_summary="data/tmp/genomad/{batch}/{batch}_summary/{batch}_plasmid_summary.tsv",
-        virus_summary="data/tmp/genomad/{batch}/{batch}_summary/{batch}_virus_summary.tsv",
+        aggregated_classification="results/genomad/{batch}/{batch}_aggregated_classification/{batch}_aggregated_classification.tsv",
+        plasmid_summary="results/genomad/{batch}/{batch}_summary/{batch}_plasmid_summary.tsv",
+        virus_summary="results/genomad/{batch}/{batch}_summary/{batch}_virus_summary.tsv",
     params:
         work_dir=subpath(output.aggregated_classification, ancestor=2),
     conda:
@@ -115,19 +132,19 @@ genomad end-to-end -t {threads} --cleanup --enable-score-calibration\
 rule collect_genomad_predictions:
     input:
         aggregated_classification=expand(
-            "data/tmp/genomad/{batch}/{batch}_aggregated_classification/{batch}_aggregated_classification.tsv",
+            "results/genomad/{batch}/{batch}_aggregated_classification/{batch}_aggregated_classification.tsv",
             batch=BATCHES,
         ),
         plasmid_summary=expand(
-            "data/tmp/genomad/{batch}/{batch}_summary/{batch}_plasmid_summary.tsv",
+            "results/genomad/{batch}/{batch}_summary/{batch}_plasmid_summary.tsv",
             batch=BATCHES,
         ),
         virus_summary=expand(
-            "data/tmp/genomad/{batch}/{batch}_summary/{batch}_virus_summary.tsv",
+            "results/genomad/{batch}/{batch}_summary/{batch}_virus_summary.tsv",
             batch=BATCHES,
         ),
     output:
-        "data/processed/genomad_predictions.csv",
+        "results/genomad_predictions.csv",
     conda:
         "../envs/tidy_here.yaml"
     threads: 1
@@ -146,7 +163,7 @@ rule jaeger:
     input:
         batch="resources/ATB/assemblies/{batch}/",
     output:
-        "data/tmp/jaeger/{batch}/complete",
+        "results/jaeger/{batch}/complete",
     conda:
         "../envs/jaeger.yaml"
     threads: config["jaeger"]["threads"]
@@ -166,11 +183,11 @@ touch {output}
 
 rule collect_jaeger_batch:
     input:
-        "data/tmp/jaeger/{batch}/complete",
+        "results/jaeger/{batch}/complete",
     output:
-        "data/tmp/jaeger/{batch}/jaeger-{batch}.csv",
+        "results/jaeger/{batch}/jaeger-{batch}.csv",
     params:
-        batch="{batch}",
+        batch=subpath(output[0], parent=True),
     conda:
         "../envs/tidy_here.yaml"
     threads: 1
@@ -184,9 +201,9 @@ rule collect_jaeger_batch:
 
 rule collect_jaeger_predictions:
     input:
-        expand("data/tmp/jaeger/{batch}/jaeger-{batch}.csv", batch=BATCHES),
+        expand("results/jaeger/{batch}/jaeger-{batch}.csv", batch=BATCHES),
     output:
-        "data/processed/jaeger_predictions.csv",
+        "results/jaeger_predictions.csv",
     conda:
         "../envs/bash.yaml"
     threads: 1

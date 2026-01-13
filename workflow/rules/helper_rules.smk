@@ -4,8 +4,16 @@ from pathlib import Path
 # Use Python functions to automatically detect batches of genomes fasta files
 # in the input directory as 'BATCHES'
 BATCH_PATHS = list(Path("resources/ATB/assemblies").glob("atb.assembly.*"))
+
+# Make sure there is at least one batch directory:
+assert len(BATCH_PATHS) > 0, (
+    "-- No input (batch) directories found in resources/ATB/assemblies.\n"
+    "Please run the script bin/prepare_genomes.sh to prepare input. --\n"
+)
+
+# And make sure they are actually directories
 for batch in BATCH_PATHS:
-    assert Path(batch).is_dir(), f"Batches must be directories, got {batch}"
+    assert Path(batch).is_dir(), f"-- Batches must be directories, got {batch} --"
 
 BATCHES = [batch.name for batch in BATCH_PATHS]
 
