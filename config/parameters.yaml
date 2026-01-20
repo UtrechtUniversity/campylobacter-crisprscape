@@ -1,5 +1,21 @@
 # Snakemake config file for CRISPR screening workflow
 
+PhageScope_databases:
+  - "Genbank"
+  - "RefSeq"
+  - "DDBJ"
+  - "EMBL"
+  - "PhagesDB"
+  - "GPD"
+  - "GVD"
+  - "MGV"
+  - "TemPhD"
+  - "CHVD"
+  - "IGVD"
+  - "IMG_VR"
+  - "GOV2"
+  - "STV"
+
 mlst:
   threads: 20
   species: "campylobacter jejuni/coli"

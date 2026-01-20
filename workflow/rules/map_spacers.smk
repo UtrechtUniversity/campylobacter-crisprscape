@@ -27,37 +27,33 @@ spacepharer createsetdb {input.spacers} {output.spacer_DB}\
         """
 
 
-rule download_spacepharer_databases:
+## First to bacteriophages
+
+
+rule download_phage_database:
     output:
+        phage_dir=directory("resources/phagescope"),
+        phage_archives=expand(
+            "resources/phagescope/{database}.tar.gz",
+            database=config["PhageScope_databases"],
+        ),
         phage_fasta=expand(
             "resources/phagescope/{database}.fasta",
-            database=[
-                "DDBJ",
-                "EMBL",
-                "Genbank",
-                "GPD",
-                "GVD",
-                "MGV",
-                "PhagesDB",
-                "RefSeq",
-                "TemPhD",
-            ],
+            database=config["PhageScope_databases"],
         ),
-        phage_meta="resources/phagescope/merged_metadata.tsv",
-        plasmid_fasta="resources/PLSDB/sequences.fasta",
-        plasmid_nuccore="resources/PLSDB/nuccore.csv",
-        plasmid_taxonomy="resources/PLSDB/taxonomy.csv",
+        combined_meta="resources/phagescope/phagescope_metadata.tsv",
+    params:
+        databases=config["PhageScope_databases"],
     conda:
         "../envs/bash.yaml"
     threads: config["download_spacepharer_databases"]["threads"]
     log:
-        "log/download_spacepharer_databases.txt",
+        out="log/download_phage_database.out",
+        err="log/download_phage_database.err",
     benchmark:
-        "log/benchmark/download_spacepharer_databases.txt"
-    shell:
-        """
-bash workflow/scripts/download_spacepharer_database.sh {threads} > {log} 2>&1
-        """
+        "log/benchmark/download_phage_database.txt"
+    script:
+        "../scripts/download_phage_database.sh"
 
 
 rule spacepharer_phage_setup:
@@ -126,6 +122,27 @@ spacepharer predictmatch {input.spacer_DB} {input.phage_DB}\
 grep -v "#" {output.result} > {output.result_sanitised}
 rm -r {params.tmp_folder} >> {log} 2>&1
         """
+
+
+## Then also to plasmids
+
+
+rule download_plasmid_database:
+    output:
+        plasmid_dir=directory("resources/PLSDB"),
+        plasmid_fasta="resources/PLSDB/sequences.fasta",
+        plasmid_nuccore="resources/PLSDB/nuccore.csv",
+        plasmid_taxonomy="resources/PLSDB/taxonomy.csv",
+    conda:
+        "../envs/bash.yaml"
+    threads: 1
+    log:
+        out="log/download_plasmid_database.out",
+        err="log/download_plasmid_database.err",
+    benchmark:
+        "log/benchmark/download_plasmid_database.txt"
+    script:
+        "../scripts/download_plasmid_database.sh"
 
 
 rule spacepharer_plasmid_setup:

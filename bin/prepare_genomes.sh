@@ -222,3 +222,9 @@ do
     json="${bakta_dir}${file/.fa/.bakta.json}"
     rm -fv ${json}
 done
+
+echo -e "\n-----\nPlease review the files under ${output_dir}:\n"
+
+ls -lh "${output_dir}"
+
+echo -e "-----\nDone!\n-----"
