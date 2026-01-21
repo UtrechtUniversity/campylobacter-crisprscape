@@ -9,7 +9,7 @@ suppressPackageStartupMessages({
 })
 
 # Read all output files in a batch (one per genome)
-jaeger_files <- Sys.glob(paths = here("data", "tmp", "jaeger", snakemake@params[["batch"]], "*", "*_default_jaeger.tsv"))
+jaeger_files <- Sys.glob(paths = here(snakemake@params[["batch"]], "*", "*_default_jaeger.tsv"))
 
 # Concatenate them all in one dataframe
 jaeger_df <- do.call(
@@ -20,15 +20,21 @@ jaeger_df <- do.call(
 # Simplify the dataframe by extracting essential info
 jaeger_df_simple <- jaeger_df %>%
   mutate(
-    contig = gsub(pattern = " .*",
-                  replacement = "",
-                  x = contig_id),
-    accession_id = gsub(pattern = ".contig[0-9]*",
-                        replacement = "",
-                        x = contig)
+    contig = gsub(
+      pattern = " .*",
+      replacement = "",
+      x = contig_id
+    ),
+    accession_id = gsub(
+      pattern = ".contig[0-9]*",
+      replacement = "",
+      x = contig
+    )
   ) %>%
   select(accession_id, contig, length, prediction, reliability_score, prophage_contam)
 
 # And write to a CSV file (which can easily be concatenated with a script)
-write_csv(x = jaeger_df_simple,
-          file = snakemake@output[[1]])
+write_csv(
+  x = jaeger_df_simple,
+  file = snakemake@output[[1]]
+)

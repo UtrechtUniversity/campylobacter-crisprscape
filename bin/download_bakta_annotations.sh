@@ -5,24 +5,28 @@ IFS=$'\n'
 # Above thanks to Aaron Maxwell: http://redsymbol.net/articles/unofficial-bash-strict-mode/
 
 part=${1:-"update"}
+atb_dir=${2:-"resources/ATB/"}
+output_dir="${atb_dir}archives/"
 
 if [ "${part}" == "update" ]
 then
-    download_list=$(grep "incr_release" data/ATB/batches_to_download.tsv)
+    download_list=$(grep "incr_release" ${atb_dir}/batches_to_download.tsv)
 
 elif [ "${part}" == "original" ]
 then
-    download_list=$(grep -v "incr_release" data/ATB/batches_to_download.tsv)
+    download_list=$(grep -v "incr_release" ${atb_dir}/batches_to_download.tsv)
 
 elif [ "${part}" == "all" ]
 then
-    download_list=$(cat data/ATB/batches_to_download.tsv)
+    download_list=$(cat ${atb_dir}/batches_to_download.tsv)
 
 else
     download_list=""
     echo "Unknown argument provided! Please use 'all', 'original', or 'update'."
     echo "Or none to use the default (=update)."
 fi
+
+mkdir -p ${output_dir}
 
 for line in ${download_list}
 do
@@ -31,9 +35,7 @@ do
     checksum=$(grep ${filename} data/ATB/all_atb_files.tsv | cut -f 5)
     echo -e "Filename: ${filename}\tURL: ${url}\tmd5sum: ${checksum}"
 
-    mkdir -p data/tmp/ATB
-
-    outputfile="data/tmp/ATB/${filename}"
+    outputfile="${output_dir}${filename}"
 
     # If the output file is not a file of size greater than zero
     if [ ! -s ${outputfile} ]
@@ -55,7 +57,7 @@ do
     fi
 
     # Extract the batch number from the file name
-    batchdir="data/tmp/annotations"
+    batchdir="${atb_dir}/annotations"
     mkdir -p ${batchdir}
 
     # If the batch directory has not been made yet

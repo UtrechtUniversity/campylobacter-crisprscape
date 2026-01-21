@@ -1,0 +1,8 @@
+name: bash
+
+dependencies:
+ - bash=5.1.16
+ - parallel=20251122
+
+channels:
+ - conda-forge

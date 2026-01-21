@@ -24,16 +24,57 @@ IFS=$'\n'
 ##  for this script.
 ##
 ## Usage:
-## $ bash prepare_genomes.sh [part]
+## $ bash prepare_genomes.sh -p/--part [part] -d/--directory [directory] -h/--help
 ##  (where [part] = 'all', 'original', 'update' (=default; smallest size))
 
-part=${1:-"update"}
+# Set global (default) variables
+part="update"
+output_dir="resources/ATB/"
+species_of_interest="config/species_of_interest.txt"
+genomes_of_interest="${output_dir}stats/total_genomes_of_interest.tsv"
+bakta_dir="${output_dir}annotations/"
+
+print_help() {
+  # Display help for this script
+  echo "Prepare genomes from AllTheBacteria for use with CRISPRscape"
+  echo
+  echo "Syntax: prepare_genomes.sh -p [part] -d [directory] [-h]"
+  echo "Options:"
+  echo "-p/--part      Select which part of AllTheBacteria to download"
+  echo "               for the selected species ('all', 'original', or"
+  echo "               'update', default=update)"
+  echo "-d/--directory Directory in which to download the files"
+  echo "               (default=resources/ATB/)"
+  echo "-h/--help      Print this help message"
+  echo
+  exit 0
+}
+
+while [[ $# -gt 0 ]]
+do
+  case "$1" in
+    -p|--part ) part="$2"
+    shift
+    shift
+    ;;
+    -d|--directory ) output_dir="$2"
+    shift
+    shift
+    ;;
+    -h|--help ) print_help
+    ;;
+    * )
+    echo "Unknown option: $1"
+    print_help
+  esac
+done
 
 echo "Preparing to download genomes from set '${part}'"
+echo "And storing them in the directory: ${output_dir}."
+echo "----------"
 
 ## Step 1: download metadata
 echo "Step 1: downloading metadata"
-output_dir="data/ATB/"
 bash bin/download_ATB_metadata.sh ${output_dir}
 
 echo "Done downloading metadata!"
@@ -47,28 +88,30 @@ echo "----------"
 echo "Step 2: extracting sample accession IDs of species of interest"
 species_samples_file="${output_dir}all_samples_of_interest.txt"
 
-echo -e "Species of interest:\n$(cat config/species_of_interest.txt)"
+echo -e "Species of interest:\n$(cat ${species_of_interest})"
 
-total_genomes=$(zgrep -f config/species_of_interest.txt ${output_dir}species_calls.tsv.gz | wc -l)
-hq_genomes=$(zgrep -f config/species_of_interest.txt ${output_dir}species_calls.tsv.gz | grep "T$" | wc -l)
-lq_genomes=$(zgrep -f config/species_of_interest.txt ${output_dir}species_calls.tsv.gz | grep "F$" | wc -l)
+total_genomes=$(zgrep -f ${species_of_interest} ${output_dir}species_calls.tsv.gz | wc -l)
+hq_genomes=$(zgrep -f ${species_of_interest} ${output_dir}species_calls.tsv.gz | grep "T$" | wc -l)
+lq_genomes=$(zgrep -f ${species_of_interest} ${output_dir}species_calls.tsv.gz | grep "F$" | wc -l)
 
-echo -e "Total_genomes\t${total_genomes}" > data/tmp/total_genomes_of_interest.tsv
-echo -e "High-quality_genomes\t${hq_genomes}" >> data/tmp/total_genomes_of_interest.tsv
-echo -e "Low-quality_genomes\t${lq_genomes}" >> data/tmp/total_genomes_of_interest.tsv
+mkdir -p "${output_dir}/stats"
+
+echo -e "Total_genomes\t${total_genomes}" > "${genomes_of_interest}"
+echo -e "High-quality_genomes\t${hq_genomes}" >> "${genomes_of_interest}"
+echo -e "Low-quality_genomes\t${lq_genomes}" >> "${genomes_of_interest}"
 
 echo "ATB contains ${total_genomes} genomes of your species of interest."
 echo "Of those, ${lq_genomes} are labeled as low-quality, which are not included for further analyses."
 echo "That means, ${hq_genomes} are available to work with."
 
 echo
-echo "Also see the file data/tmp/total_genomes_of_interest.tsv to see these"
+echo "Also see the file ${genomes_of_interest} to see these"
 echo "numbers in table form (tab-separated values)."
 echo
 
 # Use no further grep options to match anything that contains the species names,
 # including subspecies and lineages. Exclude low-quality 'HQ field == F'.
-zgrep -f config/species_of_interest.txt ${output_dir}species_calls.tsv.gz |\
+zgrep -f ${species_of_interest} ${output_dir}species_calls.tsv.gz |\
  grep -v -e "F$" | cut -f 1 > ${species_samples_file}
 
 echo "Done extracting sample names!"
@@ -88,8 +131,8 @@ update_genomes=$(zgrep -w -f ${species_samples_file}\
  ${output_dir}file_list.all.20240805.tsv.gz | cut -f 5 |\
   grep -c "incr_release")
 
-echo -e "Genomes_in_original_release\t${original_genomes}" >> data/tmp/total_genomes_of_interest.tsv
-echo -e "Genomes_in_update_release\t${update_genomes}" >> data/tmp/total_genomes_of_interest.tsv
+echo -e "Genomes_in_original_release\t${original_genomes}" >> "${genomes_of_interest}"
+echo -e "Genomes_in_update_release\t${update_genomes}" >> "${genomes_of_interest}"
 
 ## Step 3: Filter metadata to the species of interest
 echo "Step 3: Filtering metadata for species of interest"
@@ -134,50 +177,54 @@ grep -v -w -f ${species_samples_file} ${output_dir}samples_in_batches.txt >\
 # numbers:
 zgrep -w -f ${output_dir}samples_not_of_interest.txt\
  ${output_dir}file_list.all.20240805.tsv.gz | cut -f 2 | sort | uniq -c | sort -nr >\
- data/tmp/other_genomes-numbers.txt
+ ${output_dir}stats/other_genomes-numbers.txt
 
 # And get the list of batches + sample accessions, to facilitate removal:
 zgrep -w -f ${output_dir}samples_not_of_interest.txt\
  ${output_dir}file_list.all.20240805.tsv.gz |\
- cut -f 4 > data/tmp/samples_to_remove.txt
+ cut -f 4 > ${output_dir}samples_to_remove.txt
 
 echo "In the batches to download are $(wc -l ${output_dir}samples_not_of_interest.txt)"
 echo "samples that have low-quality genomes or species other than the species of interest."
 echo "These are summarised in:"
-ls -lh ${output_dir}samples_not_of_interest.txt data/tmp/other_genomes-numbers.txt data/tmp/samples_to_remove.txt
+ls -lh ${output_dir}samples_not_of_interest.txt ${output_dir}stats/other_genomes-numbers.txt ${output_dir}samples_to_remove.txt
 
 ## Step 5: Download genome sequences
 echo "Step 5: Download genome sequences"
-bash bin/download_genomes.sh ${part}
+bash bin/download_genomes.sh ${part} ${output_dir}
 echo "Finished downloading!"
-echo "The batch archives have been written to 'data/tmp/ATB/'"
-echo "and their contents extracted to 'data/tmp/assemblies/'"
+echo "The batch archives have been written to '${output_dir}'"
+echo "and their contents extracted to '${output_dir}assemblies/'"
 echo "----------"
 
 ## Step 6: Remove genomes of other species
 echo "Step 6: remove genomes of species other than species of interest"
-for fasta in $(cat data/tmp/samples_to_remove.txt)
+for fasta in $(cat ${output_dir}samples_to_remove.txt)
 do
 # Verbose remove: tell what is being removed
-    rm -fv "data/tmp/assemblies/${fasta}"
+    rm -fv "${output_dir}assemblies/${fasta}"
 done
 echo "----------"
 
 ## Step 7: Download functional annotations (Bakta)
 echo "Step 7: download functional (gene) annotations"
-bash bin/download_bakta_annotations.sh ${part}
+bash bin/download_bakta_annotations.sh ${part} ${output_dir}
 echo "Finished downloading!"
-echo "The batches have been downloaded to 'data/tmp/ATB/' and extracted in 'data/tmp/annotations'"
+echo "The batches have been downloaded to '${output_dir}' and extracted in '${output_dir}annotations'"
 echo "----------"
 
 ## Step 7.1: Also remove annotation files for non-of-interest samples
-# 1: adjust the file basename from 'assembly' to 'bakta'
 echo "Step 7.1: remove genome annotations of other/low-quality samples"
-for file in $(sed 's|atb.assembly.|atb.bakta.|g' data/tmp/samples_to_remove.txt)
+# adjust the file basename from 'assembly' to 'bakta'
+for file in $(sed 's|atb.assembly.|atb.bakta.|g' ${output_dir}samples_to_remove.txt)
 do
-    # 2: add 'annotations' subdirectory
-    bakta_dir="data/tmp/annotations/"
-    # 3: exchange '.fa' extension to 'bakta.json'
+    # add 'annotations' subdirectory and exchange '.fa' extension to 'bakta.json'
     json="${bakta_dir}${file/.fa/.bakta.json}"
     rm -fv ${json}
 done
+
+echo -e "\n-----\nPlease review the files under ${output_dir}:\n"
+
+ls -lh "${output_dir}"
+
+echo -e "-----\nDone!\n-----"

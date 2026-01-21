@@ -1,4 +1,6 @@
 #! /usr/bin/env bash
+set -euo pipefail
+IFS=$'\n'
 
 # Read the output directory from the command-line, with
 #  'data/ATB/' set as default.
