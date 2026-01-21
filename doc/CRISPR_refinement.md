@@ -8,7 +8,7 @@ It has been shown that CCTyper, the primary method we use for CRISPR-Cas
 identification, may have a high false-positive rate. Or rather, that the tool
 that it relies on (
 [MinCED](https://github.com/ctSkennerton/minced)
-, derived from 
+, derived from
 [CRT](https://www.room220.com/crt/)
 ) has a high false-positive rate.
 Furthermore, we have found that with highly similar CRISPR arrays in
@@ -32,8 +32,6 @@ different modules of which this tool or suite consists.
 
     In short, results should be checked by an expert. There is no CRISPR-Cas
     tool that outclasses the other available tools in all aspects.
-
-
 
 In brief, CRISPRidentify has two crucial advantages compared to CCTyper:
 
@@ -60,9 +58,9 @@ which by default need to be between 21 and 55 nucleotides long and 18-78 nucleot
 This process is relatively sensitive and usually more than one repeat candidate is generated.
 All the repeat candidates are then aligned. This alignment is created from a
 maximum element and a minimum element. The maximum element is the largest repeat
-string generated from the most common nucleotides in each base of all candidates. 
+string generated from the most common nucleotides in each base of all candidates.
 The minimum element is generated from the most common substring of all repeats,
-this also by definition has 100% identity as a substring of the maximum element. 
+this also by definition has 100% identity as a substring of the maximum element.
 
 Every possible repeat is then generated between the maximum and minimum element
 and put alongside the matches found by Vmatch and has duplicates filtered out,
@@ -81,17 +79,17 @@ in the repeats to be detected.
 After all CRISPR array candidates are generated, they are evaluated by
 CRISPRidentify's internal scoring system. This scoring system was created
 by considering 13 features that can predict array viability in multiple ways.
-The 13 features are listed in 
+The 13 features are listed in
 [Supplementary file 1](https://academic.oup.com/nar/article/49/4/e20/6027817?login=false#supplementary-data),
 table S2 (page 20).
 Performing feature subset selection on all combinations of these 13 features,
-three models containing 8, 9 and 10 of the 13 features achieved similar accuracy. 
-By default, CRISPRidentify uses the average of these three models to score the candidate arrays. 
+three models containing 8, 9 and 10 of the 13 features achieved similar accuracy.
+By default, CRISPRidentify uses the average of these three models to score the candidate arrays.
 
 The scoring is divided into three possible categories.
 0-0.4 are low scoring candidates which are unlikely to be CRISPR.
 0.4-0.75 are possible candidate CRISPR arrays.
-0.75-1.0 are Bona-Fide CRISPR arrays and are very likely to be valid CRISPR arrays. 
+0.75-1.0 are Bona-Fide CRISPR arrays and are very likely to be valid CRISPR arrays.
 In cases where CRISPR array candidates are overlapping but both Bona-Fide,
 the lower scoring arrays are instead put into the alternative candidate category.
 
@@ -102,7 +100,7 @@ the lower scoring arrays are instead put into the alternative candidate category
 Each step in the process generates a number of output files, which by default
 are written to:
 
-``` bash
+```bash
 data/
   tmp/
     crispridentify/                 # Here go overall files, such as 'all_spacers.fa'
