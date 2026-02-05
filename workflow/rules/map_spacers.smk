@@ -203,7 +203,7 @@ rm -r {params.tmp_folder} >> {log} 2>&1
 rule create_spacepharer_table:
     input:
         phage="results/spacepharer/predicted_phage_matches_san.tsv",
-        phage_meta="resources/phagescope/merged_metadata.tsv",
+        phage_meta="resources/phagescope/phagescope_metadata.tsv",
         plasmid="results/spacepharer/predicted_plasmid_matches_san.tsv",
         plasmid_nuccore="resources/PLSDB/nuccore.csv",
         plasmid_taxonomy="resources/PLSDB/taxonomy.csv",
@@ -247,9 +247,9 @@ rule kma:
         genomes=expand("resources/ATB/assemblies/{batch}/", batch=BATCHES),
         indexed_spacers="results/kma/spacer_DB/spacers.name",
     output:
-        "results/kma/output/CRISPR.frag.gz",
+        "results/kma/CRISPR.frag.gz",
     params:
-        output=subpath(output[0], parent=True),
+        output=subpath(output[0], strip_suffix=".frag.gz"),
         indexed_spacers=subpath(input.indexed_spacers, parent=True),
         spacers="results/crispridentify/all_spacers.fa",
     conda:
@@ -272,7 +272,7 @@ rm tmp_file all_genomes.txt
 
 rule collect_kma:
     input:
-        "results/kma/output/CRISPR.frag.gz",
+        "results/kma/CRISPR.frag.gz",
     output:
         "results/kma/CRISPR_alignment",
     conda:

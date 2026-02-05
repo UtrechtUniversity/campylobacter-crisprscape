@@ -58,7 +58,7 @@ rule merge_cctyper_identify:
         identify="results/crispridentify/complete_summary.csv",
         cctyper=expand("results/cctyper/{batch}/crisprs_all-{batch}.tab", batch=BATCHES),
     output:
-        table="results/all_CRISPRS_with_identify.tab",
+        table="results/all_CRISPRs_with_identify.tab",
     conda:
         "../envs/bash.yaml"
     threads: 1

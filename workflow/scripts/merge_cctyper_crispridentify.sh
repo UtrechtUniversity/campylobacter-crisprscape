@@ -48,7 +48,7 @@ do
         if [ -z "${match}" ]
         then
         # If there's *no* match (-z = lenth 0)
-            echo -e "${line}" >> ${snakemak_output[table]}
+            echo -e "${line}" >> ${snakemake_output[table]}
             # Just copy the line from CCTyper
         else
         # but if there is a match,
