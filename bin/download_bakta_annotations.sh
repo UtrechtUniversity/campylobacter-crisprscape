@@ -31,8 +31,8 @@ mkdir -p ${output_dir}
 for line in ${download_list}
 do
     filename=$(echo ${line} | cut -f 1 | sed -e 's/assembly/bakta/')
-    url=$(grep ${filename} data/ATB/all_atb_files.tsv | cut -f 4)
-    checksum=$(grep ${filename} data/ATB/all_atb_files.tsv | cut -f 5)
+    url=$(grep ${filename} ${atb_dir}all_atb_files.tsv | cut -f 4)
+    checksum=$(grep ${filename} ${atb_dir}all_atb_files.tsv | cut -f 5)
     echo -e "Filename: ${filename}\tURL: ${url}\tmd5sum: ${checksum}"
 
     outputfile="${output_dir}${filename}"
