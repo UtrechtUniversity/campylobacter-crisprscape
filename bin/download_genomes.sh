@@ -64,16 +64,17 @@ do
     fi
 
     # Extract the batch number from the file name
-    batchdir="${atb_dir}/assemblies/"
-    mkdir -p ${batchdir}
+    assembly_dir="${atb_dir}/assemblies/"
+    mkdir -p ${assembly_dir}
 
     # If the batch directory has not been made yet
-    if [ ! -d "${batchdir}${outputfile/.tar.xz/}" ]
+    batch_dir="${assembly_dir}${filename/.tar.xz/}"
+    if [ ! -d "${batch_dir}" ]
     then
         echo "Extracting ${outputfile}!"
 
         # Decompress the XZ archive and send the output to the specified directory.
-        tar -Jxf ${outputfile} -C ${batchdir}
+        tar -Jxf ${outputfile} -C ${assembly_dir}
 
     else
         echo "Fasta files have been extracted previously!"

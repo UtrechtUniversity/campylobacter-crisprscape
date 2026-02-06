@@ -57,16 +57,17 @@ do
     fi
 
     # Extract the batch number from the file name
-    batchdir="${atb_dir}/annotations"
-    mkdir -p ${batchdir}
+    annotation_dir="${atb_dir}/annotations"
+    mkdir -p ${annotation_dir}
 
     # If the batch directory has not been made yet
-    if [ ! -d "${batchdir}${outputfile/.tar.xz/}" ]
+    batch_dir="${annotation_dir}${filename/.tar.xz/}"
+    if [ ! -d "${batch_dir}" ]
     then
         echo "Extracting ${outputfile}!"
 
         # Decompress the XZ archive and send the output to the specified directory.
-        tar -Jxf ${outputfile} -C ${batchdir}
+        tar -Jxf ${outputfile} -C ${annotation_dir}
 
     else
         echo "Bakta files have been extracted previously!"
