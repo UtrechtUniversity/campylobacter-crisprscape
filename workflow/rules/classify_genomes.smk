@@ -213,3 +213,77 @@ rule collect_jaeger_predictions:
         "log/benchmark/collect_jaeger_predictions.txt"
     script:
         "../scripts/collect_jaeger_predictions.sh"
+
+
+## 3: dereplicate genomes (or at least: mark duplicates)
+# (dRep: 99.99% identity)
+
+
+rule simplify_checkm:
+    input:
+        "resources/ATB/checkm2.tsv.gz",
+    output:
+        "resources/ATB/ATB-CheckM2.csv",
+    conda:
+        "../envs/bash.yaml"
+    threads: 1
+    log:
+        "log/simplify_checkm.txt",
+    benchmark:
+        "log/benchmark/simplify_checkm.txt"
+    shell:
+        """
+echo "genome,contamination,completeness" >  {output}
+zless {input} | tail -n +2 | cut -f 1,3,4 | tr "\t" "," >> {output}
+        """
+
+
+rule dereplicate_genomes:
+    input:
+        batch="resources/ATB/assemblies/{batch}/",
+        checkm=rules.simplify_checkm.output,
+    output:
+        genome_list=temp("results/drep/{batch}/genome_list.txt"),
+        data=directory("results/drep/{batch}/data"),
+        data_tables=expand(
+            "results/drep/{{batch}}/data_tables/{prefix}.csv",
+            prefix=["Bdb", "Cdb", "genomeInformation", "Mdb", "Sdb", "Wdb", "Widb"],
+        ),
+        dereplicated_genomes=directory("results/drep/{batch}/dereplicated_genomes"),
+        figures=directory("results/drep/{batch}/figures"),
+        log=directory("results/drep/{batch}/log"),
+    params:
+        prefix=subpath(output["log"], parent=True),
+    conda:
+        "../envs/drep.yaml"
+    threads: config["drep"]["threads"]
+    log:
+        "log/drep/{batch}.txt",
+    benchmark:
+        "log/benchmark/drep/{batch}.txt"
+    shell:
+        """
+find {input.batch} -name "*.fa" -print > {output.genome_list}
+
+dRep dereplicate {params.prefix} -g {output.genome_list}\
+ -sa 0.9999 -p {threads} --ignoreGenomeQuality\
+ --genomeInfo {input.checkm}\
+ --clusterAlg complete -pa 0.99 -nc 0.5 > {log} 2>&1
+        """
+
+
+rule collect_dereplications:
+    input:
+        cluster=expand("results/drep/{batch}/data_tables/Cdb.csv", batch=BATCHES),
+        winner=expand("results/drep/{batch}/data_tables/Wdb.csv", batch=BATCHES),
+    output:
+        "results/dereplication_table.tsv",
+    conda:
+        "../envs/tidy_here.yaml"
+    threads: 1
+    log:
+        "log/collect_dereplications.txt",
+    benchmark:
+        "log/benchmark/collect_dereplications.txt"
+    script:
+        "../scripts/collect_dereplication_tables.R"

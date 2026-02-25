@@ -65,6 +65,8 @@ rule all:
         "results/jaeger_predictions.csv",
         # Phage defence systems
         "results/padloc_table.csv",
+        # Genome dereplication (at 99.99% identity, using dRep+fastANI)
+        "results/dereplication_table.tsv",
         ## CRISPR-related outputs: 1. pre-screening
         # Concatenated CCTyper output (CRISPR arrays and spacers)
         expand(

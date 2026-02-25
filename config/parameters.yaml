@@ -20,6 +20,9 @@ mlst:
   threads: 20
   species: "campylobacter jejuni/coli"
 
+drep:
+  threads: 20
+
 cctyper:
   threads: 20
 
