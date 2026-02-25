@@ -70,6 +70,38 @@ rule merge_cctyper_identify:
         "../scripts/merge_cctyper_crispridentify.sh"
 
 
+rule cluster_all_spacers_crispridentify:
+    input:
+        rules.merge_crispridentify_batches.output.spacers_crispr,
+    output:
+        clusters=expand(
+            "results/crispridentify/all_spacers-clustered-{cutoff}.clstr",
+            cutoff=[1, 0.96, 0.93, 0.9, 0.87, 0.84, 0.81],
+        ),
+        spacers=expand(
+            "results/crispridentify/all_spacers-clustered-{cutoff}",
+            cutoff=[1, 0.96, 0.93, 0.9, 0.87, 0.84, 0.81],
+        ),
+        summary="results/crispridentify/spacer_cluster_summary.tsv",
+    params:
+        work_dir=subpath(input[0], parent=True),
+        log_dir="log/spacer_clustering_crispridentify",
+    conda:
+        "../envs/cdhit.yaml"
+    threads: 1
+    log:
+        "log/cluster_all_spacers_crispridentify.txt",
+    benchmark:
+        "log/benchmark/cluster_all_spacers_crispridentify.txt"
+    shell:
+        """
+bash workflow/scripts/cluster_all_spacers.sh\
+    {input}\
+    {params.work_dir}\
+    {params.log_dir} > {log} 2>&1
+        """
+
+
 rule cluster_unique_spacers_crispridentify:
     input:
         "results/crispridentify/all_spacers.fa",
