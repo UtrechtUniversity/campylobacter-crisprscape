@@ -55,3 +55,6 @@ spacepharer:
 
 kma:
   threads: 16
+
+bakta_convert:
+  threads: 20

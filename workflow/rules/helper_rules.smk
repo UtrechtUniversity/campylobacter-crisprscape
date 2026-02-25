@@ -37,3 +37,21 @@ rule concatenate_batches:
         """
 cat {input}/*.fa > {output} 2> {log}
         """
+
+
+rule convert_bakta_annotations:
+    input:
+        batch_dir="resources/ATB/annotations/{batch}",
+    output:
+        gff=directory("resources/ATB/annotations/{batch}/gff"),
+        tsv=directory("resources/ATB/annotations/{batch}/tsv"),
+    conda:
+        "../envs/bakta.yaml"
+    threads: config["bakta_convert"]["threads"]
+    log:
+        out="log/convert_bakta_annotations/{batch}.out",
+        err="log/convert_bakta_annotations/{batch}.err",
+    benchmark:
+        "log/benchmark/convert_bakta_annotations/{batch}.txt"
+    script:
+        "../scripts/convert_bakta_json.sh"
