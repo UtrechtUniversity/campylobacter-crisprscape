@@ -69,19 +69,7 @@ rule all:
         "results/dereplication_table.tsv",
         ## CRISPR-related outputs: 1. pre-screening
         # Concatenated CCTyper output (CRISPR arrays and spacers)
-        expand(
-            "results/cctyper/{batch}/{filename}-{batch}.tab",
-            batch=BATCHES,
-            filename=[
-                "CRISPR_Cas",
-                "crisprs_all",
-                "crisprs_near_cas",
-                "crisprs_orphan",
-                "cas_operons",
-            ],
-        ),
-        expand("results/cctyper/{batch}/all_spacers-{batch}.fa", batch=BATCHES),
-        # CCTyper CRISPR spacer cluster analysis report
+        "results/cctyper_crisprs.tsv",
         "results/cctyper/spacer_cluster_summary.tsv",
         # Cluster unique CRISPR spacers
         "results/cctyper/all_spacers-clustered.clstr",
@@ -89,10 +77,6 @@ rule all:
         # CRISPR output 2. CRISPRidentify output (refinement)
         expand(
             "results/crispridentify/{batch}/CRISPR_arrays-with_flanks/Complete_spacer_dataset.fasta",
-            batch=BATCHES,
-        ),
-        expand(
-            "results/crispridentify/{batch}/CRISPR_arrays-with_flanks/Complete_summary.csv",
             batch=BATCHES,
         ),
         # Concatenated CRISPRidentify output

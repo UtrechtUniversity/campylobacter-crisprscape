@@ -102,6 +102,22 @@ find $(dirname {input.cctyper}) -mindepth 3 -maxdepth 3 -name "*.fa" -exec cat {
         """
 
 
+rule create_overall_crispr_table:
+    input:
+        table=expand("results/cctyper/{batch}/CRISPR-Cas-{batch}.csv", batch=BATCHES),
+    output:
+        "results/cctyper_crisprs.tsv",
+    conda:
+        "../envs/tidy_here.yaml"
+    threads: 1
+    log:
+        "log/cctyper/create_overall_crispr_table.txt",
+    benchmark:
+        "log/benchmark/cctyper/create_overall_crispr_table.txt"
+    script:
+        "../scripts/summarise_cctyper_crisprs.R"
+
+
 rule concatenate_all_spacers:
     input:
         expand("results/cctyper/{batch}/all_spacers-{batch}.fa", batch=BATCHES),
