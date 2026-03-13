@@ -1,11 +1,14 @@
 #!/usr/bin/env Rscript
 
+sink(
+  file = file(snakemake@log[[1]], open = "wt"), type = "message"
+)
+
 # Find output files for geNomad and create one overall prediction report.
 
-suppressPackageStartupMessages({
+suppressPackageStartupMessages(
   library(tidyverse)
-  library(here)
-})
+)
 
 genomad_scores_files <- snakemake@input[["aggregated_classification"]]
 genomad_plasmid_files <- snakemake@input[["plasmid_summary"]]
@@ -84,5 +87,5 @@ genomad_df <- left_join(
 
 write_csv(
   x = genomad_df,
-  file = snakemake@output[[1]] # here("data", "processed", "genomad_predictions.csv")
+  file = snakemake@output[[1]]
 )

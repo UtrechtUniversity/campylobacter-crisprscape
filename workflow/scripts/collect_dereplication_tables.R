@@ -1,9 +1,12 @@
 #!/usr/bin/env Rscript
 
-suppressPackageStartupMessages({
+sink(
+  file = file(snakemake@log[[1]], open = "wt"), type = "message"
+)
+
+suppressPackageStartupMessages(
   library(tidyverse)
-  library(here)
-})
+)
 
 cluster_tables <- snakemake@input[["cluster"]]
 winner_tables <- snakemake@input[["winner"]]
