@@ -161,9 +161,14 @@ rule collect_genomad_predictions:
 
 rule jaeger:
     input:
-        batch="resources/ATB/assemblies/{batch}/",
+        "resources/ATB/assemblies/{batch}.fasta",
     output:
-        "results/jaeger/{batch}/complete",
+        default="results/jaeger/{batch}/{batch}_default_jaeger.tsv",
+        phages="results/jaeger/{batch}/{batch}_default_phages_jaeger.tsv",
+        log="results/jaeger/{batch}/{batch}_jaeger.log",
+        prophages=directory("results/jaeger/{batch}/{batch}_default_prophages"),
+    params:
+        output_dir=subpath(output.default, parent = True)
     conda:
         "../envs/jaeger.yaml"
     threads: config["jaeger"]["threads"]
@@ -173,46 +178,27 @@ rule jaeger:
         "log/benchmark/jaeger/{batch}.txt"
     shell:
         """
-parallel --jobs {threads} --retry-failed --halt='now,fail=1'\
- jaeger run -p --workers 1 -i {{}} -o $(dirname {output}) --overwrite\
- > {log} 2>&1 ::: {input.batch}/*.fa
-
-touch {output}
+jaeger run -p --workers {threads} -i {input} -o {params.output_dir}\
+ --overwrite > {log} 2>&1
         """
-
-
-rule collect_jaeger_batch:
-    input:
-        "results/jaeger/{batch}/complete",
-    output:
-        "results/jaeger/{batch}/jaeger-{batch}.csv",
-    params:
-        batch=subpath(output[0], parent=True),
-    conda:
-        "../envs/tidy_here.yaml"
-    threads: 1
-    log:
-        "log/collect_jaeger_{batch}.txt",
-    benchmark:
-        "log/benchmark/collect_jaeger_{batch}.txt"
-    script:
-        "../scripts/collect_jaeger_batch.R"
 
 
 rule collect_jaeger_predictions:
     input:
-        expand("results/jaeger/{batch}/jaeger-{batch}.csv", batch=BATCHES),
+        default=expand("results/jaeger/{batch}/{batch}_default_jaeger.tsv", batch=BATCHES),
+        phages=expand("results/jaeger/{batch}/{batch}_default_phages_jaeger.tsv", batch=BATCHES),
     output:
-        "results/jaeger_predictions.csv",
+        default="results/jaeger_predictions.tsv",
+        phages="results/jaeger_phages_predictions.tsv",
     conda:
-        "../envs/bash.yaml"
+        "../envs/tidy_here.yaml"
     threads: 1
     log:
         "log/collect_jaeger_predictions.txt",
     benchmark:
         "log/benchmark/collect_jaeger_predictions.txt"
     script:
-        "../scripts/collect_jaeger_predictions.sh"
+        "../scripts/collect_jaeger_predictions.R"
 
 
 ## 3: dereplicate genomes (or at least: mark duplicates)
