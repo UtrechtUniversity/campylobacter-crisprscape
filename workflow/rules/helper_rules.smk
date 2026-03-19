@@ -25,7 +25,7 @@ rule concatenate_batches:
     input:
         "resources/ATB/assemblies/{batch}",
     output:
-        temp("resources/ATB/assemblies/{batch}.fasta"),
+        temp("resources/ATB/assemblies-concatenated/{batch}.fasta"),
     conda:
         "../envs/bash.yaml"
     threads: 1

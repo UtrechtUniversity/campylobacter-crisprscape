@@ -24,15 +24,9 @@ drep:
   threads: 20
 
 cctyper:
-  threads: 20
+  threads: 12
 
 padloc:
-  threads: 20
-
-parse_cctyper:
-  threads: 20
-
-extract_sequences:
   threads: 20
 
 extract_arrays:

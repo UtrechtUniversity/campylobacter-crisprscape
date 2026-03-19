@@ -4,9 +4,14 @@
 
 rule crisprcastyper:
     input:
-        batch="resources/ATB/assemblies/{batch}/",
+        "resources/ATB/assemblies-concatenated/{batch}.fasta",
     output:
-        "results/cctyper/{batch}/complete",
+        crispr_cas="results/cctyper/{batch}/CRISPR_Cas.tab",
+        cas="results/cctyper/{batch}/cas_operons_putative.tab",
+        hmmer="results/cctyper/{batch}/hmmer.tab",
+        crispr="results/cctyper/{batch}/crisprs_all.tab",
+        orphan="results/cctyper/{batch}/crisprs_orphan.tab",
+        spacers=directory("results/cctyper/{batch}/spacers/"),
     params:
         out_dir=subpath(output[0], parent=True),
     conda:
@@ -17,164 +22,126 @@ rule crisprcastyper:
     benchmark:
         "log/benchmark/cctyper/{batch}.txt"
     shell:
-        """
-find -L {input.batch} -mindepth 1 -maxdepth 1 -type f -name "*.fa" -print0 |\
- parallel -0 --jobs {threads} --retry-failed --halt='now,fail=1'\
- 'rm -rf "{params.out_dir}{{/.}}" &&\
- cctyper -t 1 {{}} "{params.out_dir}/{{/.}}"' > {log} 2>&1
-
-touch {output}
+        r"""
+rm -r {params.out_dir} &&\
+ cctyper -t {threads} {input} --prodigal meta {params.out_dir} > {log} 2>&1
         """
 
 
 rule parse_cctyper:
     input:
-        "results/cctyper/{batch}/complete",
+        crispr_cas="results/cctyper/{batch}/CRISPR_Cas.tab",
+        cas="results/cctyper/{batch}/cas_operons_putative.tab",
+        hmmer="results/cctyper/{batch}/hmmer.tab",
+        crispr="results/cctyper/{batch}/crisprs_all.tab",
+        orphan="results/cctyper/{batch}/crisprs_orphan.tab",
     output:
-        "results/cctyper/{batch}/parsed",
+        table="results/cctyper-parse/{batch}/CRISPR-Cas.tsv",
+        locus_bed="results/cctyper-parse/{batch}/CRISPR-Cas.bed",
+        array_bed="results/cctyper-parse/{batch}/CRISPR_arrays.bed",
+        operon_bed="results/cctyper-parse/{batch}/Cas_operons.bed",
+    params:
+        input_dir=subpath(input.crispr_cas, parent=True),
     conda:
         "../envs/pandas.yaml"
-    threads: config["parse_cctyper"]["threads"]
+    threads: 1
     log:
         "log/parse_cctyper/{batch}.txt",
     benchmark:
         "log/benchmark/parse_cctyper/{batch}.txt"
-    shell:
-        """
-find $(dirname {input}) -mindepth 1 -maxdepth 1 -type d -print0 |\
-parallel -0 --jobs {threads} --retry-failed --halt='now,fail=1'\
-    python workflow/scripts/cctyper_extender.py -d {{.}} > {log} 2>&1
-
-touch {output}
-        """
+    script:
+        "../scripts/cctyper_extender.py"
 
 
 rule extract_sequences:
     input:
-        flag="results/cctyper/{batch}/parsed",
-        genomes="resources/ATB/assemblies/{batch}",
+        bed="results/cctyper-parse/{batch}/CRISPR-Cas.bed",
+        genomes="resources/ATB/assemblies-concatenated/{batch}.fasta",
     output:
-        "results/cctyper/{batch}/subseq",
+        bed_dir=directory("results/crispr_fasta/{batch}"),
+        crispr_cas="results/crispr_fasta/{batch}/CRISPR-Cas.fasta",
+        flanks="results/crispr_fasta/{batch}/CRISPR-Cas-with_flanks.fasta",
     conda:
         "../envs/seqkit.yaml"
-    threads: config["extract_sequences"]["threads"]
+    threads: 1
     log:
         "log/extract_sequences/{batch}.txt",
     benchmark:
         "log/benchmark/extract_sequences/{batch}.txt"
-    shell:
-        """
-find $(dirname {input.flag}) -mindepth 1 -maxdepth 1 -type d -print0 |\
-parallel -0 --jobs {threads} --retry-failed --halt='now,fail=1'\
-    bash workflow/scripts/extract_crispr-cas_from_fasta.sh {{}} {input.genomes} > {log} 2>&1
-
-touch {output}
-        """
+    script:
+        "../scripts/extract_crispr-cas_from_fasta.sh"
 
 
-rule collect_cctyper:
+rule create_cctyper_crispr_table:
     input:
-        cctyper="results/cctyper/{batch}/complete",
-        parser="results/cctyper/{batch}/parsed",
+        table=expand("results/cctyper-parse/{batch}/CRISPR-Cas.tsv", batch=BATCHES),
     output:
-        crispr_cas="results/cctyper/{batch}/CRISPR_Cas-{batch}.tab",
-        crisprs_all="results/cctyper/{batch}/crisprs_all-{batch}.tab",
-        crisprs_near_cas="results/cctyper/{batch}/crisprs_near_cas-{batch}.tab",
-        crisprs_orphan="results/cctyper/{batch}/crisprs_orphan-{batch}.tab",
-        spacers="results/cctyper/{batch}/all_spacers-{batch}.fa",
-        cas_putative="results/cctyper/{batch}/cas_operons_putative-{batch}.tab",
-        cas="results/cctyper/{batch}/cas_operons-{batch}.tab",
-        csv="results/cctyper/{batch}/CRISPR-Cas-{batch}.csv",
-    conda:
-        "../envs/bash.yaml"
-    threads: 1
-    log:
-        "log/cctyper/collect_{batch}.txt",
-    benchmark:
-        "log/benchmark/cctyper/collect_{batch}.txt"
-    shell:
-        """
-bash workflow/scripts/concatenate_cctyper_output.sh $(dirname {input.cctyper}) > {log} 2>&1
-echo "\n========================" >> {log}
-bash workflow/scripts/concatenate_cctyper_csv.sh $(dirname {input.parser}) >> {log} 2>&1
-
-find $(dirname {input.cctyper}) -mindepth 3 -maxdepth 3 -name "*.fa" -exec cat {{}} + > {output.spacers} 2>> {log}
-        """
-
-
-rule create_overall_crispr_table:
-    input:
-        table=expand("results/cctyper/{batch}/CRISPR-Cas-{batch}.csv", batch=BATCHES),
-    output:
-        "results/cctyper_crisprs.tsv",
+        "results/crisprs-cctyper.tsv",
+    params:
+        batch="{wildcards.batch}",
     conda:
         "../envs/tidy_here.yaml"
     threads: 1
     log:
-        "log/cctyper/create_overall_crispr_table.txt",
+        "log/cctyper/create_cctyper_crispr_table.txt",
     benchmark:
-        "log/benchmark/cctyper/create_overall_crispr_table.txt"
+        "log/benchmark/cctyper/create_cctyper_crispr_table.txt"
     script:
         "../scripts/summarise_cctyper_crisprs.R"
 
 
-rule concatenate_all_spacers:
+rule concatenate_cctyper_spacers:
     input:
-        expand("results/cctyper/{batch}/all_spacers-{batch}.fa", batch=BATCHES),
+        expand("results/cctyper/{batch}/spacers", batch=BATCHES),
     output:
-        "results/cctyper/all_spacers.fa",
+        "results/spacers-cctyper.fa",
     conda:
         "../envs/bash.yaml"
     threads: 1
     log:
-        "log/concatenate_all_spacers.txt",
+        "log/concatenate_cctyper_spacers.txt",
     benchmark:
-        "log/benchmark/concatenate_all_spacers.txt"
+        "log/benchmark/concatenate_cctyper_spacers.txt"
     shell:
-        """
-cat {input} > {output} 2> {log}
+        r"""
+find {input} -name "*.fa" -exec cat {{}} \; > {output} 2> {log}
         """
 
 
-rule cluster_all_spacers:
+rule cluster_cctyper_spacers:
     input:
-        "results/cctyper/all_spacers.fa",
+        "results/spacers-cctyper.fa",
     output:
-        clusters=expand(
-            "results/cctyper/all_spacers-clustered-{cutoff}.clstr",
+        expand(
+            "results/cluster-cctyper/spacers-clustered-{cutoff}{ext}",
             cutoff=[1, 0.96, 0.93, 0.9, 0.87, 0.84, 0.81],
+            ext=[".clstr", "", ".log"],
         ),
-        spacers=expand(
-            "results/cctyper/all_spacers-clustered-{cutoff}",
-            cutoff=[1, 0.96, 0.93, 0.9, 0.87, 0.84, 0.81],
-        ),
-        summary="results/cctyper/spacer_cluster_summary.tsv",
+        summary="results/cluster-cctyper/spacer_cluster_summary.tsv",
     params:
-        work_dir=subpath(input[0], parent=True),
-        log_dir="log/spacer_clustering",
+        work_dir=subpath(output[0], parent=True),
     conda:
         "../envs/cdhit.yaml"
     threads: 1
     log:
-        "log/cluster_all_spacers.txt",
+        "log/cluster_cctyper_spacers.txt",
     benchmark:
-        "log/benchmark/cluster_all_spacers.txt"
+        "log/benchmark/cluster_cctyper_spacers.txt"
     shell:
-        """
+        r"""
 bash workflow/scripts/cluster_all_spacers.sh\
     {input}\
-    {params.work_dir}\
-    {params.log_dir} > {log} 2>&1
+    {params.work_dir} > {log} 2>&1
         """
 
 
 rule cluster_unique_spacers:
     input:
-        "results/cctyper/all_spacers.fa",
+        "results/spacers-cctyper.fa",
     output:
-        clusters="results/cctyper/all_spacers-clustered.clstr",
-        spacers="results/cctyper/all_spacers-clustered",
-        distribution="results/cctyper/all_spacers-clustered-distribution.tsv",
+        clusters="results/cluster-cctyper/spacers-clustered.clstr",
+        spacers="results/cluster-cctyper/spacers-clustered",
+        distribution="results/cluster-cctyper/spacers-clustered-distribution.tsv",
     conda:
         "../envs/cdhit.yaml"
     threads: 1
@@ -183,7 +150,7 @@ rule cluster_unique_spacers:
     benchmark:
         "log/benchmark/cluster_unique_spacers.txt"
     shell:
-        """
+        r"""
 cd-hit-est -c 1 -n 8 -r 1 -g 1 -AS 0 -sf 1 -d 0 -T {threads}\
  -i {input} -o {output.spacers} > {log} 2>&1
 
@@ -194,18 +161,18 @@ plot_len1.pl {output.clusters}\
         """
 
 
-rule create_crispr_cluster_table:
+rule create_cctyper_spacer_table:
     input:
-        clstr="results/cctyper/all_spacers-clustered.clstr",
-        fasta="results/cctyper/all_spacers.fa",
+        clstr="results/cluster-cctyper/spacers-clustered.clstr",
+        fasta="results/spacers-cctyper.fa",
     output:
-        "results/all_spacers_table.tsv",
+        "results/spacers-cctyper.tsv",
     conda:
         "../envs/pyfaidx_pandas.yaml"
     threads: 1
     log:
-        "log/create_crispr_cluster_table.txt",
+        "log/create_cctyper_spacer_table.txt",
     benchmark:
-        "log/benchmark/create_crispr_cluster_table.txt"
+        "log/benchmark/create_cctyper_spacer_table.txt"
     script:
         "../scripts/make_cluster_table.py"

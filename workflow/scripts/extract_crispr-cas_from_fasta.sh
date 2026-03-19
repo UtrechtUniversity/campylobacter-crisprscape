@@ -1,38 +1,16 @@
 #!/usr/bin/env bash
 
-cctyper_dir=$1
+exec > "${snakemake_log[0]}" 2>&1 # send stdout+strerr to a log file
 
-sample_name=$(basename ${cctyper_dir})
-genome_dir=$2
-fasta_file="${genome_dir}/${sample_name}.fa"
+fasta_file="${snakemake_input[genomes]}"
+bed_file="${snakemake_input[bed]}"
+out_dir="${snakemake_output[bed_dir]}"
 
-bed_files=( $(find $1 -mindepth 1 -maxdepth 1 -name "*bed") )
+echo "Extracting CRISPR-Cas from ${fasta_file}..."
+seqkit subseq --bed "${bed_file}" -U "${fasta_file}"\
+ -o "${snakemake_output[crispr_cas]}"
 
+seqkit subseq --bed "${bed_file}" -U "${fasta_file}"\
+ -u 5000 -d 5000 -o "${snakemake_output[flanks]}"
 
-if [ ${#bed_files[@]} > 0 ]
-then
-    out_dir="${cctyper_dir}/fasta"
-    mkdir -p ${out_dir}
-    for bedfile in ${bed_files[*]}
-    do
-        locus_type=$(basename -s .bed ${bedfile})
-        echo "Extracting ${locus_type} from ${fasta_file}..."
-        seqkit subseq --bed ${bedfile} -U ${fasta_file} -o ${out_dir}/${locus_type}.fasta
-
-        seqkit subseq --bed ${bedfile} -U ${fasta_file}\
-         -u 5000 -d 5000 -o ${out_dir}/${locus_type}-with_flanks.fasta
-
-        seqkit subseq --bed ${bedfile} -U ${fasta_file}\
-         -u 5000 --only-flank\
-         -o ${out_dir}/${locus_type}-upstream.fasta
-
-        seqkit subseq --bed ${bedfile} -U ${fasta_file}\
-         -d 5000 --only-flank\
-         -o ${out_dir}/${locus_type}-downstream.fasta
-
-         ls -lh ${out_dir}/${locus_type}*.fasta
-        echo
-    done
-else
-    echo "Sample ${sample_name} has no CRISPR nor cas"
-fi
+ls -lh "${out_dir}"

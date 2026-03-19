@@ -29,16 +29,13 @@
 
 all_spacers=$1
 output_dir=$2
-log_dir=$3
-
-mkdir -p ${log_dir}
 
 for cutoff in 1 0.96 0.93 0.9 0.87 0.84 0.81
 # 0.8 is the lowest that CD-HIT-EST can take
 do
     cd-hit-est -AS 0 -r 1 -sf 1 -c ${cutoff} -i ${all_spacers}\
-     -o ${output_dir}/all_spacers-clustered-${cutoff}\
-      > ${log_dir}/all_spacers-clustered-${cutoff}.txt 2>&1
+     -o ${output_dir}/spacers-clustered-${cutoff}\
+      > ${output_dir}/spacers-clustered-${cutoff}.log 2>&1
 done
 # AS 0: match the entire shorter sequence,
 # r 1: include reverse complements (default)
@@ -53,9 +50,9 @@ summary_header="Cutoff\tClusters\tTotal_sequences\n"
 summary_file="${output_dir}/spacer_cluster_summary.tsv"
 
 printf ${summary_header} > ${summary_file}
-for logfile in ${log_dir}/all_spacers-clustered-*.txt
+for logfile in ${output_dir}/spacers-clustered-*.log
 do
-    cutoff=$(basename -s .txt ${logfile} | sed 's/all_spacers-clustered-//')
+    cutoff=$(basename -s .log ${logfile} | sed 's/spacers-clustered-//')
     clusters_total=$(tac ${logfile} | grep -m 1 "finished" | awk '{printf ("%s\t%s", $3,$1)}')
     printf "${cutoff}\t${clusters_total}\n" >> ${summary_file}
 done

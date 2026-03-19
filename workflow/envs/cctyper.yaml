@@ -5,6 +5,7 @@ dependencies:
  - biopython=1.79
  - libxgboost=1.7.1
  - py-xgboost=1.7.1
+ - setuptools=81.0.0
 
 channels:
  - conda-forge

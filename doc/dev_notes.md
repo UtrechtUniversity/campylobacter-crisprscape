@@ -40,6 +40,17 @@ this makes the whole DAG simpler, and the processing faster, at the cost
 of losing checks by Snakemake to see if all expected output files are
 generated.
 
+### Processing batches as concatenated fasta files
+
+As an alternative method, the fasta files for each batch may be concatenated
+in one long file with multiple genomes and processed at once. Tools that
+are adapted to analysing metagenomes can process separate fasta files as
+well as such a concatenated file. Besides, it may save overhead time while
+still taking advantage of multiple CPUs if the program is multithreaded.
+
+(add some details on benchmark and which rules do and do not benefit
+from using concatenated input files)
+
 ## Using other inputs than ATB
 
 This workflow was designed to work with bacterial genomes from
@@ -73,6 +84,11 @@ create a non-functional program. We have reported this on
 [GitHub](https://github.com/Russel88/CRISPRCasTyper/issues/55) and provide
 a modified software environment configuration file (`envs/cctyper.yaml`)
 that we found to work.
+
+For example, CCTyper uses `import pkg_resources`, which is a Python
+setuptools library that has been removed since version 82:
+[setuptools changelog](https://setuptools.pypa.io/en/latest/history.html#v82-0-0).
+As a simple workaround, we include version 81.0.0.
 
 ## Trying to be economical with disk space use
 
@@ -132,3 +148,14 @@ We could only get it to work with the flexible or disabled channel priority.
 We have adapted to YAML so that it can be solved using strict priority mode,
 but with this method two modules are disabled: strand and _cas_ prediction
 (CRISRPcasIdentifier).
+
+### CCTyper
+
+CCTyper assumes its output directory does not yet exist, while Snakemake
+will automatically prepare directories of the rules it is running.
+To solve this conflict, the rule running CCTyper has to start with something
+like:
+
+```bash
+rm -r {output_directory} && cctyper ...
+```

@@ -12,19 +12,9 @@ sink(
 cctyper_tables <- snakemake@input[["table"]]
 
 read_cctyper_table <- function(cctyper_file) {
-  batch <- basename(cctyper_file) %>%
-    gsub(
-      pattern = "CRISPR-Cas-",
-      replacement = "",
-      x = .
-    ) %>%
-    gsub(
-      pattern = ".csv",
-      replacement = "",
-      x = .
-    )
+  batch <- snakemake@params[["batch"]]
 
-  return(read_csv(cctyper_file, show_col_types = F) %>%
+  return(read_delim(cctyper_file, show_col_types = F) %>%
     mutate(batch = batch))
 }
 
