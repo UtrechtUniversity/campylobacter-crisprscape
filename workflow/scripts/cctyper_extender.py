@@ -343,10 +343,10 @@ def extract_bed_entries(info_df):
         info_df[info_df["System"] == "CRISPR-Cas"]
         .filter(
             [
-                "CRISPR_ID",
+                "Contig",
                 "crisprcas_start",
                 "crisprcas_end",
-                "Contig",
+                "CRISPR_ID",
                 "N_repeats",
                 "Strand_cas",
             ]
@@ -365,7 +365,7 @@ def extract_bed_entries(info_df):
         pass
 
     crispr_bed_df = info_df.filter(
-        ["CRISPR_ID", "CRISPR_start", "CRISPR_end", "Contig", "N_repeats", "Strand_cas"]
+        ["Contig", "CRISPR_start", "CRISPR_end", "CRISPR_ID", "N_repeats", "Strand_cas"]
     ).dropna()
 
     if not crispr_bed_df.empty:
@@ -380,7 +380,7 @@ def extract_bed_entries(info_df):
         pass
 
     cas_bed_df = info_df.filter(
-        ["Operon_ID", "Cas_start", "Cas_end", "Contig", "N_genes", "Strand_cas"]
+        ["Contig", "Cas_start", "Cas_end", "Operon_ID", "N_genes", "Strand_cas"]
     ).dropna()
 
     if not cas_bed_df.empty:
