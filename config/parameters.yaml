@@ -38,9 +38,6 @@ genomad:
 jaeger:
   threads: 16
 
-crispridentify:
-  threads: 20
-
 download_spacepharer_databases:
   threads: 4
 

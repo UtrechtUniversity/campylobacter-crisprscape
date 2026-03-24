@@ -1,47 +1,64 @@
 ### Refine CRISPR-Cas identifation
 
 
+rule split_crispridentify_input:
+    input:
+        "results/crispr_fasta/{batch}/CRISPR-Cas-with_flanks.fasta",
+    output:
+        directory("results/crispr_fasta/{batch}/split_with_flanks"),
+    conda:
+        "../envs/seqkit.yaml"
+    threads: 1
+    log:
+        "log/split_crispridentify_input/{batch}.txt",
+    benchmark:
+        "log/benchmark/split_crispridentify_input/{batch}.txt"
+    shell:
+        """
+seqkit split2 {input} -s 1 -N -O {output} > {log} 2>&1
+        """
+
+
 rule crispridentify:
     input:
-        "results/cctyper/{batch}/subseq",
+        folder="results/crispr_fasta/{batch}/split_with_flanks",
+        fasta="results/crispr_fasta/{batch}/CRISPR-Cas-with_flanks.fasta",
     output:
-        spacers="results/crispridentify/{batch}/CRISPR_arrays-with_flanks/Complete_spacer_dataset.fasta",
-        summary="results/crispridentify/{batch}/CRISPR_arrays-with_flanks/Complete_summary.csv",
+        spacers="results/crispridentify/{batch}/Complete_spacer_dataset.fasta",
+        summary="results/crispridentify/{batch}/Complete_summary.csv",
     params:
         out_dir=subpath(output[0], parent=True),
-        arrays=subpath(input[0], parent=True),
     conda:
         "../envs/crispridentify.yaml"
-    threads: config["crispridentify"]["threads"]
+    threads: 1
     log:
         "log/crispridentify/{batch}.txt",
     benchmark:
         "log/benchmark/crispridentify/{batch}.txt"
     shell:
         """
+rm -f "{input.folder}/.snakemake_timestamp"
 cd bin/CRISPRidentify
 
-find ../../{params.arrays}/*/fasta/CRISPR_arrays-with_flanks.fasta -size +0c -print0 |\
- parallel -0 --jobs {threads} --retry-failed --halt='now,fail,1'\
- 'python CRISPRidentify.py --file {{}}\
- --result_folder "../../{params.out_dir}/"\
- --fasta_report True --strand False' > ../../{log} 2>&1
+python CRISPRidentify.py --input_folder "../../{input.folder}"\
+ --result_folder "../../{params.out_dir}" --fasta_report True\
+ --strand False > "../../{log}" 2>&1
         """
 
 
 rule merge_crispridentify_batches:
     input:
         spacers_crispr=expand(
-            "results/crispridentify/{batch}/CRISPR_arrays-with_flanks/Complete_spacer_dataset.fasta",
+            "results/crispridentify/{batch}/Complete_spacer_dataset.fasta",
             batch=BATCHES,
         ),
         summary_crispr=expand(
-            "results/crispridentify/{batch}/CRISPR_arrays-with_flanks/Complete_summary.csv",
+            "results/crispridentify/{batch}/Complete_summary.csv",
             batch=BATCHES,
         ),
     output:
-        spacers_crispr="results/crispridentify/all_spacers.fa",
-        summary_crispr="results/crispridentify/complete_summary.csv",
+        spacers_crispr="results/spacers-crispridentify.fa",
+        summary_crispr="results/crisprs-crispridentify.csv",
     conda:
         "../envs/bash.yaml"
     threads: 1
