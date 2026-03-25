@@ -85,7 +85,8 @@ genomad_df <- left_join(
     )
   )
 
-write_csv(
+write_delim(
   x = genomad_df,
-  file = snakemake@output[[1]]
+  file = snakemake@output[[1]],
+  delim = "\t"
 )

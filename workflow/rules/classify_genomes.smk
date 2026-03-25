@@ -15,7 +15,7 @@ rule download_mlst_database:
     benchmark:
         "log/benchmark/download_mlst_database.txt"
     shell:
-        """
+        r"""
 claMLST import -r pubmlst --no-prompt {output} {params.species} > {log} 2>&1
         """
 
@@ -34,7 +34,7 @@ rule mlst:
     benchmark:
         "log/benchmark/mlst/{batch}.txt"
     shell:
-        """
+        r"""
 find -L {input.batch} -mindepth 1 -maxdepth 1 -type f -name "*.fa" -print0 |\
  parallel -0 --jobs {threads} --retry-failed --halt='now,fail=1'\
  claMLST search {input.db} {{}} -o "$(dirname {output})/{{/.}}.txt" > {log} 2>&1
@@ -56,7 +56,7 @@ rule concatenate_mlst_batches:
     benchmark:
         "log/benchmark/concatenate_mlst/{batch}.txt"
     shell:
-        """
+        r"""
 echo -e "Genome\tST" > {output}
 find $(dirname {input}) -mindepth 1 -maxdepth 1 -type f -name "*.txt" -print0 |\
  parallel -0 --jobs {threads} --retry-failed --halt='now,fail=1'\
@@ -77,7 +77,7 @@ rule concatenate_mlst_all:
     benchmark:
         "log/benchmark/concatenate_mlst_all.txt"
     shell:
-        """
+        r"""
 batches=( {input} )
 head -1 ${{batches[0]}} > {output}
 sed --separate 1d ${{batches[@]}} >> {output}
@@ -99,7 +99,7 @@ rule download_genomad_database:
     benchmark:
         "log/benchmark/download_genomad_database.txt"
     shell:
-        """
+        r"""
 mkdir -p $(dirname {output.db})
 genomad download-database $(dirname {output.db}) > {log} 2>&1
         """
@@ -107,7 +107,7 @@ genomad download-database $(dirname {output.db}) > {log} 2>&1
 
 rule genomad:
     input:
-        fasta="resources/ATB/assemblies/{batch}.fasta",
+        fasta="resources/ATB/assemblies-concatenated/{batch}.fasta",
         db="resources/genomad_db",
     output:
         aggregated_classification="results/genomad/{batch}/{batch}_aggregated_classification/{batch}_aggregated_classification.tsv",
@@ -123,7 +123,7 @@ rule genomad:
     benchmark:
         "log/benchmark/genomad/{batch}.txt"
     shell:
-        """
+        r"""
 genomad end-to-end -t {threads} --cleanup --enable-score-calibration\
  {input.fasta} {params.work_dir} {input.db} > {log} 2>&1
         """
@@ -144,9 +144,9 @@ rule collect_genomad_predictions:
             batch=BATCHES,
         ),
     output:
-        "results/genomad_predictions.csv",
+        "results/genomad_predictions.tsv",
     conda:
-        "../envs/tidy_here.yaml"
+        "../envs/R_tidyverse.yaml"
     threads: 1
     log:
         "log/collect_genomad_predictions.txt",
@@ -161,14 +161,14 @@ rule collect_genomad_predictions:
 
 rule jaeger:
     input:
-        "resources/ATB/assemblies/{batch}.fasta",
+        "resources/ATB/assemblies-concatenated/{batch}.fasta",
     output:
         default="results/jaeger/{batch}/{batch}_default_jaeger.tsv",
         phages="results/jaeger/{batch}/{batch}_default_phages_jaeger.tsv",
         log="results/jaeger/{batch}/{batch}_jaeger.log",
         prophages=directory("results/jaeger/{batch}/{batch}_default_prophages"),
     params:
-        output_dir=subpath(output.default, parent = True)
+        output_dir=subpath(output.default, ancestor=2),
     conda:
         "../envs/jaeger.yaml"
     threads: config["jaeger"]["threads"]
@@ -177,7 +177,7 @@ rule jaeger:
     benchmark:
         "log/benchmark/jaeger/{batch}.txt"
     shell:
-        """
+        r"""
 jaeger run -p --workers {threads} -i {input} -o {params.output_dir}\
  --overwrite > {log} 2>&1
         """
@@ -191,7 +191,7 @@ rule collect_jaeger_predictions:
         default="results/jaeger_predictions.tsv",
         phages="results/jaeger_phages_predictions.tsv",
     conda:
-        "../envs/tidy_here.yaml"
+        "../envs/R_tidyverse.yaml"
     threads: 1
     log:
         "log/collect_jaeger_predictions.txt",
@@ -218,7 +218,7 @@ rule simplify_checkm:
     benchmark:
         "log/benchmark/simplify_checkm.txt"
     shell:
-        """
+        r"""
 echo "genome,contamination,completeness" >  {output}
 zless {input} | tail -n +2 | cut -f 1,3,4 | tr "\t" "," >> {output}
         """
@@ -248,7 +248,7 @@ rule dereplicate_genomes:
     benchmark:
         "log/benchmark/drep/{batch}.txt"
     shell:
-        """
+        r"""
 find {input.batch} -name "*.fa" -print > {output.genome_list}
 
 dRep dereplicate {params.prefix} -g {output.genome_list}\
@@ -265,7 +265,7 @@ rule collect_dereplications:
     output:
         "results/dereplication_table.tsv",
     conda:
-        "../envs/tidy_here.yaml"
+        "../envs/R_tidyverse.yaml"
     threads: 1
     log:
         "log/collect_dereplications.txt",

@@ -14,7 +14,7 @@ rule split_crispridentify_input:
     benchmark:
         "log/benchmark/split_crispridentify_input/{batch}.txt"
     shell:
-        """
+        r"""
 seqkit split2 {input} -s 1 -N -O {output} > {log} 2>&1
         """
 
@@ -36,7 +36,7 @@ rule crispridentify:
     benchmark:
         "log/benchmark/crispridentify/{batch}.txt"
     shell:
-        """
+        r"""
 rm -f "{input.folder}/.snakemake_timestamp"
 cd bin/CRISPRidentify
 
@@ -46,95 +46,89 @@ python CRISPRidentify.py --input_folder "../../{input.folder}"\
         """
 
 
-rule merge_crispridentify_batches:
+rule create_crispridentify_crispr_table:
     input:
-        spacers_crispr=expand(
-            "results/crispridentify/{batch}/Complete_spacer_dataset.fasta",
-            batch=BATCHES,
-        ),
-        summary_crispr=expand(
+        table=expand(
             "results/crispridentify/{batch}/Complete_summary.csv",
             batch=BATCHES,
         ),
     output:
-        spacers_crispr="results/spacers-crispridentify.fa",
-        summary_crispr="results/crisprs-crispridentify.csv",
+        "results/crisprs-crispridentify.tsv",
+    conda:
+        "../envs/R_tidyverse.yaml"
+    threads: 1
+    log:
+        "log/create_crispridentify_crispr_table.txt",
+    benchmark:
+        "log/benchmark/create_crispridentify_crispr_table.txt"
+    script:
+        "../scripts/summarise_crisprs.R"
+
+
+rule concatenate_crispridentify_spacers:
+    input:
+        expand(
+            "results/crispridentify/{batch}/Complete_spacer_dataset.fasta",
+            batch=BATCHES,
+        ),
+    output:
+        "results/spacers-crispridentify.fasta",
     conda:
         "../envs/bash.yaml"
     threads: 1
     log:
-        "log/merge_crispridentify_batches.txt",
+        "log/concatenate_crispridentify_spacers.txt",
     benchmark:
-        "log/benchmark/merge_crispridentify_batches.txt"
-    script:
-        "../scripts/merge_crispridentify_batches.sh"
+        "log/benchmark/concatenate_crispridentify_spacers.txt"
+    shell:
+        r"""
+cat {input} > {output} 2> {log}
+        """
 
 
-rule merge_cctyper_identify:
+rule cluster_crispridentify_spacers:
     input:
-        identify="results/crispridentify/complete_summary.csv",
-        cctyper=expand("results/cctyper/{batch}/crisprs_all-{batch}.tab", batch=BATCHES),
+        rules.concatenate_crispridentify_spacers.output[0],
     output:
-        table="results/all_CRISPRs_with_identify.tab",
-    conda:
-        "../envs/bash.yaml"
-    threads: 1
-    log:
-        "log/merge_cctyper_identify.txt",
-    benchmark:
-        "log/benchmark/merge_cctyper_identify.txt"
-    script:
-        "../scripts/merge_cctyper_crispridentify.sh"
-
-
-rule cluster_all_spacers_crispridentify:
-    input:
-        rules.merge_crispridentify_batches.output.spacers_crispr,
-    output:
-        clusters=expand(
-            "results/crispridentify/all_spacers-clustered-{cutoff}.clstr",
+        expand(
+            "results/cluster-crispridentify/spacers-clustered-{cutoff}{ext}",
             cutoff=[1, 0.96, 0.93, 0.9, 0.87, 0.84, 0.81],
+            ext=[".clstr", "", ".log"],
         ),
-        spacers=expand(
-            "results/crispridentify/all_spacers-clustered-{cutoff}",
-            cutoff=[1, 0.96, 0.93, 0.9, 0.87, 0.84, 0.81],
-        ),
-        summary="results/crispridentify/spacer_cluster_summary.tsv",
+        summary="results/cluster-crispridentify/spacer_cluster_summary.tsv",
     params:
-        work_dir=subpath(input[0], parent=True),
-        log_dir="log/spacer_clustering_crispridentify",
+        work_dir=subpath(output[0], parent=True),
     conda:
         "../envs/cdhit.yaml"
     threads: 1
     log:
-        "log/cluster_all_spacers_crispridentify.txt",
+        "log/cluster_crispridentify_spacers.txt",
     benchmark:
-        "log/benchmark/cluster_all_spacers_crispridentify.txt"
+        "log/benchmark/cluster_crispridentify_spacers.txt"
     shell:
-        """
+        r"""
 bash workflow/scripts/cluster_all_spacers.sh\
-    {input}\
-    {params.work_dir}\
-    {params.log_dir} > {log} 2>&1
+ {input}\
+ {params.work_dir} > {log} 2>&1
         """
 
 
 rule cluster_unique_spacers_crispridentify:
     input:
-        "results/crispridentify/all_spacers.fa",
+        rules.concatenate_crispridentify_spacers.output[0],
     output:
-        clusters="results/crispridentify/all_spacers-clustered.clstr",
-        spacers="results/crispridentify/all_spacers-clustered",
-        distribution="results/crispridentify/all_spacers-clustered-distribution.tsv",
+        clusters="results/cluster-crispridentify/spacers-clustered.clstr",
+        spacers="results/cluster-crispridentify/spacers-clustered",
+        distribution="results/cluster-crispridentify/spacers-clustered-distribution.tsv",
     conda:
         "../envs/cdhit.yaml"
     threads: 1
     log:
-        "log/cluster_unique_spacers_identify.txt",
+        "log/cluster_unique_spacers_crispridentify.txt",
     benchmark:
-        "log/benchmark/cluster_unique_spacers_identify.txt"
+        "log/benchmark/cluster_unique_spacers_crispridentify.txt"
     shell:
-        """
+        r"""
 cd-hit-est -c 1 -n 8 -r 1 -g 1 -AS 0 -sf 1 -d 0 -T {threads}\
  -i {input} -o {output.spacers} > {log} 2>&1
 
@@ -145,18 +139,18 @@ plot_len1.pl {output.clusters}\
         """
 
 
-rule create_crispr_cluster_table_identify:
+rule create_spacer_table_crispridentify:
     input:
-        clstr="results/crispridentify/all_spacers-clustered.clstr",
-        fasta="results/crispridentify/all_spacers.fa",
+        clstr=rules.cluster_unique_spacers_crispridentify.output.clusters,
+        fasta=rules.concatenate_crispridentify_spacers.output[0],
     output:
-        "results/all_spacers_table_identify.tsv",
+        "results/spacers-crispridentify.tsv",
     conda:
         "../envs/pyfaidx_pandas.yaml"
     threads: 1
     log:
-        "log/create_crispr_cluster_table_identify.txt",
+        "log/create_spacer_table_crispridentify.txt",
     benchmark:
-        "log/benchmark/create_crispr_cluster_table_identify.txt"
+        "log/benchmark/create_spacer_table_crispridentify.txt"
     script:
-        "../scripts/make_cluster_table_identify.py"
+        "../scripts/make_cluster_table.py"

@@ -47,7 +47,7 @@ def read_clstr_file(inputfile=str):
     }
 
     cluster_regex = r"(>Cluster *)(\d*)"
-    locus_regex = r"^(\d+)\s+(\d+nt), >(\w+).(contig[\d-]+_\d+:\d+)... (.*)$"
+    locus_regex = r"^(\d+)\s+(\d+nt), >(\w+)([\.-])(contig[\d-]+_.+)\.\.\. (.*)$"
 
     with open(inputfile, "r") as infile:
         for line in infile:
@@ -64,10 +64,11 @@ def read_clstr_file(inputfile=str):
                 member_nr = crispr_info.group(1)  # not used
                 length = int(crispr_info.group(2).rstrip("nt"))
                 genome = crispr_info.group(3)
-                locus = crispr_info.group(4)
-                full_locus = f"{genome}.{locus}"
+                separator = crispr_info.group(4)
+                locus = crispr_info.group(5)
+                full_locus = f"{genome}{separator}{locus}"
                 contig = locus.split("_")[0]
-                extra = crispr_info.group(5)
+                extra = crispr_info.group(6)
 
                 # Check the final group for representative ('*') or other
                 if extra == "*":

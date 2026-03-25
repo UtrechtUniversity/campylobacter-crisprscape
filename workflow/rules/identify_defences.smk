@@ -19,7 +19,7 @@ rule download_padloc_database:
     benchmark:
         "log/benchmark/download_padloc_database.txt"
     shell:
-        """
+        r"""
 padloc --data resources/padloc_db --db-install v2.0.0 > {log} 2>&1
         """
 
@@ -38,7 +38,7 @@ rule padloc:
     benchmark:
         "log/benchmark/padloc/{batch}.txt"
     shell:
-        """
+        r"""
 find -L {input.batch} -mindepth 1 -maxdepth 1 -type f -name "*.fa" -print0 |\
  parallel -0 --jobs {threads} --retry-failed --halt='now,fail=1'\
  'mkdir -p "$(dirname {output})/{{/.}}" && padloc --data {input.db}\
@@ -61,7 +61,7 @@ rule concatenate_padloc_batches:
     benchmark:
         "log/benchmark/concatenate_padloc/{batch}.txt"
     shell:
-        """
+        r"""
 file_array=( $(find $(dirname {input}) -mindepth 2 -maxdepth 2 -type f -name "*_padloc.csv") )
 head -1 ${{file_array[0]}} > {output}
 parallel --jobs {threads} --retry-failed --halt='now,fail=1'\
@@ -82,7 +82,7 @@ rule concatenate_padloc_all:
     benchmark:
         "log/benchmark/concatenate_padloc_all.txt"
     shell:
-        """
+        r"""
 batches=( {input} )
 head -1 ${{batches[0]}} > {output}
 sed --separate 1d ${{batches[@]}} >> {output}

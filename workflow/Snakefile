@@ -61,37 +61,27 @@ rule all:
         # Multilocus Sequence Types (ST) for Campylobacter
         "results/mlst_table.tsv",
         # Virus and plasmid predictions per contig
-        "results/genomad_predictions.csv",
-        "results/jaeger_predictions.csv",
+        "results/genomad_predictions.tsv",
+        "results/jaeger_predictions.tsv",
         # Phage defence systems
         "results/padloc_table.csv",
         # Genome dereplication (at 99.99% identity, using dRep+fastANI)
         "results/dereplication_table.tsv",
         ## CRISPR-related outputs: 1. pre-screening
         # Concatenated CCTyper output (CRISPR arrays and spacers)
-        "results/cctyper_crisprs.tsv",
-        "results/cctyper/spacer_cluster_summary.tsv",
-        # Cluster unique CRISPR spacers
-        "results/cctyper/all_spacers-clustered.clstr",
-        "results/all_spacers_table.tsv",
+        "results/spacers-cctyper.fasta",
+        "results/spacers-cctyper.tsv",
+        "results/crisprs-cctyper.tsv",
+        "results/cluster-cctyper/spacer_cluster_summary.tsv",
         # CRISPR output 2. CRISPRidentify output (refinement)
-        expand(
-            "results/crispridentify/{batch}/CRISPR_arrays-with_flanks/Complete_spacer_dataset.fasta",
-            batch=BATCHES,
-        ),
-        # Concatenated CRISPRidentify output
-        "results/crispridentify/complete_summary.csv",
-        "results/crispridentify/all_spacers.fa",
-        "results/crispridentify/all_spacers-clustered.clstr",
-        "results/all_spacers_table_identify.tsv",
-        # Cluster analysis of CRISPRidentify spacers
-        "results/crispridentify/spacer_cluster_summary.tsv",
-        # Merged CRISPRidentify and CCtyper output
-        "results/all_CRISPRs_with_identify.tab",
+        "results/spacers-crispridentify.fasta",
+        "results/spacers-crispridentify.tsv",
+        "results/crisprs-crispridentify.tsv",
+        "results/cluster-crispridentify/spacer_cluster_summary.tsv",
         # Spacepharer output (spacer targets, putative protospacers)
         "results/phage_matches.tsv",
         "results/plasmid_matches.tsv",
         # KMA output (mapping spacers to input Campy genomes)
         "results/kma/CRISPR.frag.gz",
-        "results/kma/CRISPR_alignment",
+        "results/kma/CRISPR_alignment.tsv",
     default_target: True

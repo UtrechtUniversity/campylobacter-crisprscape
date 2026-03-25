@@ -1,7 +1,7 @@
-name: tidy_here
+name: tidyverse
 
 dependencies:
- - r-here=1.0.1
+ - r-base=4.4.2
  - r-tidyverse=2.0.0
 
 channels:

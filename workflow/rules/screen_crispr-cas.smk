@@ -77,24 +77,22 @@ rule create_cctyper_crispr_table:
         table=expand("results/cctyper-parse/{batch}/CRISPR-Cas.tsv", batch=BATCHES),
     output:
         "results/crisprs-cctyper.tsv",
-    params:
-        batch="{wildcards.batch}",
     conda:
-        "../envs/tidy_here.yaml"
+        "../envs/R_tidyverse.yaml"
     threads: 1
     log:
         "log/cctyper/create_cctyper_crispr_table.txt",
     benchmark:
         "log/benchmark/cctyper/create_cctyper_crispr_table.txt"
     script:
-        "../scripts/summarise_cctyper_crisprs.R"
+        "../scripts/summarise_crisprs.R"
 
 
 rule concatenate_cctyper_spacers:
     input:
         expand("results/cctyper/{batch}/spacers", batch=BATCHES),
     output:
-        "results/spacers-cctyper.fa",
+        "results/spacers-cctyper.fasta",
     conda:
         "../envs/bash.yaml"
     threads: 1
@@ -110,7 +108,7 @@ find {input} -name "*.fa" -exec cat {{}} \; > {output} 2> {log}
 
 rule cluster_cctyper_spacers:
     input:
-        "results/spacers-cctyper.fa",
+        rules.concatenate_cctyper_spacers.output[0],
     output:
         expand(
             "results/cluster-cctyper/spacers-clustered-{cutoff}{ext}",
@@ -130,14 +128,14 @@ rule cluster_cctyper_spacers:
     shell:
         r"""
 bash workflow/scripts/cluster_all_spacers.sh\
-    {input}\
-    {params.work_dir} > {log} 2>&1
+ {input}\
+ {params.work_dir} > {log} 2>&1
         """
 
 
 rule cluster_unique_spacers:
     input:
-        "results/spacers-cctyper.fa",
+        rules.concatenate_cctyper_spacers.output[0],
     output:
         clusters="results/cluster-cctyper/spacers-clustered.clstr",
         spacers="results/cluster-cctyper/spacers-clustered",
@@ -161,18 +159,18 @@ plot_len1.pl {output.clusters}\
         """
 
 
-rule create_cctyper_spacer_table:
+rule create_spacer_table_cctyper:
     input:
         clstr="results/cluster-cctyper/spacers-clustered.clstr",
-        fasta="results/spacers-cctyper.fa",
+        fasta=rules.concatenate_cctyper_spacers.output[0],
     output:
         "results/spacers-cctyper.tsv",
     conda:
         "../envs/pyfaidx_pandas.yaml"
     threads: 1
     log:
-        "log/create_cctyper_spacer_table.txt",
+        "log/create_spacer_table_cctyper.txt",
     benchmark:
-        "log/benchmark/create_cctyper_spacer_table.txt"
+        "log/benchmark/create_spacer_table_cctyper.txt"
     script:
         "../scripts/make_cluster_table.py"
