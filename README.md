@@ -1,6 +1,7 @@
 # _Campylobacter_ CRISPRscape
 
-[![Project Status: WIP – Initial development is in progress, but there has not yet been a stable, usable release suitable for the public.](https://www.repostatus.org/badges/latest/wip.svg)](https://www.repostatus.org/#wip) [![License](https://img.shields.io/badge/License-BSD_3--Clause-blue.svg)](https://opensource.org/licenses/BSD-3-Clause) [![pages-build-deployment](https://github.com/UtrechtUniversity/campylobacter-crisprscape/actions/workflows/pages/pages-build-deployment/badge.svg)](https://utrechtuniversity.github.io/campylobacter-crisprscape/) [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/UtrechtUniversity/campylobacter-crisprscape)
+[![Project Status: Active – The project has reached a stable, usable state and is being actively developed.](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active) [![License](https://img.shields.io/badge/License-BSD_3--Clause-blue.svg)](https://opensource.org/licenses/BSD-3-Clause) [![pages-build-deployment](https://github.com/UtrechtUniversity/campylobacter-crisprscape/actions/workflows/pages/pages-build-deployment/badge.svg)](https://utrechtuniversity.github.io/campylobacter-crisprscape/)  
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/UtrechtUniversity/campylobacter-crisprscape)
 
 Automated bioinformatics workflow for the identification and characterisation
 of Clustered Regularly Interspaced Short Palindromic Repeat (CRISPR) arrays
