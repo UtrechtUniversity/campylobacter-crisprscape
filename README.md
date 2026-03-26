@@ -28,41 +28,29 @@ Or look at the computer-generated Wiki with integrated chatbot assistant at
 
 ## Release roadmap
 
-- Version 0.2: tidy code
-   - remove outdated steps
-   - move long commands in Snakefile to separate script
-   - (re)apply linting (Black, Styler)
-   - apply 'bash strict mode' and suppress R messages
-   - move parts of Snakefile to separate scripts?
-    
-- Version 0.3: solid foundation
-   - validate proper functioning of CCTyper + CRISPRidentify
-      - adjust helper scripts where necessary
-   - correct scripts for making tables, integrate with Snakemake and test!
-      - CRISPR spacer table (#24)
-      - CRISPR-Cas locus table
-      - (make sure every analysis part produces an output: include in 'rule all')
-
 - Version 0.4: clear documentation
    -  review and update README and docs
 
 - Future additions:
-   - genome deduplication (dRep)
+   - Extract orphan CRISPR arrays from CCTyper -> send to CRISPRidentify
    - CRISPR spacer target prediction
       - map to
-         - masked ATB genomes
-         - PLSDB
-         - PhageScope
-         - VIRE
-         - MEGAISurv metagenomes
-      - mini-benchmark different mapping algorithms
+         - masked ATB genomes (KMA)
+         - PLSDB (SpacePHARER)
+         - PhageScope (SpacePHARER)
+         - VIRE (t.b.d.)
+         - MEGAISurv metagenomes (t.b.d)
+      - mini-benchmark different mapping algorithms?
          - Sassy
          - KMA
          - SpacePHARER
-      - (where feasible) connect spacer hits with functional annotations!
+      - (where feasible) connect spacer hits with functional annotations
+         - Bakta annotations from ATB are available!
    - Integrate downstream analyses with Snakemake?
       - run RMarkdown/Quarto notebooks automatically
-   - build a database like [this spacerdb](https://spacers.jgi.doe.gov/database/overview/)?
+   - Build a database like [this spacerdb](https://spacers.jgi.doe.gov/database/overview/)?
+   - Create a command-line tool with [snaketool](https://github.com/beardymcjohnface/Snaketool/)
+   - Separate 'main' workflow steps from 'optional/extra' steps?
 
 ## Workflow description
 
@@ -132,9 +120,6 @@ Also see the corresponding documentation pages for details:
 ### Suggestions of programs/analyses to test
 
 1. Mash with CRISPR loci, and whole genomes (compare all-vs-all)
-
-2. Map CRISPR spacers to all downloaded genomes (bowtie, KMA, and Sassy?),
-metagenome assemblies, other databases to predict targets
 
 3. SpacerPlacer (see input file format in <https://github.com/fbaumdicker/SpacerPlacer?tab=readme-ov-file#spacer_fasta-input-format>
  (also requires an extra conversion script?)
