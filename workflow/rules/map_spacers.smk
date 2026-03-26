@@ -11,15 +11,14 @@ rule spacepharer_spacer_setup:
         tmp_folder=subpath(output.spacer_db, parent=True),
     conda:
         "../envs/spacepharer.yaml"
-    threads: 48
+    threads: config["spacepharer"]["threads"]
     log:
         "log/spacepharer/spacepharer_spacer_setup.txt",
     benchmark:
         "log/benchmark/spacepharer/spacepharer_spacer_setup.txt"
     shell:
         r"""
-spacer_db=$(dirname {output.spacer_db})
-rm -rf "${{spacer_db}}/*" > {log} 2>&1
+rm -rf {params.tmp_folder}/* > {log} 2>&1
 
 spacepharer createsetdb {input.spacers} {output.spacer_db}\
  "{params.tmp_folder}/tmpFolder" --extractorf-spacer 1\
