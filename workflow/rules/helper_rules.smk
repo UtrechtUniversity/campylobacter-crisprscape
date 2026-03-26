@@ -25,7 +25,7 @@ rule concatenate_batches:
     input:
         "resources/ATB/assemblies/{batch}",
     output:
-        temp("resources/ATB/assemblies-concatenated/{batch}.fasta"),
+        "resources/ATB/assemblies-concatenated/{batch}.fasta",
     conda:
         "../envs/bash.yaml"
     threads: 1
@@ -34,7 +34,7 @@ rule concatenate_batches:
     benchmark:
         "log/benchmark/concatenate_{batch}.txt"
     shell:
-        """
+        r"""
 cat {input}/*.fa > {output} 2> {log}
         """
 
