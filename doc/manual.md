@@ -26,16 +26,6 @@ Download genomes from AllTheBacteria
 bash bin/prepare_genomes.sh
 ```
 
-Download reference databases for geNomad and SpacePHARER:
-
-``` bash
-mamba env create -f envs/genomad.yaml
-mamba activate genomad
-genomad download-database data/
-
-bash bin/download_spacepharer_database.sh
-```
-
 _Optional:_ Do a dry-run to check if Snakemake can find all the right input
 and output files:
 
@@ -65,8 +55,7 @@ Furthermore, since the project is hosted on GitHub, we expect you to use
 CRISPRscape is designed to work with the
 [AllTheBacteria](https://allthebacteria.readthedocs.io/en/latest/)
 resource to download all high-quality genomes of a given species.
-(The example on which it was first tested is _Campylobacter coli_
-and _C. jejuni_, combined.)
+(It has been tested on _Campylobacter coli_ and _C. jejuni_ together.)
 
 ### Estimated disk use :material-harddisk:
 
@@ -76,15 +65,17 @@ and _C. jejuni_, combined.)
     Prepare to use hundreds of GBs!
 
 - [AllTheBacteria metadata](allthebacteria.md): ~1.5GB
-
-      - AllTheBacteria genomes: depends on species
-    (e.g., 197GB for ~130,000 _Campylobacter_ genomes)
+    - AllTheBacteria genomes: depends on species
+    (e.g., 209GB for ~130,000 _Campylobacter_ genomes)
+    - AllTheBacteria genome annotations (Bakta): depends on species
+    (e.g., 531GB for ~130,000 _Campylobacter_ genomes)
 
 - Databases of [SpacePHARER](#spacepharer):
+    - [PLSDB](spacepharer.md#plsdb-2024_05_31_v2): 14GB initial download
+    \+ 68GB after indexing = ~80GB
 
-      - [PLSDB](spacepharer.md#plsdb-2024_05_31_v2): ~80GB
-
-      - [Phagescope](spacepharer.md#phagescope): ~320GB
+    - [Phagescope](spacepharer.md#phagescope): 41GB initial download
+    \+ 155GB after indexing = ~200GB
 
 - [geNomad database](#genomad): 1.4GB
 
@@ -119,8 +110,8 @@ to get started!
 cd campylobacter-crisprscape
 ```
 
-(You may of course rename this directory if you want to. Just make sure you
-remember it.)
+(You may of course rename this directory if you want to. In that case,
+use the new name instead of `campylobacter-crisprscape`.)
 
 ### Tunable parameters :material-tune:
 
@@ -140,9 +131,8 @@ Campylobacter_D coli
 ```
 
 By changing the species name, one can adjust the species that can be
-automatically downloaded from AllTheBacteria (ATB). When changing the name,
-make sure to use the taxonomy from
-[GTDB](https://gtdb.ecogenomic.org/tree).
+automatically downloaded from AllTheBacteria (ATB). This requires the
+taxonomic names as defined in [GTDB](https://gtdb.ecogenomic.org/tree).
 
 This also affects multilocus sequence typing (MLST): CRISPRscape includes
 automated MLST, which requires downloading the proper marker gene database.
@@ -156,7 +146,7 @@ For finding valid species names, please consult
 
 Then, there are some technical parameters that you can adjust to fit your
 system. These range from the input directory in which your genomes are stored
-(default: `data/tmp/ATB/`) and the location of databases to the number of CPU
+(default: `resources/ATB/`) and the location of databases to the number of CPU
 threads to use.
 
 Please open `config/config.yaml` and `config/parameters.yaml` to review
@@ -185,10 +175,30 @@ original version (`original`) or the incremental update (`update` = smallest;
 default). For example:
 
 ``` bash
-bash bin/prepare_genomes.sh all
+bash bin/prepare_genomes.sh --part all
+```
+
+One may also set the output directory using the `--directory` or `-d` option:
+
+```bash
+bash bin/prepare_genomes.sh --part all --directory my/genomes
 ```
 
 ### Downloading databases :material-cloud-download:
+
+Reference databases required by the different tools are automatically
+downloaded with the Snakemake workflow. No user action required.
+Below is a summary of the databases that are used.
+
+#### [PADLOC](https://github.com/padlocbio/padloc)
+
+CRISPRscape uses PADLOC: Prokaryotic Antiviral Defence LOCator to screen
+genomes for the presence of different antiviral defence systems, including
+_Cas_ genes. PADLOC uses a database of genes and HMM classifications to
+predict presence of a large number of
+[different defence systems](https://github.com/padlocbio/padloc-db/blob/master/system_info.md).
+
+The current version, v2.0.0, uses 954MB disk space.
 
 #### [geNomad](https://portal.nersc.gov/genomad/index.html)
 
@@ -196,41 +206,16 @@ This workflow uses geNomad to predict whether genomic contigs derive from
 chromosomal DNA, plasmids or viruses. This tool uses both a neural network
 classifier and a marker-based approach to calculate prediction scores.
 For the marker-based method, it requires a database which can be downloaded
-using the tool geNomad itself. If you have installed
-[mamba](https://mamba.readthedocs.io/en/latest/)
-this can be done as follows:
-
-``` bash
-mamba env create -f envs/genomad.yaml
-mamba activate genomad
-genomad download-database data/
-```
-
-Note that this will create the subdirectory `data/genomad_db/`,
-which is the default that is also defined in
-[`config/parameters.yaml`](https://github.com/UtrechtUniversity/campylobacter-crisprscape/blob/main/config/parameters.yaml).
+using the tool geNomad itself.
 
 The current version of the database, v1.7, uses 1.4GB disk space.
 
 #### [SpacePHARER](https://github.com/soedinglab/spacepharer)
 
-The bin folder also includes scripts to download and extract pre-selected
-databases for use in Spacepharer.
-These include [Phagescope](https://phagescope.deepomics.org/) for annotated
-phage sequences and [PLSDB](https://ccb-microbe.cs.uni-saarland.de/plsdb2025/)
-for annotated plasmid sequences which have been chosen for their broad taxonomy.
-By running:
+For details of SpacePHARER, please see
+[the corresponding page](spacepharer.md).
 
-```bash
-bash bin/download_spacepharer_database.sh
-```
-
-Both databases are downloaded, extracted and then merged for use in Spacepharer.
-If you wish to use a different database or add to them, see
-[`doc/spacepharer.md`](https://utrechtuniversity.github.io/campylobacter-crisprscape/spacepharer.html)
-for advice.
-
-## 2. Running the workflow :material-run:
+## 2. Running the workflow :material-run
 
 The workflow is fully automated and should complete with one command.
 For details on what happens under the hood, see the tab 'Workflow details'.
