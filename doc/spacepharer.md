@@ -8,21 +8,12 @@ Spacepharer was therefore chosen as the method in CRISPRscape to identify spacer
 
 ## Databases
 
-Spacepharer requires the use of databases to match against. For this, CRISPRscape comes with the script `download_spacepharer_database.sh` which download both Phagescope and PLSDB as databases for phage and plasmid matching respectively and prepare them for use in Spacepharer. It is possible to use other databases but this requires some changes in both `Snakefile` and `parameters.yaml` to account for them.
-
-Specifically `Snakefile` would require changes to rules:
-
-`spacepharer_phage_setup`:
-
-params: DB="path/to/database.fasta"
-
-`spacepharer_phage_setup`:
-
-params: DB="path/to/database.fasta"
-
-`create_spacepharer_table`:
-
-It is recommended to comment out this rule and instead merge the metadata yourself, as it assumes a certain metadata structure that can change between databases.
+Spacepharer requires databases to match against. For this, CRISPRscape uses
+the scripts `download_phage_database.sh` and `download_plasmid_database.sh`,
+which download the Phagescope and PLSDB databases for phage and plasmid
+matching, respectively. These are also automatically prepared for use in
+Spacepharer. It is possible to use other databases but this requires
+multiple changes in the workflow code.
 
 ### [Phagescope](https://phagescope.deepomics.org/)
 
@@ -37,29 +28,19 @@ and the fasta files are the most important.
 taxonomy, completeness (e.g., 'High-quality'), host species, lifestyle
 (e.g, 'virulent'), and which cluster and subcluster it belongs to.
 
-From these, a custom database is build, which uses **279GB**.
+From these, a custom database is build, which uses **155GB**.
 
 ``` bash
-$ ls -sh data/raw/phagescope/
+$ ls -sh resources/phagescope/
 total 41G
-1.4G CHVD.fasta                    11M GPD                         2.6G MGV.tar.gz
-5.7M chvd_phage_meta_data.tsv     5.1G GPD.fasta                   336K PhagesDB
-400M CHVD.tar.gz                   18M gpd_phage_meta_data.tsv     224M PhagesDB.fasta
- 28K DDBJ                         1.6G GPD.tar.gz                  524K phagesdb_phage_meta_data.tsv
- 12M DDBJ.fasta                   4.0M GVD                          68M PhagesDB.tar.gz
- 40K ddbj_phage_meta_data.tsv     560M GVD.fasta                   356K RefSeq
-3.6M DDBJ.tar.gz                  4.9M gvd_phage_meta_data.tsv     318M RefSeq.fasta
- 12K EMBL                         172M GVD.tar.gz                  572K refseq_phage_meta_data.tsv
-8.5M EMBL.fasta                   241M IGVD.fasta                   97M RefSeq.tar.gz
- 20K embl_phage_meta_data.tsv     1.2M igvd_phage_meta_data.tsv     98M STV.fasta
-2.6M EMBL.tar.gz                   70M IGVD.tar.gz                 536K stv_phage_meta_data.tsv
-164K Genbank                      8.2G IMG_VR.fasta                 28M STV.tar.gz
-147M Genbank.fasta                 31M img_vr_phage_meta_data.tsv  5.0M TemPhD
-256K genbank_phage_meta_data.tsv  2.4G IMG_VR.tar.gz               2.5G TemPhD.fasta
- 45M Genbank.tar.gz               127M merged_metadata.tsv         8.6M temphd_phage_meta_data.tsv
-4.0G GOV2.fasta                    15M MGV                         770M TemPhD.tar.gz
- 35M gov2_phage_meta_data.tsv     8.4G MGV.fasta
-1.1G GOV2.tar.gz                   23M mgv_phage_meta_data.tsv
+1.4G CHVD.fasta      4.0G GOV2.fasta   8.2G IMG_VR.fasta              97M RefSeq.tar.gz
+400M CHVD.tar.gz     1.1G GOV2.tar.gz  2.4G IMG_VR.tar.gz             98M STV.fasta
+ 12M DDBJ.fasta      5.1G GPD.fasta    8.4G MGV.fasta                 28M STV.tar.gz
+3.6M DDBJ.tar.gz     1.6G GPD.tar.gz   2.6G MGV.tar.gz               2.5G TemPhD.fasta
+8.5M EMBL.fasta      560M GVD.fasta    127M phagescope_metadata.tsv  770M TemPhD.tar.gz
+2.6M EMBL.tar.gz     172M GVD.tar.gz   224M PhagesDB.fasta
+147M Genbank.fasta   241M IGVD.fasta    68M PhagesDB.tar.gz
+ 45M Genbank.tar.gz   70M IGVD.tar.gz  318M RefSeq.fasta
 ```
 
 ### [PLSDB](https://ccb-microbe.cs.uni-saarland.de/plsdb2025/) 2024_05_31_v2
@@ -74,37 +55,40 @@ The full download uses 14GB of disk space, but the essential files for
 CRISPRscape are smaller:
 
 - `sequences.fasta`: 7GB
-    - self-explanatory: fasta file with the plasmid sequences
+  - self-explanatory: fasta file with the plasmid sequences
 
 - `nuccore.csv`: 17MB
-    - Metadata file with unique ID, accession number, description, creation
-     date, predicted completeness, 'Genome' (plasmid), length, and 14 more
-     columns with a.o. source information
+  - Metadata file with unique ID, accession number, description, creation
+   date, predicted completeness, 'Genome' (plasmid), length, and 14 more
+   columns with a.o. source information
 
 - `taxonomy.csv`: 2.3MB
-    - Taxonomic tree for all included plasmids as comma-separated table,
-    including both taxonomic names for each rank and taxID numbers.
+  - Taxonomic tree for all included plasmids as comma-separated table,
+  including both taxonomic names for each rank and taxID numbers.
 
 These are used to build a custom database of **68GB**.
 
 ``` bash
-$ ls -sh data/raw/PLSDB/
+$ ls -sh resources/PLSDB/
 total 14G
- 37M amr.tsv                         1.7M disease_terms.csv      16M plasmidfinder.csv      16K README.md
-3.1M assembly.csv                    3.5G download_meta.tar.gz   14M plsdb_mashdb_sim.tsv  7.0G sequences.fasta
- 16K biosample_attributes_plsdb.csv  8.0K ecopaths.csv          569M plsdb_sketch.msh      2.3M taxonomy.csv
- 12M biosample.csv                   780K nucc_identical.csv    610M proteins.csv           23M typing.csv
-2.5M changes.tsv                      17M nuccore.csv           1.7G proteins.fasta         75M typing_markers.csv
+ 37M amr.tsv                         8.0K ecopaths.csv          1.7G proteins.fasta
+3.1M assembly.csv                    780K nucc_identical.csv     16K README.md
+ 16K biosample_attributes_plsdb.csv   17M nuccore.csv           7.0G sequences.fasta
+ 12M biosample.csv                    16M plasmidfinder.csv     2.3M taxonomy.csv
+2.5M changes.tsv                      14M plsdb_mashdb_sim.tsv   23M typing.csv
+1.7M disease_terms.csv               569M plsdb_sketch.msh       75M typing_markers.csv
+3.5G download_meta.tar.gz            610M proteins.csv
 ```
 
 ## Output
 
 Spacepharers output consists of a singular .tsv file showing all matches to a phage_ID within the database provided. The expected output takes the form of:
 
-```
+```txt
 #prok_acc  phage_acc   S_comb      num_hits
 >spacer_acc      phage_acc   p_bh    spacer_start      spacer_end  phage_start phage_end   5'_PAM|3'_PAM    5'_PAM|3'_PAM(reverse strand)
 ```
+
 where the # indicates the prokaryotic match. However due to the way that input is provided, this ends up being redundant. CRISPRscape therefore filters out the # sections retaining only the individual matches.
 
 of the matches the columns consist of:
