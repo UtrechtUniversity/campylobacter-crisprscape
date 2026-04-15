@@ -24,7 +24,9 @@ rule crisprcastyper:
     shell:
         r"""
 rm -r {params.out_dir} &&\
- cctyper -t {threads} {input} --prodigal meta {params.out_dir} > {log} 2>&1
+ cctyper -t {threads} {input} --prodigal meta {params.out_dir}\
+ --minRL 21 --maxRL 55 --minSL 18 --maxSL 78\
+ --minNR 1 --simplelog > {log} 2>&1
         """
 
 

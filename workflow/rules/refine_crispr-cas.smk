@@ -42,7 +42,7 @@ cd bin/CRISPRidentify
 
 python CRISPRidentify.py --input_folder "../../{input.folder}"\
  --result_folder "../../{params.out_dir}" --fasta_report True\
- --strand False > "../../{log}" 2>&1
+ --strand False --min_repeats 1 > "../../{log}" 2>&1
         """
 
 
