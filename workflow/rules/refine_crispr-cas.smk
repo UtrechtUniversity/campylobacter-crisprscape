@@ -38,6 +38,7 @@ rule crispridentify:
     shell:
         r"""
 rm -f "{input.folder}/.snakemake_timestamp"
+rm -rf "{params.out_dir}"
 cd bin/CRISPRidentify
 
 python CRISPRidentify.py --input_folder "../../{input.folder}"\
