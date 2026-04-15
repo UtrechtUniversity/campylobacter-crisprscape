@@ -185,8 +185,12 @@ jaeger run -p --workers {threads} -i {input} -o {params.output_dir}\
 
 rule collect_jaeger_predictions:
     input:
-        default=expand("results/jaeger/{batch}/{batch}_default_jaeger.tsv", batch=BATCHES),
-        phages=expand("results/jaeger/{batch}/{batch}_default_phages_jaeger.tsv", batch=BATCHES),
+        default=expand(
+            "results/jaeger/{batch}/{batch}_default_jaeger.tsv", batch=BATCHES
+        ),
+        phages=expand(
+            "results/jaeger/{batch}/{batch}_default_phages_jaeger.tsv", batch=BATCHES
+        ),
     output:
         default="results/jaeger_predictions.tsv",
         phages="results/jaeger_phages_predictions.tsv",
