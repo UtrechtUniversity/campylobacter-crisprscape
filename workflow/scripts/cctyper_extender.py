@@ -61,7 +61,7 @@ def extract_crispr_cas_info(crispr_cas_file):
     #  read them as a list
     contigs = list(cc_data["Contig"])
     # Extract sample name, which is split by a dot: 'sample.contig'
-    sample = contigs[0].split(".")[0]
+    sample = [contig.split(".")[0] for contig in contigs]
     operons = list(cc_data["Operon"])  # cas gene operon ID as string
     crisprs = list(cc_data["CRISPRs"])  # CRISPR array ID
     crisprs = [crispr.strip("[]'\"") for crispr in crisprs]
@@ -79,7 +79,7 @@ def extract_crispr_cas_info(crispr_cas_file):
         # Save that in a list
         cc_list.append(
             [
-                sample,
+                sample[number],
                 contigs[number],
                 operons[number],
                 start,
