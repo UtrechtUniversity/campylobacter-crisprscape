@@ -241,7 +241,9 @@ kma index -i {input.spacers} -o {params} > {log} 2>&1
 
 rule kma:
     input:
-        genomes="resources/ATB/assemblies-concatenated/",
+        genomes=expand(
+            "resources/ATB/assemblies-concatenated/{batch}.fasta", batch=BATCHES
+        ),
         indexed_spacers="results/kma/spacer_DB/spacers.name",
         spacers="results/spacers-crispridentify.fasta",
     output:
@@ -259,7 +261,7 @@ rule kma:
     shell:
         r"""
 grep ">" {input.spacers} | cut -f 2 -d ">" | cut -f 1 -d "-" | sort -u > tmp_file
-find -L {input.genomes} -mindepth 1 -maxdepth 1 -type f -name "*.fasta" > all_genomes.txt
+ls -1 {input.genomes} > all_genomes.txt
 genomes=$(grep -x ".*[0-9]\\.fasta" all_genomes.txt | grep -v -f tmp_file)
 
 kma -hmm -i ${{genomes}} -o {params.output} -t_db "{params.indexed_spacers}/spacers" > {log} 2>&1
