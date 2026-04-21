@@ -34,6 +34,7 @@ onstart:
 
 
 onsuccess:
+    shell("rm -rf bin/CRISPRidentify/Identify_Temp*")
     print("\n --- Workflow finished! ---\n")
 
 
