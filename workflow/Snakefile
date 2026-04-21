@@ -70,15 +70,24 @@ rule all:
         "results/dereplication_table.tsv",
         ## CRISPR-related outputs: 1. pre-screening
         # Concatenated CCTyper output (CRISPR arrays and spacers)
-        "results/spacers-cctyper.fasta",
-        "results/spacers-cctyper.tsv",
-        "results/crisprs-cctyper.tsv",
+        "results/crisprs-primary.tsv",
         "results/cluster-cctyper/spacer_cluster_summary.tsv",
+        "results/spacers-primary.fasta",
+        "results/spacers-primary.tsv",
         # CRISPR output 2. CRISPRidentify output (refinement)
-        "results/spacers-crispridentify.fasta",
-        "results/spacers-crispridentify.tsv",
-        "results/crisprs-crispridentify.tsv",
+        "results/crisprs-final.tsv",
+        expand(
+            "results/spacers-final{ext}",
+            ext=[".fasta", ".tsv", "-deduplicated_and_counted.fasta"],
+        ),
+        "results/spacer_clusters-final.tsv",
         "results/cluster-crispridentify/spacer_cluster_summary.tsv",
+        # CRISPR arrays formatted for visualisation
+        expand(
+            "results/arrays/array_{what}s-{stage}.txt",
+            what=["ID", "seq"],
+            stage=["primary", "final"],
+        ),
         # Spacepharer output (spacer targets, putative protospacers)
         "results/phage_matches.tsv",
         "results/plasmid_matches.tsv",

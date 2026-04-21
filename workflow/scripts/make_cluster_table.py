@@ -1,53 +1,47 @@
 #!/usr/bin/env python3
 
+
 ################################################################
-# Read CD-HIT's output cluster file, along with the FASTA used #
-# to generate it to create a table of clustered sequences.     #
-# - Aim of the program:                                        #
-#   1) read the cluster file                                   #
-#      a) create a cluster-based dictionary (cluster #,        #
-#         representative)                                      #
-#      b) create a sequence-based dictionary (ID, length,      #
-#         representative or % identity and strand)             #
-#   2) combine the two dictionaries into a dataframe with      #
-#       columns: genome, contig, locus, cluster ID, length,    #
-#       longest_sequence (CD-HIT representative), sequence,    #
-#       identity (%), strand                                   #
-#   3) for each cluster, also mark the shortest and most common#
-#       sequence (as alternative representatives)              #
-#   4) write the dataframe to a tab-separated table file       #
+# Read CD-HIT's output cluster file to generate a table of     #
+# clustered sequences.                                         #
+# - The program:                                               #
+#   1) reads the cluster file to                               #
+#      a) create a sequence-based table of:                    #
+#         - Seq. length                                        #
+#         - Cluster ID                                         #
+#         - Sequence                                           #
+#         - # Occurrences                                      #
+#                                                              #
+#      b) calculate per cluster:                               #
+#         - the number of members (spacers in the cluster)     #
+#         - the shortest, longest and most common sequence     #
+#                                                              #
+#      c) match cluster ID back with the spacer table          #
+#         - that is, 'results/spacers-final_prep.tsv'          #
+#                                                              #
+#   2) Save (b) as cluster table, and (c) as spacer table      #
+#         - both as tab-separated values (TSV)                 #
 ################################################################
 
 import re
-from pyfaidx import Fasta
 import pandas as pd
 
 cluster_file = snakemake.input["clstr"]
-fasta_file = snakemake.input["fasta"]
-table_file = snakemake.output[0]
+cluster_table = snakemake.output["cluster"]
+all_spacer_table = snakemake.input["spacer"]
+spacer_table = snakemake.output["spacer"]
 
 
 def read_clstr_file(inputfile=str):
     """
     Read a CD-HIT generated .clstr file and parse its elements into
-     two dictionaries: 1) cluster ID + representative (locus ID),
-                       2) sequences (locus ID) with length and
-                        representative/identity
+     a dictionary of: 1) spacer sequence, 2) sequence length,
+                      3) number of occurrences, 4) cluster ID
     """
-    cluster_dict = {"Cluster": [], "Longest_sequence": []}
-    locus_dict = {
-        "Genome": [],
-        "Contig": [],
-        "Locus": [],
-        "Full_locus": [],
-        "Length": [],
-        "Cluster": [],
-        "Strand_to_longest": [],
-        "Identity_to_longest": [],
-    }
+    spacer_dict = {"Length": [], "Cluster": [], "Sequence": [], "Occurrences": []}
 
     cluster_regex = r"(>Cluster *)(\d*)"
-    locus_regex = r"^(\d+)\s+(\d+nt), >(\w+)([\.-])(contig[\d-]+_.+)\.\.\. (.*)$"
+    sequence_regex = r"^(\d+)\s+(\d+nt), >(\d+)\.(\w+)\.\.\. (.*)$"
 
     with open(inputfile, "r") as infile:
         for line in infile:
@@ -55,89 +49,133 @@ def read_clstr_file(inputfile=str):
 
             if line.startswith(">"):
                 # Extract the digits from the cluster ID
-                cluster = re.search(cluster_regex, line).group(2)
+                cluster = int(re.search(cluster_regex, line).group(2))
 
             elif len(line) > 1:
                 # Use RegEx to extract information
-                crispr_info = re.search(locus_regex, line)
+                crispr_info = re.search(sequence_regex, line)
 
                 member_nr = crispr_info.group(1)  # not used
                 length = int(crispr_info.group(2).rstrip("nt"))
-                genome = crispr_info.group(3)
-                separator = crispr_info.group(4)
-                locus = crispr_info.group(5)
-                full_locus = f"{genome}{separator}{locus}"
-                contig = locus.split("_")[0]
-                extra = crispr_info.group(6)
+                prevalence = int(crispr_info.group(3))
+                sequence = crispr_info.group(4)
+                extra = crispr_info.group(5)  # not used
 
-                # Check the final group for representative ('*') or other
-                if extra == "*":
-                    strand = "NA"
-                    identity = "NA"
-                    cluster_dict["Cluster"].append(cluster)
-                    cluster_dict["Longest_sequence"].append(full_locus)
-
-                else:
-                    strand_and_identity = extra.split("/")
-                    strand = strand_and_identity[0].replace("at ", "")
-                    identity = strand_and_identity[1]
-
-                locus_dict["Genome"].append(genome)
-                locus_dict["Contig"].append(contig)
-                locus_dict["Locus"].append(locus)
-                locus_dict["Full_locus"].append(full_locus)
-                locus_dict["Length"].append(length)
-                locus_dict["Cluster"].append(cluster)
-                locus_dict["Strand_to_longest"].append(strand)
-                locus_dict["Identity_to_longest"].append(identity)
+                spacer_dict["Length"].append(length)
+                spacer_dict["Cluster"].append(cluster)
+                spacer_dict["Sequence"].append(sequence)
+                spacer_dict["Occurrences"].append(prevalence)
 
             # If the line does not start with '>' or have length > 1, stop
             else:
                 break
 
-        return cluster_dict, locus_dict
+        return spacer_dict
 
 
-def generate_sequence_df(fasta=str, ids=list):
+def make_cluster_overview(df=pd.DataFrame):
     """
-    Given a fasta file and list of identifiers, create a dataframe
-    of DNA sequences that can be merged with the cluster/locus dataframe.
+    Given a pandas dataframe with spacer clusters, summarise the most common,
+    shortest, and longest sequence within each cluster. Also calculate the
+    number of spacers present in the clusters.
     """
-    sequence_dict = Fasta(fasta, duplicate_action="first")
-    sequence_list = []
-    for locus in ids:
-        sequence_list.append(sequence_dict[locus][:].seq)
+    longest_per_cluster = (
+        df[["Cluster", "Sequence", "Length"]].groupby(["Cluster"]).max()
+    )
+    shortest_per_cluster = (
+        df[["Cluster", "Sequence", "Length"]].groupby("Cluster").min()
+    )
+    most_common_per_cluster = (
+        df[["Cluster", "Sequence", "Length", "Occurrences"]]
+        .groupby("Cluster", sort=False)
+        .first()
+    )
+    spacers_per_cluster = df[["Cluster", "Occurrences"]].groupby("Cluster").sum()
 
-    return pd.DataFrame({"Full_locus": ids, "Sequence": sequence_list})
+    # Rename columns to facilitate joining dataframes
+    shortest_per_cluster = shortest_per_cluster.rename(
+        columns={"Sequence": "Shortest_sequence", "Length": "Shortest_length"}
+    )
+    longest_per_cluster = longest_per_cluster.rename(
+        columns={"Sequence": "Longest_sequence", "Length": "Longest_length"}
+    )
+    most_common_per_cluster = most_common_per_cluster.rename(
+        columns={
+            "Sequence": "Most_common_sequence",
+            "Occurrences": "Most_common_number",
+            "Length": "Most_common_length",
+        }
+    )
+    spacers_per_cluster = spacers_per_cluster.rename(
+        columns={"Occurrences": "Number_of_spacers"}
+    )
+
+    # Join cluster IDs with most common, shortest and longest spacer sequence
+    spacer_cluster_table = (
+        spacers_per_cluster.join(most_common_per_cluster, on="Cluster")
+        .join(shortest_per_cluster, on="Cluster")
+        .join(longest_per_cluster, on="Cluster")
+    )
+
+    return spacer_cluster_table
+
+
+def update_spacer_table(table=str, df=pd.DataFrame):
+    """
+    Given the table with spacer IDs, sequences and length, update it to include
+    the respective cluster ID and also separate the ID into a 'base' and
+    'position' field for parsing the arrays.
+    """
+    all_spacer_df = pd.read_csv(table, sep="\t")
+    all_spacer_df = all_spacer_df.rename(
+        columns={"#name": "Spacer_ID", "seq": "Sequence", "length": "Length"}
+    )
+    all_spacer_df = all_spacer_df.merge(df, on="Sequence")
+
+    # Also separate the spacer ID from the number, to get a 'clean' base ID
+    #  and number in the array (1, 2, ..., n)
+    # Note: This is different between CCTyper, which uses format '[array]:[spacer#]'
+    # and CRISPRidentify, which uses '[array]_spacer_[spacer#]'
+    if all_spacer_df["Spacer_ID"].str.contains(":").all():
+        # If all values contain a colon, it's the CCTyper format
+        array_and_number = all_spacer_df["Spacer_ID"].str.rsplit(":", expand=True)
+        all_spacer_df["Spacer_base_ID"] = array_and_number[0]
+        all_spacer_df["Spacer_position"] = array_and_number[1]
+    else:
+        # If there is no colon, it's the CRISPRidentify format
+        array_and_number = all_spacer_df["Spacer_ID"].str.rsplit("_", expand=True, n=2)
+        all_spacer_df["Spacer_base_ID"] = array_and_number[0]
+        all_spacer_df["Spacer_position"] = array_and_number[2]
+
+    return all_spacer_df
 
 
 def main():
     """
     Main function, running the whole script.
     """
-    # Read clstr file, store as dictionaries
-    cluster_dict, locus_dict = read_clstr_file(inputfile=cluster_file)
+    # Read clstr file, store as dictionary
+    spacer_dict = read_clstr_file(inputfile=cluster_file)
 
-    # Convert dictionaries to dataframes
-    cluster_df = pd.DataFrame(cluster_dict)
-    locus_df = pd.DataFrame(locus_dict)
+    # Convert dictionary to dataframe
+    spacer_df = pd.DataFrame(spacer_dict)
 
-    # Merge dataframes
-    combined_df = locus_df.merge(cluster_df, how="inner", on="Cluster")
-
-    # Add sequences
-    sequence_df = generate_sequence_df(fasta=fasta_file, ids=locus_df["Full_locus"])
-
-    combined_with_sequences = combined_df.merge(
-        sequence_df, how="inner", on="Full_locus"
-    )
-
-    ## Not yet implemented:
-    # Find shortest sequence per cluster
-    # Find most common sequence per cluster
+    ### 1. Make an overview of clusters ###
+    # Find most common, shortest, and longest sequence per cluster,
+    # and count total number of spacers per cluster.
+    spacer_cluster_table = make_cluster_overview(df=spacer_df)
 
     # Save as tab-separated text file
-    combined_with_sequences.to_csv(table_file, sep="\t", index=False)
+    spacer_cluster_table.to_csv(cluster_table, sep="\t", index=True)
+
+    ### 2. Merge cluster IDs into the existing spacer table
+    # Take the table of all spacers from all genomes and add in cluster IDs
+    all_spacer_df = update_spacer_table(
+        table=all_spacer_table, df=spacer_df[["Sequence", "Cluster"]]
+    )
+
+    # Save as tab-separated text file
+    all_spacer_df.to_csv(spacer_table, sep="\t", index=False)
 
     return 0
 

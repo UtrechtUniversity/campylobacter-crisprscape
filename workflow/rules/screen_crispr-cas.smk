@@ -78,7 +78,7 @@ rule create_cctyper_crispr_table:
     input:
         table=expand("results/cctyper-parse/{batch}/CRISPR-Cas.tsv", batch=BATCHES),
     output:
-        "results/crisprs-cctyper.tsv",
+        "results/crisprs-primary.tsv",
     conda:
         "../envs/R_tidyverse.yaml"
     threads: 1
@@ -94,7 +94,7 @@ rule concatenate_cctyper_spacers:
     input:
         expand("results/cctyper/{batch}/spacers", batch=BATCHES),
     output:
-        "results/spacers-cctyper.fasta",
+        "results/spacers-primary.fasta",
     conda:
         "../envs/bash.yaml"
     threads: 1
@@ -105,6 +105,46 @@ rule concatenate_cctyper_spacers:
     shell:
         r"""
 find {input} -name "*.fa" -exec cat {{}} \; > {output} 2> {log}
+        """
+
+
+rule prepare_cctyper_spacer_table:
+    input:
+        rules.concatenate_cctyper_spacers.output[0],
+    output:
+        temp("results/spacers-primary_prep.tsv"),
+    conda:
+        "../envs/seqkit.yaml"
+    threads: 1
+    log:
+        "log/prepare_cctyper_spacer_table.txt",
+    benchmark:
+        "log/benchmark/prepare_cctyper_spacer_table.txt"
+    shell:
+        r"""
+seqkit fx2tab -l -HQ {input} > {output} 2> {log}
+        """
+
+
+rule deduplicate_cctyper_spacers:
+    input:
+        rules.concatenate_cctyper_spacers.output[0],
+    output:
+        "results/spacers-primary-deduplicated_and_counted.fasta",
+    conda:
+        "../envs/seqkit.yaml"
+    threads: 1
+    log:
+        "log/deduplicate_cctyper_spacers.txt",
+    benchmark:
+        "log/benchmark/deduplicate_cctyper_spacers.txt"
+    shell:
+        r"""
+seqkit seq {input} -s -w 0 |\
+ sort | uniq -c | sort -rn |\
+ while read count seq;\
+ do printf ">${{count}}.${{seq}}\n${{seq}}\n";\
+ done > {output} 2> {log}
         """
 
 
@@ -135,38 +175,33 @@ bash workflow/scripts/cluster_all_spacers.sh\
         """
 
 
-rule cluster_unique_spacers:
+rule cluster_unique_spacers_cctyper:
     input:
-        rules.concatenate_cctyper_spacers.output[0],
+        rules.deduplicate_cctyper_spacers.output[0],
     output:
         clusters="results/cluster-cctyper/spacers-clustered.clstr",
         spacers="results/cluster-cctyper/spacers-clustered",
-        distribution="results/cluster-cctyper/spacers-clustered-distribution.tsv",
     conda:
         "../envs/cdhit.yaml"
     threads: 1
     log:
-        "log/cluster_unique_spacers.txt",
+        "log/cluster_unique_spacers_cctyper.txt",
     benchmark:
-        "log/benchmark/cluster_unique_spacers.txt"
+        "log/benchmark/cluster_unique_spacers_cctyper.txt"
     shell:
         r"""
-cd-hit-est -c 1 -n 8 -r 1 -g 1 -AS 0 -sf 1 -d 0 -T {threads}\
+cd-hit-est -c 1 -n 8 -r 1 -g 1 -AS 0 -d 0 -T {threads}\
  -i {input} -o {output.spacers} > {log} 2>&1
-
-plot_len1.pl {output.clusters}\
- 1,2-4,5-9,10-19,20-49,50-99,100-499,500-99999\
- 1-10,11-20,21-25,26-30,31-35,36-40,41-50,51-60,61-70,71-999999\
- > {output.distribution}
         """
 
 
 rule create_spacer_table_cctyper:
     input:
-        clstr="results/cluster-cctyper/spacers-clustered.clstr",
-        fasta=rules.concatenate_cctyper_spacers.output[0],
+        clstr=rules.cluster_unique_spacers_cctyper.output.clusters,
+        spacer=rules.prepare_cctyper_spacer_table.output[0],
     output:
-        "results/spacers-cctyper.tsv",
+        spacer="results/spacers-primary.tsv",
+        cluster="results/spacer_clusters-primary.tsv",
     conda:
         "../envs/pyfaidx_pandas.yaml"
     threads: 1
@@ -176,3 +211,22 @@ rule create_spacer_table_cctyper:
         "log/benchmark/create_spacer_table_cctyper.txt"
     script:
         "../scripts/make_cluster_table.py"
+
+
+rule convert_spacer_formats_cctyper:
+    input:
+        "results/spacers-primary.tsv",
+    output:
+        table_numbers="results/arrays/array_IDs-primary.txt",
+        table_sequences="results/arrays/array_seqs-primary.txt",
+        fasta_numbers="results/arrays/array_IDs-primary.fasta",
+        fasta_sequences="results/arrays/array_seqs-primary.fasta",
+    conda:
+        "../envs/pyfaidx_pandas.yaml"
+    threads: 1
+    log:
+        "log/convert_spacer_formats_cctyper.txt",
+    benchmark:
+        "log/benchmark/convert_spacer_formats_cctyper.txt"
+    script:
+        "../scripts/convert_spacer_arrays.py"

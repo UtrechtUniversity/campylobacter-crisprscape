@@ -4,7 +4,7 @@
 
 rule spacepharer_spacer_setup:
     input:
-        spacers="results/spacers-crispridentify.fasta",
+        spacers="results/spacers-final.fasta",
     output:
         spacer_db="results/spacepharer/DB_CRISPR/querysetDB",
     params:
@@ -221,7 +221,7 @@ rule create_spacepharer_table:
 
 rule kma_indexing:
     input:
-        spacers="results/spacers-crispridentify.fasta",
+        spacers="results/spacers-final.fasta",
     output:
         indexed_spacers="results/kma/spacer_DB/spacers.name",
     params:
@@ -245,7 +245,7 @@ rule kma:
             "resources/ATB/assemblies-concatenated/{batch}.fasta", batch=BATCHES
         ),
         indexed_spacers="results/kma/spacer_DB/spacers.name",
-        spacers="results/spacers-crispridentify.fasta",
+        spacers="results/spacers-final.fasta",
     output:
         "results/kma/CRISPR.frag.gz",
     params:
