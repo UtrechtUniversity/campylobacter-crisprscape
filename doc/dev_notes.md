@@ -48,8 +48,49 @@ are adapted to analysing metagenomes can process separate fasta files as
 well as such a concatenated file. Besides, it may save overhead time while
 still taking advantage of multiple CPUs if the program is multithreaded.
 
-(add some details on benchmark and which rules do and do not benefit
-from using concatenated input files)
+We found that CCTyper will happily run on concatenated input files,
+and so will Jaeger. CRISPRidentify can take an input folder with many
+fasta files inside, and PADLOC would not finish when running on an
+input file containing thousands of genomes.
+
+For CCTyper and Jaeger, we did a little benchmark of 4 batches to
+test for speed differences between the 'concatenate' and 'parallel'
+methods.
+
+CCTyper using the parallel method used 1:40:00h to finish a small batch,
+and up to 23:50:00h for large batches. With the input files concatenated
+into one fasta per batch, the times were 39:00m and 12:07:00h, respectively.
+That means concatenating input resulted in 2.56 times faster analysis
+of the small batch and 1.97 times faster for the large batch.
+We estimate that this method speeds up the analysis by **2-3 fold**.
+(We used the `--prodigal meta` setting to accomodate for having
+different genomes in the same file.)
+
+Jaeger used 17:22m and 7:12:00h on the small and large batch, respectively,
+using the parallel method. When concatenating the input, the times
+were 6:45m and 1:53:00h. That translates to a speedup of 2.57 - 4.63
+times, or roughly **2.5-4.5 fold**.
+
+Besides, concatenating all input files also makes it easier to collect
+outputs from the whole dataset. Together with the observed speedups,
+we have decided to apply this 'concatenation method' as much as possible.
+
+For details, see [my minibenchmark notes](experiments/minibenchmark-batches.md).
+
+### Results may depend on batch processing method
+
+When analysing batches of ATB genomes, we found two ways to process genomes
+in parallel and speed up the whole process. One is to use GNU parallel to
+read multiple input genomes at the same time. The other is to concatenate
+all input files and use multiple threads for processing the whole batch
+simultaneously. We hypothesised this would generate the exact same output,
+but found that running CCTyper in these two different ways yielded slightly
+different output files. We found that the file-by-file approach in one
+particular batch would return 7 hits that were not found from the concatenated
+file, while the concatenated approach yielded 1 hit that was not found in
+the separate genomes. We did not pursue this discrepancy further, but keep
+in mind that minor differences may occur between reruns of the same
+analysis on identical inputs.
 
 ## Using other inputs than ATB
 
@@ -59,23 +100,20 @@ as input and has provided scripts to automatically download genomes
 of the bacterial species of interest.
 However, the processing steps should work equally well on other genomes in
 FASTA format. Currently, the easiest way to 'trick' the workflow into using
-custom input is to either modify the input directory line in
-`config/parameters.yaml`:
+custom input is to use the expected input folder structure:
+`resources/ATB/assemblies/`
+and create a folder there with your own genome sequences.
+The name of the directory has to start with `atb.assembly.`,
+and the fasta files should have the '.fa' extension, so for example:
 
-``` yaml
-input_directory: "data/tmp/ATB/"
+```bash
+mkdir -p resources/ATB/assemblies/atb.assembly.my_test
+mv /path/to/genomes/*.fa resources/ATB/assemblies/atb.assembly.my_test/
 ```
 
-to wherever you stored your files, or create this directory and copy
-your genomes to there. Furthermore, Snakemake expects the input to be stored
-in batches, using a directory that is named 'batch_*', where the asterisk
-can match anything. So for example, you can make a directory:
-`data/tmp/ATB/batch_custom`, put your FASTA files in there and Snakemake
-should pick them up and have them analysed.
-
-Also note that downstream processing, i.e., statistical analyses and
-visualisation, make use of the metadata provided with ATB. This would have
-to be adjusted to the custom data as well.
+If you have genome sequences in the directory `/path/to/genomes/`
+with a '.fa' file extension, this will move them into the batch folder "my_test",
+and that makes CRISPRscape see your genomes as input.
 
 ## Modified CCTyper installation
 
@@ -97,20 +135,6 @@ files needs quite a lot of space. We considered gzipping each fasta file
 separately to save disk space while still allowing most tools to work with
 them. However, we found CCTyper would not take gzipped input files, so we
 left the input files uncompressed.
-
-## Optimising runtime on genome batches
-
-When analysing batches of ATB genomes, we found two ways to process genomes
-in parallel and speed up the whole process. One is to use GNU parallel to
-read multiple input genomes at the same time. The other is to concatenate
-all input files and use multiple threads for processing the whole batch
-simultaneously. We hypothesised this would generate the exact same output,
-but found that running CCTyper in these two different ways yielded slightly
-different output files. We found that the file-by-file approach in one
-particular batch would return 7 hits that were not found from the concatenated
-file, while the concatenated approach yielded 1 hit that was not found in
-the separate genomes. We did not pursue this discrepancy further and
-decided to stick with the GNU parallel processing method.
 
 ## Unexpected behaviour of tools and databases
 

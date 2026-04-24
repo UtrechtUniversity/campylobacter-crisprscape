@@ -54,13 +54,14 @@ this two-step approach.
 Using the arrays parsed from CCTyper, CRISPRidentify has two seperate steps to
 come to its final conclusion: Candidate generation and Candidate evaluation.
 In Candidate generation, CRISPRidentify uses Vmatch to find putative repeat pairs,
-which by default need to be between 21 and 55 nucleotides long and 18-78 nucleotides apart.
-This process is relatively sensitive and usually more than one repeat candidate is generated.
-All the repeat candidates are then aligned. This alignment is created from a
-maximum element and a minimum element. The maximum element is the largest repeat
-string generated from the most common nucleotides in each base of all candidates.
-The minimum element is generated from the most common substring of all repeats,
-this also by definition has 100% identity as a substring of the maximum element.
+which by default need to be between 21 and 55 nucleotides long and 18-78
+nucleotides apart. This process is relatively sensitive and usually more than
+one repeat candidate is generated. All the repeat candidates are then aligned.
+This alignment is created from a maximum element and a minimum element. The
+maximum element is the largest repeat string generated from the most common
+nucleotides in each base of all candidates. The minimum element is generated
+from the most common substring of all repeats, this also by definition has 100%
+identity as a substring of the maximum element.
 
 Every possible repeat is then generated between the maximum and minimum element
 and put alongside the matches found by Vmatch and has duplicates filtered out,
@@ -84,7 +85,8 @@ The 13 features are listed in
 table S2 (page 20).
 Performing feature subset selection on all combinations of these 13 features,
 three models containing 8, 9 and 10 of the 13 features achieved similar accuracy.
-By default, CRISPRidentify uses the average of these three models to score the candidate arrays.
+By default, CRISPRidentify uses the average of these three models to score the
+candidate arrays.
 
 The scoring is divided into three possible categories.
 0-0.4 are low scoring candidates which are unlikely to be CRISPR.
@@ -101,13 +103,33 @@ Each step in the process generates a number of output files, which by default
 are written to:
 
 ```bash
-data/
-  tmp/
-    crispridentify/                 # Here go overall files, such as 'all_spacers.fa'
-      batch_[number]/               # Here is only one subfolder
-        CRISPR_arrays-with_flanks/  # In here are subfolders for each CRISPR
-                                    #  array identified with CCTyper.
-          [CRISPR_ID]/              # Here are CRISPRidentify's output files
+results/
+  crispridentify/
+    [batch]/
+      Complete_array_dataset.fasta        # Sequences of detected CRISPR arrays
+      Complete_Cassette_summary.csv       # Summary of CRISPR-Cas cassettes detected by CRISPRidentify
+                                          # (disabled in CRISPRscape)
+      Complete_Cas_summary.csv            # Summary of detected Cas genes (disabled in CRISPRscape)
+      Complete_repeat_dataset.fasta       # Sequences of detected CRISPR repeats
+      Complete_spacer_dataset.fasta       # Sequences of detected CRISPR spacers
+      Complete_summary.csv                # Table with CRISPR-Cas array information
+      [array_1]/
+        Alternative_Candidates.txt        # CRISPR detection report of CRISPR arrays
+                                          #  with certainty scores
+        Arrays.fasta                      # Sequences of detected CRISPR array
+        Bona-Fide_Candidates.txt          # List of high-scoring CRISPR-Cas arrays
+        combined.gff                      # Genome annotation (GFF) file with CRISPR-Cas
+        gff_result/
+        Low_Score_Candidates.txt          # List of low-scoring CRISPR-Cas arrays
+        Possible_Candidates.txt           # List of intermediate-scoring CRISPR-Cas arrays
+        Possible_Discarded_Candidates.txt # List of discarded CRISPR-Cas candidates
+        Repeats.fasta                     # Sequences of detected CRISPR repeats
+        Spacers.fasta                     # Sequences of detected CRISPR spacers
+        Summary.csv                       # Summary table per array
+      [array_2]/
+        ...
+      [array_n]/
+        ...
 ```
 
 For more details on the output files, see [output](output_files.md).

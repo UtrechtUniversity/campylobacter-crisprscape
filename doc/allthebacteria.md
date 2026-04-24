@@ -7,8 +7,7 @@ Last updated: September 2024
 After downloading all metadata using the bundled script, you have:
 
 ``` bash
-$ ls -sh data/ATB/
-total 1.4G
+$ ls -sh resources/ATB/
 460K all_atb_files.tsv
 679M ena_metadata.20240801.tsv.gz            74M assembly-stats.tsv.gz
  18M file_list.all.20240805.tsv.gz           63M checkm2.tsv.gz
@@ -39,8 +38,8 @@ total 1.4G
       e.g.:
 
 ```bash
-zgrep -f data/ATB/all_samples_of_interest.txt\
- data/ATB/file_list.all.20240805.tsv.gz | cut -f 3-5 | sort | uniq
+zgrep -f resources/ATB/all_samples_of_interest.txt\
+ resources/ATB/file_list.all.20240805.tsv.gz | cut -f 3-5 | sort | uniq
 ```
 
 (Note that the file `all_samples_of_interest.txt` is generated when running
@@ -58,7 +57,7 @@ the script `bin/prepare_genomes.sh`. Also see the
       e.g.:
 
 ```bash
-zless species_calls.tsv.gz | grep "Campylobacter_D jejuni" |\
+zless resources/ATB/species_calls.tsv.gz | grep "Campylobacter_D jejuni" |\
  grep -v "F" | cut -f 1
 ```
 

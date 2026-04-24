@@ -19,39 +19,34 @@ Or look at the computer-generated Wiki with integrated chatbot assistant at
 
 1. [Roadmap](#release-roadmap)
 2. [Workflow description](#workflow-description)
-   - [future suggestions](#suggestions-of-programsanalyses-to-test)
-3. [Output files](#output-files)
-4. [Project (file) organisation](#project-organisation)
-5. [Licence](#licence)
-6. [Citation](#citation)
+3. [Project (file) organisation](#project-organisation)
+4. [Licence](#licence)
+5. [Citation](#citation)
 
 ---
 
 ## Release roadmap
 
-- Version 0.4: clear documentation
-   -  review and update README and docs
-
 - Future additions:
-   - Extract orphan CRISPR arrays from CCTyper -> send to CRISPRidentify
-   - CRISPR spacer target prediction
-      - map to
-         - masked ATB genomes (KMA)
-         - PLSDB (SpacePHARER)
-         - PhageScope (SpacePHARER)
-         - VIRE (t.b.d.)
-         - MEGAISurv metagenomes (t.b.d)
-      - mini-benchmark different mapping algorithms?
-         - Sassy
-         - KMA
-         - SpacePHARER
-      - (where feasible) connect spacer hits with functional annotations
-         - Bakta annotations from ATB are available!
-   - Integrate downstream analyses with Snakemake?
-      - run RMarkdown/Quarto notebooks automatically
-   - Build a database like [this spacerdb](https://spacers.jgi.doe.gov/database/overview/)?
-   - Create a command-line tool with [snaketool](https://github.com/beardymcjohnface/Snaketool/)
-   - Separate 'main' workflow steps from 'optional/extra' steps?
+  - Extract orphan CRISPR arrays from CCTyper -> send to CRISPRidentify
+  - CRISPR spacer target prediction
+    - map to
+      - masked ATB genomes (KMA)
+      - PLSDB (SpacePHARER)
+      - PhageScope (SpacePHARER)
+      - VIRE (t.b.d.)
+      - MEGAISurv metagenomes (t.b.d)
+    - mini-benchmark different mapping algorithms?
+      - Sassy
+      - KMA
+      - SpacePHARER
+    - (where feasible) connect spacer hits with functional annotations
+      - Bakta annotations from ATB are available!
+  - Integrate downstream analyses with Snakemake?
+    - run RMarkdown/Quarto notebooks automatically
+  - Build a database like [this spacerdb](https://spacers.jgi.doe.gov/database/overview/)?
+  - Create a command-line tool with [snaketool](https://github.com/beardymcjohnface/Snaketool/)
+  - Separate 'main' workflow steps from 'optional/extra' steps?
 
 ## Workflow description
 
@@ -109,57 +104,13 @@ and [kma](https://github.com/genomicepidemiology/kma) (version 1.5.0).
 
 Further steps are added to the workflow after testing!
 
-### Preparing input and databases
+### Preparing input genomes
 
-Before running the workflow, the user needs to prepare input genomes and
-databases.
-Also see the corresponding documentation pages for details:
+Before running the workflow, the user needs to prepare input genomes.
+These may be downloaded from AllTheBacteria using a convenient script
+included with CRISPRscape:
 
 - [Prepare genomes](https://utrechtuniversity.github.io/campylobacter-crisprscape/prepare_genomes.html)
-- [Download databases](https://utrechtuniversity.github.io/campylobacter-crisprscape/manual.html#downloading-databases)
-
-### Suggestions of programs/analyses to test
-
-1. Mash with CRISPR loci, and whole genomes (compare all-vs-all)
-
-3. SpacerPlacer (see input file format in <https://github.com/fbaumdicker/SpacerPlacer?tab=readme-ov-file#spacer_fasta-input-format>
- (also requires an extra conversion script?)
-
-## Output files
-
-Ticked boxes indicate that
-[documentation](https://utrechtuniversity.github.io/campylobacter-crisprscape/output_files.html)
-is available.
-
-- [AllTheBacteria metadata](https://utrechtuniversity.github.io/campylobacter-crisprscape/allthebacteria.html)
-
-  - [x] ENA metadata
-    - Cleaned-up and filtered metadata of included genomes
-
-  - [x] Species classifications
-    - Taxonomic classification by Sylph, as collected from AllTheBacteria
-
-- [ ] Contig chromosome/plasmid/virus predictions
-
-- [x] CRISPR-Cas overview table
-  - Output from
-[CCTyper](https://utrechtuniversity.github.io/campylobacter-crisprscape/output_files.html#11-cctyper),
-collected and combined in one CSV file
-  - Combine with CRISPRidentify, create filtered crispr by adding Cas and orientation data onto crispridentify csv
-
-- [x] [CRISPR spacer table](https://utrechtuniversity.github.io/campylobacter-crisprscape/output_files.html#spacer-cluster-table)
-
-- [ ] MLST
-  - Sequence Types (ST) of all included genomes
-
-- [ ] List of spacer-putative targets
-  - Output from mapping unique spacers to possible targets seperated by plasmid or phage and merged with database metadata
-
-- [ ] List of anti-phage systems per genome
-  - Output from PADLOC, combined in single CSV file
-
-- [ ] Genome comparison all-vs-all
-  - by whole-genome MLST, average nucleotide identity (ANI) or similar(?)
 
 ## Project organisation
 
@@ -169,17 +120,18 @@ collected and combined in one CSV file
 ├── CITATION.cff
 ├── LICENSE
 ├── README.md
-├── Snakefile          <- Python-based workflow description
-├── bin                <- Code and programs used in this project/experiment
+├── bin                <- Code and programs used in this projec
 ├── config             <- Configuration of Snakemake workflow
-├── data               <- All project data, divided in subfolders
-│   ├── processed      <- Final data, used for visualisation (e.g. tables)
-│   ├── raw            <- Raw data, original, should not be modified (e.g. fastq files)
-│   └── tmp            <- Intermediate data, derived from the raw data, but not yet ready for visualisation
 ├── doc                <- Project documentation, notes and experiment records
-├── envs               <- Conda environments necessary to run the project/experiment
 ├── log                <- Log files from programs
-└── results            <- Figures or reports generated from processed data
+├── resources          <- Folder for databases and input files
+├── results            <- Workflow output, all results
+└── workflow           <- Files describing the Snakemake workflow
+    ├── Snakefile      <- Main workflow description file (Python-based)
+    ├── envs           <- Software environments (conda) for dependencies
+    ├── notebooks      <- Analysis notebooks for downstream statistics/visualisation
+    ├── rules          <- Workflow modules with processing steps
+    └── scripts        <- Scripts used in the workflow
 ```
 
 ---

@@ -57,19 +57,31 @@ This script downloads:
 
 ### Output files
 
-By default, these are all downloaded to the directory `data/ATB/`.
+By default, these are all downloaded to the directory `resources/ATB/`.
 You then get:
 
 ``` bash
-1   ena_metadata.0.2.20240606.tsv.gz
-2   ena_metadata.20240801.tsv.gz
-3   sample_list.txt.gz
-4   sylph.tsv.gz
-5   assembly-stats.tsv.gz
-6   checkm2.tsv.gz
-7   species_calls.tsv.gz
-8   file_list.all.20240805.tsv.gz
-9   all_atb_files.tsv
+$ ls -1F resources/ATB | nl
+     1  all_atb_files.tsv
+     2  all_samples_of_interest.txt
+     3  annotations/
+     4  archives/
+     5  assemblies/
+     6  assembly-stats.tsv.gz
+     7  batches_to_download.tsv
+     8  checkm2.tsv.gz
+     9  ena_metadata.0.2.20240606.tsv.gz
+    10  ena_metadata.20240801-filtered.tsv.gz
+    11  ena_metadata.20240801.tsv.gz
+    12  file_list.all.20240805.tsv.gz
+    13  number_of_genomes_per_species.txt
+    14  sample_list.txt.gz
+    15  samples_in_batches.txt
+    16  samples_not_of_interest.txt
+    17  samples_to_remove.txt
+    18  species_calls.tsv.gz
+    19  stats/
+    20  sylph.tsv.gz
 ```
 
 ## 2. Look up accession IDs of species of interest
@@ -78,14 +90,14 @@ Using the file `config/species_of_interest.txt`, which contains one species
 name per line, the script looks up all matches in the `species_calls.tsv.gz`
 file from ATB and filters the high-quality assemblies.
 The accession IDs are stored in a separate file:
-`data/ATB/all_samples_of_interest.txt`.
+`resources/ATB/all_samples_of_interest.txt`.
 ([Modify this file](manual.md#species-of-interest) if you want different
 species.)
 
 As an extra, the script reads the total number of selected genomes,
 which is printed to the command-line (stdout).
 Also, the number of genomes per species is collected and stored as:
-`data/ATB/number_of_genomes_per_species.txt`.
+`resources/ATB/number_of_genomes_per_species.txt`.
 
 Note: the system works with the [GTDB taxonomy](https://gtdb.ecogenomic.org/tree?r=d__Bacteria)
 and GNU `grep`. This means it can only find names as defined by the GTDB
@@ -98,7 +110,7 @@ the script also matches 'Campylobacter_D jejuni_A' or any other suffix.
 The complete metadata file is big (677MiB compressed, 3,112,707 lines).
 To make this a bit easier to work with, we're extracting only the lines
 referring to the species of interest and store this as a separate file:
-`data/ATB/enametadata.20240801-filtered.tsv.gz`.
+`resources/ATB/enametadata.20240801-filtered.tsv.gz`.
 
 ## 4. Find batches that contain species of interest
 
@@ -106,15 +118,15 @@ ATB has created batches of genomes to use clever compression and
 significantly reduce file sizes. To find which batches contain
 the species of interest, the script:
 
-1. reads sample accession IDs from `data/ATB/all_samples_of_interest.txt`
+1. reads sample accession IDs from `resources/ATB/all_samples_of_interest.txt`
 
-2. uses the accession IDs to filter matching lines in `data/ATB/file_list.all.20240805.tsv.gz`
+2. uses the accession IDs to filter matching lines in `resources/ATB/file_list.all.20240805.tsv.gz`
 
 3. extracts the column containing file names, download URLs and MD5 checksums
 
 4. deduplicates them, keeping one copy of each batch containing species of interest
 
-5. and stores this in a separate file: `data/ATB/batches_to_download.tsv`
+5. and stores this in a separate file: `resources/ATB/batches_to_download.tsv`
 
 Next to the genomes of interest, these batches also contain lower-quality
 genomes and sometimes different species are put together in a batch.
@@ -129,14 +141,14 @@ The actual downloading of the genomes happens here! :material-file-download:
 The script calls yet another separate script: `bin/download_genomes.sh`
 
 `download_genomes.sh` reads the files that need to be downloaded
-from `data/ATB/batches_to_download.tsv` and downloads them one by one
-to `data/tmp/ATB/`.
+from `resources/ATB/batches_to_download.tsv` and downloads them one by one
+to `resources/ATB/archives/`.
 It checks file integrity with the MD5 checksum and deletes corrupted
 files. (It does not retry downloading automatically.)
 
 The files (as batches) are downloaded as XZ archive, which are
 extracted to subdirectories named after the batch number.
-This yields FASTA files in a directory called `data/tmp/ATB/batch_[number]`.
+This yields FASTA files in a directory called `resources/ATB/assemblies/[batch_ID]`.
 
 ### Default species: _Campylobacter coli_ and _C. jejuni_
 
@@ -169,7 +181,7 @@ This is based on sample accession IDs listed for each batch:
 accessions that do not match high-quality genomes of the species of interest
 are automatically removed.
 For the curious, a list of the other genomes is stored as:
-`data/tmp/other_genomes-numbers.txt`.
+`resources/ATB/stats/other_genomes-numbers.txt`.
 These samples are removed and this list shows what was in there.
 
 ## 7. Download functional annotations
@@ -192,7 +204,7 @@ By default, the script uses 'update', which has the smallest file sizes.
 The option can be provided as, for example:
 
 ```bash
-bash bin/prepare_genomes.sh all
+bash bin/prepare_genomes.sh --part all
 ```
 
 This option is most relevant to `bin/download_genomes.sh`

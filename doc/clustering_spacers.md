@@ -7,11 +7,16 @@ To estimate the number of unique spacers, we use
 to cluster spacer sequences and establish clusters of identical spacer
 sequences.
 
+Furthermore, we use the command-line tools `sort` and `uniq -c` to
+deduplicate and count spacer sequences before clustering,
+speeding up the process and attaching the number of occurrences
+to each spacer sequence.
+
 The command that we use to cluster as written in the `Snakefile`,
-rule `cluster_unique_spacers`, is:
+rules `cluster_unique_spacers_[tool]`, is:
 
 ``` bash
-cd-hit-est -c 1 -n 8 -r 1 -g 1 -AS 0 -sf 1 -d 0 -T {threads}\
+cd-hit-est -c 1 -n 8 -r 1 -g 1 -AS 0 -d 0 -T {threads}\
  -i {input} -o {output.spacers}
 ```
 
@@ -36,8 +41,6 @@ possible.
 positions that may be missed. 0 means the complete shorter sequence must
 match the longer sequence against which it is compared.
 
-- `-sf 1` sorts the output fasta file by decreasing cluster size (default: 0)
-
 - `-d 0` sets the length of sequence names as displayed in the output
 `.clstr` file. In fact, 0 disables the limit, allowing the full length
 of sequence IDs to be printed in the output. (default: 20)
@@ -51,6 +54,26 @@ is a variable controlled by Snakemake.
 CD-HIT-EST is used to cluster all CRISPR spacer sequences as reported by
 CCTyper, and later also those reported (or rather, modified) by CRISRPidentify.
 This allows the user to tell how many unique spacer sequences were detected.
+
+## Output files
+
+Clustered spacers from both the primary screening (CCTyper)
+and final refinement (CRISPRidentify) are saved for further analyses.
+Also, CRISPRscape creates sequence files (FASTA) as well as information
+tables (TSV).
+
+```bash
+results/
+  spacers-primary.fasta         # Spacer sequences after primary screening (CCTyper)
+  spacers-primary-deduplicated_and_counted.fasta
+  # Deduplicated spacer sequences after primary screening (CCTyper)
+  spacers-primary.tsv           # Information of spacers after primary screening
+
+  spacers-final.fasta           # Spacer sequences after refinement (CRISPRidentify)
+  spacers-final-deduplicated_and_counted.fasta
+  # Deduplicated spacer sequences after refinement (CRISPRidentify)
+  spacers-final.tsv             # Information of spacers after refinement
+```
 
 The output files are briefly described in the
 [output files](output_files.md#cluster-spacers-cctyper)

@@ -184,6 +184,22 @@ One may also set the output directory using the `--directory` or `-d` option:
 bash bin/prepare_genomes.sh --part all --directory my/genomes
 ```
 
+It also has a built-in help function to show the supported options:
+
+```bash
+$ bash bin/prepare_genomes.sh --help
+Prepare genomes from AllTheBacteria for use with CRISPRscape
+
+Syntax: prepare_genomes.sh -p [part] -d [directory] [-h]
+Options:
+-p/--part      Select which part of AllTheBacteria to download
+               for the selected species ('all', 'original', or
+               'update', default=update)
+-d/--directory Directory in which to download the files
+               (default=resources/ATB/)
+-h/--help      Print this help message
+```
+
 ### Downloading databases :material-cloud-download:
 
 Reference databases required by the different tools are automatically
