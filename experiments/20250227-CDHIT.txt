@@ -1,0 +1,63 @@
+Testing different CD-HIT-EST settings, trying to find the optimal CRISPR
+ spacer deduplication method.
+
+The plan is to use CD-HIT-EST to get rid of the 'loose ends' of spacers
+identified by CCTyper. Sometimes spacers with otherwise unique sequences
+are called as being 30 nt long in one genome and 31 nt in the next. These
+should be considered the same spacer. Also, spacers may be in their
+'original' orientation or its reverse complement. These look like
+different spacers at first glance, but should also be combined in the same
+group or cluster.
+
+To do this, the plan is to use CD-HIT-EST and cluster spacers using 100%
+identity while leaving room for flanking nucleotides. The algorithm
+sorts sequences before clustering to start with the longest sequences,
+as per: http://www.bioinformatics.org/cd-hit/cd-hit-user-guide.pdf, p. 4.
+
+We can then use the -AS option to tell CD-HIT-EST to make sure the
+shorter sequence in the comparison is fully covered by the longer one.
+(-AS 0). Other parameters may be tuned for optimal functioning with
+perfect matches (-c 1 = 100% sequence identity threshold).
+
+Options to experiments with include:
+ -n : word size (8-10 should be optimal)
+ -g: fast mode (0) or slow and accurate mode (1)
+
+For further details on command-line arguments, please see the PDF linked
+above or the file `doc/cdhit.txt` in this directory/git repository.
+
+The results of my short experiments are written to `data/tmp/cdhit_tests/`
+
+In short, I find:
+
+ - word size minimally affects number of clusters:
+   -n 8 yields 14330 clusters
+   -n 9 yields 14333 clusters
+   -n 10 yields 14335 clusters
+   (speed is similar: all ~0.5 sec on 1 CPU)
+
+ - slow mode does not seem to change much:
+   -n 8 -g 1 still makes 14330 clusters and takes ~0.7s
+
+ - correct handling of reverse complements is essential!
+   -r 0 -n 8 yields 17183 clusters
+
+ - as a little test, playing with -AS:
+   -AS 1 -n 8 --> still 14330 clusters
+   -AS 2 -n 8 --> still 14330 clusters
+   -AS 5 -n 8 --> still 14330 clusters...
+   -AS 10 -n 8 --> still 14330 clusters..... 
+
+ - the same holds true for -aS:
+   -aS 0.9 -n 8 --> still 14330 clusters!
+
+These final results suggest pretty robust clustering with the 100%
+identity threshold. That is a good sign!
+
+My final cd-hit-est command is like:
+
+`cd-hit-est -c 1 -n 8 -r 1 -g 1 -AS 0 -sf 1 -T 1 -i [input] -o [output]`
+
+# 100% identical, word size 8, include reverse complements,
+# accurate mode, fully match shorter sequence, sort the output
+# and use 1 CPU thread!
