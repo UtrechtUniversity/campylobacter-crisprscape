@@ -24,7 +24,7 @@ drep:
   threads: 20
 
 cctyper:
-  threads: 12
+  threads: 4
 
 padloc:
   threads: 20
