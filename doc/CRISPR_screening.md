@@ -32,7 +32,7 @@ are in between the repeats. However, we have identified genomes with
 only one repeat and in rare cases even genomes with all the _Cas_ genes
 with only one repeat and no spacers where presumably all spacers have
 been lost. To accomodate the detection of CRISPR-Cas in these genomes,
-we have set the minimum number of repeats to one, further increasing
+we have set the minimum number of repeats to two, further increasing
 the sensitivity for CRISPR-Cas screening.
 
 CCTyper produces tab-separated output tables summarising results of:
