@@ -1,7 +1,6 @@
 # _Campylobacter_ CRISPRscape
 
-[![Project Status: Active – The project has reached a stable, usable state and is being actively developed.](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active) [![License](https://img.shields.io/badge/License-BSD_3--Clause-blue.svg)](https://opensource.org/licenses/BSD-3-Clause) [![pages-build-deployment](https://github.com/UtrechtUniversity/campylobacter-crisprscape/actions/workflows/pages/pages-build-deployment/badge.svg)](https://utrechtuniversity.github.io/campylobacter-crisprscape/)  
-[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/UtrechtUniversity/campylobacter-crisprscape)
+[![Project Status: Active – The project has reached a stable, usable state and is being actively developed.](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active) [![License](https://img.shields.io/badge/License-BSD_3--Clause-blue.svg)](https://opensource.org/licenses/BSD-3-Clause) [![pages-build-deployment](https://github.com/UtrechtUniversity/campylobacter-crisprscape/actions/workflows/pages/pages-build-deployment/badge.svg)](https://utrechtuniversity.github.io/campylobacter-crisprscape/)  [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/UtrechtUniversity/campylobacter-crisprscape)
 
 Automated bioinformatics workflow for the identification and characterisation
 of Clustered Regularly Interspaced Short Palindromic Repeat (CRISPR) arrays
@@ -28,7 +27,8 @@ Or look at the computer-generated Wiki with integrated chatbot assistant at
 ## Release roadmap
 
 - Future additions:
-  - Extract orphan CRISPR arrays from CCTyper -> send to CRISPRidentify
+  - Create a command-line tool with [snaketool](https://github.com/beardymcjohnface/Snaketool/)
+  - Separate 'main' workflow steps from 'optional/extra' steps?
   - CRISPR spacer target prediction
     - map to
       - masked ATB genomes (KMA)
@@ -42,11 +42,11 @@ Or look at the computer-generated Wiki with integrated chatbot assistant at
       - SpacePHARER
     - (where feasible) connect spacer hits with functional annotations
       - Bakta annotations from ATB are available!
+  - Conduct pangenome analysis (to tell which genes are core and which accessory genes - link to target prediction)
+  - Build a database like [this spacerdb](https://spacers.jgi.doe.gov/database/overview/)?
   - Integrate downstream analyses with Snakemake?
     - run RMarkdown/Quarto notebooks automatically
-  - Build a database like [this spacerdb](https://spacers.jgi.doe.gov/database/overview/)?
-  - Create a command-line tool with [snaketool](https://github.com/beardymcjohnface/Snaketool/)
-  - Separate 'main' workflow steps from 'optional/extra' steps?
+  - Extract orphan CRISPR arrays from CCTyper -> send to CRISPRidentify
 
 ## Workflow description
 
@@ -61,7 +61,7 @@ found here:
 
 After installing mamba, snakemake can be installed using their instructions:
 <https://snakemake.readthedocs.io/en/stable/getting_started/installation.html#full-installation>
-(Note: the workflow was tested with Snakemake version 8.20.3 and is expected
+(Note: the workflow was tested with Snakemake versions 8.20.3 and 9.3.0 is expected
 to work with any version since 5.)
 
 When Snakemake has been set up, you can test if the workflow is ready to be run
