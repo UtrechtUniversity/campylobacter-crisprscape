@@ -86,7 +86,7 @@ rule spacepharer_phage_setup:
     shell:
         r"""
 phage_db=$(dirname {output.phage_db})
-rm -rf "${{phage_db}}/*" > {log} 2>&1
+rm -rf ${{phage_db}}/* > {log} 2>&1
 
 spacepharer createsetdb {input.db} {output.phage_db}\
  "{params.tmp_folder}/tmpFolder" --threads {threads} >> {log} 2>&1
@@ -161,7 +161,7 @@ rule spacepharer_plasmid_setup:
     shell:
         r"""
 plasmid_db=$(dirname {output.db})
-rm -f "${{plasmid_db}}/*" > {log} 2>&1
+rm -rf ${{plasmid_db}}/* > {log} 2>&1
 
 spacepharer createsetdb {input.db} {output.db} {params.tmp_folder}\
  --threads {threads} >> {log} 2>&1
