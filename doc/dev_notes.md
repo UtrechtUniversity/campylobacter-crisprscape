@@ -66,6 +66,10 @@ We estimate that this method speeds up the analysis by **2-3 fold**.
 (We used the `--prodigal meta` setting to accomodate for having
 different genomes in the same file.)
 
+For CCTyper runtimes for all _Campylobacter_ batches in AllTheBacteria,
+see this figure:\
+![CCTyper runtime comparison](figures/cctyper_benchmark-runtime.png)
+
 Jaeger used 17:22m and 7:12:00h on the small and large batch, respectively,
 using the parallel method. When concatenating the input, the times
 were 6:45m and 1:53:00h. That translates to a speedup of 2.57 - 4.63
@@ -76,6 +80,23 @@ outputs from the whole dataset. Together with the observed speedups,
 we have decided to apply this 'concatenation method' as much as possible.
 
 For details, see [my minibenchmark notes](experiments/minibenchmark-batches.md).
+
+#### Memory use for concatenated batches
+
+While running CCTyper on concatenated input files made the analysis
+faster, memory use also increased which led to problems when running
+multiple CCTyper processed simultaneously. Especially with the settings
+for 'extra sensitive' CRISPR array detection
+(see commit [88e8fdb](https://github.com/UtrechtUniversity/campylobacter-crisprscape/commit/88e8fdb26676212897689706c336681853ab4f00)
+and description in [version 0.3.1](https://github.com/UtrechtUniversity/campylobacter-crisprscape/releases/tag/v0.3.1)),
+memory consumption per process would be >100GB, making RAM a bottleneck.
+
+To circumvent this huge RAM consumption, the rule for CCTyper has been
+changed to cut _Campylobacter_ batches in chunks of up to 50 million
+nucleotides each. This decreased total RAM use to more manageable
+number of around 40GB/job. See figure below.
+
+![CCTyper total memory consumption comparison](figures/cctyper_benchmark-memory-vms.png)
 
 ### Results may depend on batch processing method
 
