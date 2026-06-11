@@ -1,0 +1,1012 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+        <link rel="canonical" href="https://localhost:8000/campylobacter-crisprscape/experiments/minibenchmark-batches.html">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Minibenchmark batched analysis - Campylobacter CRISPRscape</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+        <script src="https://unpkg.com/iframe-worker/shim"></script>
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#minibenchmark-batched-analysis" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../index.html" title="Campylobacter CRISPRscape" class="md-header__button md-logo" aria-label="Campylobacter CRISPRscape" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Campylobacter CRISPRscape
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Minibenchmark batched analysis
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../index.html" title="Campylobacter CRISPRscape" class="md-nav__button md-logo" aria-label="Campylobacter CRISPRscape" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Campylobacter CRISPRscape
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../manual.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    User manual
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Workflow details
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Workflow details
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_1" id="__nav_3_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Prepare genomes
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Prepare genomes
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../prepare_genomes.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Script functions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../allthebacteria.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Metadata
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../CRISPR_screening.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CRISPR screening
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../CRISPR_refinement.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CRISPR refinement
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../clustering_spacers.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CRISPR clustering
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../spacepharer.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SpacePHARER
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../extra_functions.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Extra functions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../output_files.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Output files
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../dev_notes.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development notes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#times-based-on-parallel" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Times based on parallel
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#times-with-concatenated-input" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Times with concatenated input
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#times-with-concatenated-input-and-prodigal-meta" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Times with concatenated input and --prodigal meta
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Times with concatenated input and --prodigal meta">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#try-and-compare-the-output" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Try and compare the output
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Try and compare the output">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#conclusion" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Conclusion
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#detail-on-time-consumpion" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Detail on time consumpion
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#also-test-with-padloc" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Also test with PADLOC
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Also test with PADLOC">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#times-with-parallel" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Times with parallel
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#times-concatenated-input" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Times concatenated input
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#and-with-jaeger" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        And with Jaeger
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="And with Jaeger">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#jaeger-times-with-parallel" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Jaeger times with parallel
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#jaeger-times-concatenated-input" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Jaeger times concatenated input
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#jaeger-compare-output" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Jaeger compare output
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="minibenchmark-batched-analysis">Minibenchmark batched analysis</h1>
+<p>Run CCTyper on four batches and compare runtimes between 'parallel' method
+and with concatenated input files.</p>
+<h2 id="times-based-on-parallel">Times based on parallel</h2>
+<ul>
+<li>fast = atb.assembly.r0.2.batch.103 (1h40m)</li>
+<li>3 x slow =</li>
+<li>atb.assembly.incr_release.202408.batch.24 (21h28m)</li>
+<li>atb.assembly.r0.2.batch.40 (23h7m)</li>
+<li>atb.assembly.r0.2.batch.51 (23h50m)</li>
+</ul>
+<h2 id="times-with-concatenated-input">Times with concatenated input</h2>
+<ul>
+<li>fast = atb.assembly.r0.2.batch.103 (35m?)</li>
+<li>3 x slow =</li>
+<li>atb.assembly.incr_release.202408.batch.24 (21h26m?? - calculated from output files, not by <code>time</code> --&gt; 10h30m if inferred using batch.40's and 103's times!)</li>
+<li>atb.assembly.r0.2.batch.40 (10h32m)</li>
+<li>atb.assembly.r0.2.batch.51 (12h36m)</li>
+</ul>
+<p>Based on these numbers, concatenated input makes CCTyper <strong>2-3 times</strong> faster.
+(2.86 times for smaller batches, 1.89 times for the large batch.)</p>
+<h2 id="times-with-concatenated-input-and-prodigal-meta">Times with concatenated input and --prodigal meta</h2>
+<ul>
+<li>atb.assembly.r0.2.batch.103 (39m)</li>
+<li>atb.assembly.incr_release.202408.batch.24 (748m = 12h28m)</li>
+<li>atb.assembly.r0.2.batch.40 (774m = 12h54m)</li>
+<li>atb.assembly.r0.2.batch.51 (727m = 12h07m)</li>
+</ul>
+<p>These times are similar to the above, time speedup is now:</p>
+<p>2.56 - 1.72 - 1.79 - 1.97</p>
+<p>So still roughly <strong>twice as fast</strong>.</p>
+<h3 id="try-and-compare-the-output">Try and compare the output</h3>
+<p>General findings</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>wc<span class="w"> </span>-l<span class="w"> </span>results/cctyper/atb.assembly.incr_release.202408.batch.24/CRISPR_Cas-atb.assembly.incr_release.202408.batch.24.tab<span class="w"> </span>results/cctyper/atb.assembly.r0.2.batch.103/CRISPR_Cas-atb.assembly.r0.2.batch.103.tab<span class="w"> </span>results/cctyper/atb.assembly.r0.2.batch.40/CRISPR_Cas-atb.assembly.r0.2.batch.40.tab<span class="w"> </span>results/cctyper/atb.assembly.r0.2.batch.51/CRISPR_Cas-atb.assembly.r0.2.batch.51.tab
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">  </span><span class="m">2693</span><span class="w"> </span>results/cctyper/atb.assembly.incr_release.202408.batch.24/CRISPR_Cas-atb.assembly.incr_release.202408.batch.24.tab
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">   </span><span class="m">213</span><span class="w"> </span>results/cctyper/atb.assembly.r0.2.batch.103/CRISPR_Cas-atb.assembly.r0.2.batch.103.tab
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">  </span><span class="m">1228</span><span class="w"> </span>results/cctyper/atb.assembly.r0.2.batch.40/CRISPR_Cas-atb.assembly.r0.2.batch.40.tab
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">  </span><span class="m">2542</span><span class="w"> </span>results/cctyper/atb.assembly.r0.2.batch.51/CRISPR_Cas-atb.assembly.r0.2.batch.51.tab
+</span></code></pre></div>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>wc<span class="w"> </span>-l<span class="w"> </span>*/CRISPR_Cas.tab
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">   </span><span class="m">2652</span><span class="w"> </span>atb.assembly.incr_release.202408.batch.24/CRISPR_Cas.tab
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">    </span><span class="m">213</span><span class="w"> </span>atb.assembly.r0.2.batch.103/CRISPR_Cas.tab
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">   </span><span class="m">1223</span><span class="w"> </span>atb.assembly.r0.2.batch.40/CRISPR_Cas.tab
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">   </span><span class="m">2508</span><span class="w"> </span>atb.assembly.r0.2.batch.51/CRISPR_Cas.tab
+</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>
+</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="w">   </span><span class="m">2640</span><span class="w"> </span>meta-atb.assembly.incr_release.202408.batch.24/CRISPR_Cas.tab
+</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="w">    </span><span class="m">213</span><span class="w"> </span>meta-atb.assembly.r0.2.batch.103/CRISPR_Cas.tab
+</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="w">   </span><span class="m">1225</span><span class="w"> </span>meta-atb.assembly.r0.2.batch.40/CRISPR_Cas.tab
+</span><span id="__span-1-10"><a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="w">   </span><span class="m">2522</span><span class="w"> </span>meta-atb.assembly.r0.2.batch.51/CRISPR_Cas.tab
+</span></code></pre></div>
+<p>Using concatenated input files yields the same number or slightly fewer hits
+compared to using separate files per genome (e.g. 213 for atb.assembly.r0.2.batch.103
+in both cases, against 2542 vs 2508 = 34 (~1%) for atb.assembly.r0.2.batch.51).</p>
+<p>Using the option <code>--prodigal meta</code> may results in slightly different numbers of hits
+compared to using default settings with concatenated output.
+(Note 24 has 12 fewer hits with meta, while 51 has 14 hits more.)
+Perhaps this is partly random?</p>
+<p>Comparing CRISPR IDs with diff is complicated by the fact that they use different
+indexes. E.g. the 'original' has SAMEA95883418.contig00004@3 and the 'concatenated input'
+has SAMEA95883418.contig00004@2.</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>diff<span class="w"> </span>&lt;<span class="o">(</span>cut<span class="w"> </span>-f<span class="w"> </span><span class="m">1</span>,3,15<span class="w"> </span>results/cctyper/atb.assembly.r0.2.batch.51/crisprs_all-atb.assembly.r0.2.batch.51.tab<span class="w"> </span><span class="p">|</span><span class="w"> </span>sort<span class="o">)</span><span class="w"> </span>&lt;<span class="o">(</span>cut<span class="w"> </span>-f<span class="w"> </span><span class="m">1</span>,3,15<span class="w"> </span>../crisprscape_integration_test/results/test_batches/atb.assembly.r0.2.batch.51/crisprs_all.tab<span class="w"> </span><span class="p">|</span><span class="w"> </span>sort<span class="o">)</span>
+</span></code></pre></div>
+<p>Indicates very subtle differences: 2 nt in start position,
+or same position but different prediction confidence.
+If the positions differ, it appears to be a consistent start position +2 for the
+concatenated input approach, while the end position remains the same.</p>
+<p>It appears that often if both approaches found the same CRISPR with the same
+start position, the concatenated input method reports a lower prediction confidence,
+e.g., 0.996 vs 0.519 for 'SAMEA112259549.contig00006    41248'.
+This is, however, not always the case. Confidence may be (near) identical
+or higher for the separate genomes approach...</p>
+<h4 id="conclusion">Conclusion</h4>
+<p>I think it is a reasonable compromise to call these results interchangeable -
+differences may mainly be within the 'false positives' -
+and rely on CRISPRidentify to get rid of less reliable hits.</p>
+<h4 id="detail-on-time-consumpion">Detail on time consumpion</h4>
+<p><strong>Note: the two main time consuming steps within CCTyper are:</strong></p>
+<ul>
+<li>Prodigal (~20% of time)</li>
+<li>HMMer (~75% of time)</li>
+</ul>
+<p>both of which may be significantly faster if Pyrodigal and PyHMMER were used!</p>
+<ul>
+<li><a href="https://pyrodigal.readthedocs.io/en/stable/guide/benchmarks.html#single-run">Pyrodigal benchmark</a></li>
+<li><a href="https://pyhmmer.readthedocs.io/en/stable/guide/benchmarks.html#v0-11-1-2025-05-08">pyHMMER benchmark</a></li>
+</ul>
+<p>The remaining time is:</p>
+<ul>
+<li>Subtyping Cas genes (&gt;1%)</li>
+<li>Predicting arrays with minced (~1%)</li>
+<li>Predicting operons with BLAST (~1%)</li>
+<li>Predicting subtype based on repeats (0%, instant)</li>
+<li>Connecting Cas genes to CRISPR arrays (0%, seconds))</li>
+<li>Plotting loci (&lt;=2%)</li>
+<li>File cleanup (0%)</li>
+</ul>
+<p>So further optimisation by swapping MinCED for Diced would be much less impactful and only save less than 1% of the total time.</p>
+<h2 id="also-test-with-padloc">Also test with PADLOC</h2>
+<p>Other processing steps also depend on parallel now, but may be faster and
+more convenient if used with concatenated fasta files as input.</p>
+<h3 id="times-with-parallel">Times with parallel</h3>
+<ul>
+<li>fast = atb.assembly.r0.2.batch.103 (31m)</li>
+<li>3 x slow =</li>
+<li>atb.assembly.incr_release.202408.batch.24 (8h)</li>
+<li>atb.assembly.r0.2.batch.40 (8h12m)</li>
+<li>atb.assembly.r0.2.batch.51 (8h6m)</li>
+</ul>
+<h3 id="times-concatenated-input">Times concatenated input</h3>
+<ul>
+<li>fast = atb.assembly.r0.2.batch.103 (68m)</li>
+<li>3 x slow =</li>
+<li>atb.assembly.incr_release.202408.batch.24 (11h25m)</li>
+<li>atb.assembly.r0.2.batch.40 ()</li>
+<li>atb.assembly.r0.2.batch.51 ()</li>
+</ul>
+<p>PADLOC does not seem to like running on such big files!
+And is faster on separate genomes.</p>
+<h2 id="and-with-jaeger">And with Jaeger</h2>
+<h3 id="jaeger-times-with-parallel">Jaeger times with parallel</h3>
+<ul>
+<li>fast = atb.assembly.r0.2.batch.103 (17m22s)</li>
+<li>3 x slow =</li>
+<li>atb.assembly.incr_release.202408.batch.24 (5h24m)</li>
+<li>atb.assembly.r0.2.batch.40 (7h43m)</li>
+<li>atb.assembly.r0.2.batch.51 (7h12m)</li>
+</ul>
+<h3 id="jaeger-times-concatenated-input">Jaeger times concatenated input</h3>
+<p>Jaeger appears crazy fast with these concatenated input files...
+I should have done this way earlier!</p>
+<ul>
+<li>fast = atb.assembly.r0.2.batch.103 (6m45)</li>
+<li>3 x slow =</li>
+<li>atb.assembly.incr_release.202408.batch.24 (1h37m)</li>
+<li>atb.assembly.r0.2.batch.40 (1h40m)</li>
+<li>atb.assembly.r0.2.batch.51 (1h53m)</li>
+</ul>
+<p>Jaeger works <strong>2.5-4.5 times faster</strong> using concatenated input.
+(2.57 times for smaller batches and up to 4.63 times for a larger batch.)</p>
+<h3 id="jaeger-compare-output">Jaeger compare output</h3>
+<p><code>wc -l</code> shows that the output files have the exact same number of lines as the
+concatenated output files I generated earlier. The main difference is that the
+original TSV files have more columns and are therefore bigger.
+In short, same output: use concatenated input and save a lot of time!</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["content.code.copy", "content.code.select"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>
