@@ -118,67 +118,77 @@ def annotate_cas_operon(operon, work_dir):
     hmmer_data = pd.read_csv(hmmer_file, sep="\t")
 
     contig = operon.split("@")[0]
-    # Use `ast.literal_eval()` to read CCTyper's output file lists as list
-    # rather than strings.
-    cas_genes = ast.literal_eval(
-        cas_data[cas_data["Operon"] == operon]["Genes"].iloc[0]
-    )
-    number_of_genes = len(cas_genes)
 
-    # Try to infer strand from these cas genes:
-    strand_adaptation = cas_data[cas_data["Operon"] == operon][
-        "Strand_Adaptation"
-    ].iloc[0]
-    strand_interference = cas_data[cas_data["Operon"] == operon][
-        "Strand_Interference"
-    ].iloc[0]
-
-    if strand_adaptation == 1 and strand_interference == 1:
-        strand = "+"
-    elif strand_adaptation == -1 and strand_interference == -1:
-        strand = "-"
-    else:
-        strand = "."
-
-    best_type = cas_data[cas_data["Operon"] == operon]["Best_type"].iloc[0]
-    best_score = cas_data[cas_data["Operon"] == operon]["Best_score"].iloc[0]
-    complete_interference = cas_data[cas_data["Operon"] == operon][
-        "Complete_Interference"
-    ].iloc[0]
-    complete_adaptation = cas_data[cas_data["Operon"] == operon][
-        "Complete_Adaptation"
-    ].iloc[0]
-
-    gene_lengths = []  # Store as list (need to be extracted from `hmmer.tab`)
-    for index in range(len(cas_genes)):
-        gene = cas_genes[index]
+    # Use a try-except construct when searching for Cas gene data,
+    # as some cas operon annotations by CCTyper can go wrong and lead to
+    # missing operons in the output table.
+    # (Example: SAMN06246873.contig00003@3 from ATB, Campylobacter)
+    try:
         # Use `ast.literal_eval()` to read CCTyper's output file lists as list
         # rather than strings.
-        position = ast.literal_eval(
-            cas_data[cas_data["Operon"] == operon]["Positions"].iloc[0]
-        )[index]
-        # Now filter the matching info from `hmmer.tab`:
-        # For each ORF take the lowest available E-value (= best hit).
-        # Thanks to Sergio Polimante (2021) and Ynjxsjmh (2022)!
-        #  https://stackoverflow.com/a/73383113
-        hmmer_data = hmmer_data[
-            hmmer_data["Eval"] == hmmer_data.groupby("ORF")["Eval"].transform("min")
+        cas_genes = ast.literal_eval(
+            cas_data[cas_data["Operon"] == operon]["Genes"].iloc[0]
+        )
+        number_of_genes = len(cas_genes)
+
+        # Try to infer strand from these cas genes:
+        strand_adaptation = cas_data[cas_data["Operon"] == operon][
+            "Strand_Adaptation"
+        ].iloc[0]
+        strand_interference = cas_data[cas_data["Operon"] == operon][
+            "Strand_Interference"
+        ].iloc[0]
+
+        if strand_adaptation == 1 and strand_interference == 1:
+            strand = "+"
+        elif strand_adaptation == -1 and strand_interference == -1:
+            strand = "-"
+        else:
+            strand = "."
+
+        best_type = cas_data[cas_data["Operon"] == operon]["Best_type"].iloc[0]
+        best_score = cas_data[cas_data["Operon"] == operon]["Best_score"].iloc[0]
+        complete_interference = cas_data[cas_data["Operon"] == operon][
+            "Complete_Interference"
+        ].iloc[0]
+        complete_adaptation = cas_data[cas_data["Operon"] == operon][
+            "Complete_Adaptation"
+        ].iloc[0]
+
+        gene_lengths = []  # Store as list (need to be extracted from `hmmer.tab`)
+        for index in range(len(cas_genes)):
+            gene = cas_genes[index]
+            # Use `ast.literal_eval()` to read CCTyper's output file lists as list
+            # rather than strings.
+            position = ast.literal_eval(
+                cas_data[cas_data["Operon"] == operon]["Positions"].iloc[0]
+            )[index]
+            # Now filter the matching info from `hmmer.tab`:
+            # For each ORF take the lowest available E-value (= best hit).
+            # Thanks to Sergio Polimante (2021) and Ynjxsjmh (2022)!
+            #  https://stackoverflow.com/a/73383113
+            hmmer_data = hmmer_data[
+                hmmer_data["Eval"] == hmmer_data.groupby("ORF")["Eval"].transform("min")
+            ]
+
+            orf = "%s_%s" % (contig, position)
+            gene_length = int(hmmer_data[hmmer_data["ORF"] == orf]["qlen"].iloc[0])
+            gene_lengths.append(gene_length)
+
+        cas_operon_info = [
+            best_type,
+            best_score,
+            cas_genes,
+            complete_interference,
+            complete_adaptation,
+            strand,
+            number_of_genes,
+            gene_lengths,
         ]
 
-        orf = "%s_%s" % (contig, position)
-        gene_length = int(hmmer_data[hmmer_data["ORF"] == orf]["qlen"].iloc[0])
-        gene_lengths.append(gene_length)
-
-    cas_operon_info = [
-        best_type,
-        best_score,
-        cas_genes,
-        complete_interference,
-        complete_adaptation,
-        strand,
-        number_of_genes,
-        gene_lengths,
-    ]
+    except IndexError:
+        print(f"No Cas information found for {operon}, printing empty output")
+        cas_operon_info = 8 * [pd.NA]
 
     return cas_operon_info
 
