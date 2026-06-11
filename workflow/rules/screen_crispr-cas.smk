@@ -6,6 +6,7 @@ rule crisprcastyper:
     input:
         "resources/ATB/assemblies-concatenated/{batch}.fasta",
     output:
+        split=temp(directory("resources/ATB/assemblies-concatenated/{batch}-split")),
         crispr_cas="results/cctyper/{batch}/CRISPR_Cas.tab",
         cas="results/cctyper/{batch}/cas_operons_putative.tab",
         hmmer="results/cctyper/{batch}/hmmer.tab",
@@ -13,7 +14,7 @@ rule crisprcastyper:
         orphan="results/cctyper/{batch}/crisprs_orphan.tab",
         spacers=directory("results/cctyper/{batch}/spacers/"),
     params:
-        out_dir=subpath(output[0], parent=True),
+        out_dir=subpath(output[1], parent=True),
     conda:
         "../envs/cctyper.yaml"
     threads: config["cctyper"]["threads"]
@@ -23,10 +24,20 @@ rule crisprcastyper:
         "log/benchmark/cctyper/{batch}.txt"
     shell:
         r"""
-rm -r {params.out_dir} &&\
- cctyper -t {threads} {input} --prodigal meta {params.out_dir}\
- --minRL 21 --maxRL 55 --minSL 18 --maxSL 78\
- --minNR 2 --simplelog > {log} 2>&1
+seqkit split2 -l 500000000 {input} -O {output.split} -P "part_" > {log} 2>&1
+
+for part in {output.split}/part_*.fasta
+do
+    part_name=$(basename -s .fasta ${{part}})
+    rm -rf {params.out_dir}/${{part_name}}
+
+    cctyper -t {threads} ${{part}} --prodigal meta\
+    {params.out_dir}/${{part_name}}\
+    --minRL 21 --maxRL 55 --minSL 18 --maxSL 78\
+    --minNR 2 --simplelog
+done >> {log} 2>&1
+
+bash workflow/scripts/collapse_cctyper_outputs.sh {params.out_dir} >> {log} 2>&1
         """
 
 

@@ -6,6 +6,7 @@ dependencies:
  - libxgboost=1.7.1
  - py-xgboost=1.7.1
  - setuptools=81.0.0
+ - seqkit=2.13.0
 
 channels:
  - conda-forge
