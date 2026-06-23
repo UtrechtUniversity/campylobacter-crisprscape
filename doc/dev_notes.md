@@ -148,6 +148,16 @@ and that makes CRISPRscape see your genomes as input.
     (Everything after the space is only for your own convenience and
     is not explicitly used in the workflow.)
 
+!!! warning "Metadata for dereplication"
+
+    The workflow tries to automatically dereplicate input genomes, for
+    which it uses the ATB metadata file `checkm2.tsv.gz`. If this file
+    is not present, the whole dereplication process will fail, and you
+    will be presented errors in your terminal window! This may safely
+    be ignored if duplicates are not a concern, or you may remove the
+    line `        "results/dereplication_table.tsv",` from the Snakefile
+    to disable automated dereplication.
+
 ## Modified CCTyper installation
 
 We found that the default conda-based installation of CRISPRCasTyper would
