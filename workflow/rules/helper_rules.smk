@@ -55,3 +55,21 @@ rule convert_bakta_annotations:
         "log/benchmark/convert_bakta_annotations/{batch}.txt"
     script:
         "../scripts/convert_bakta_json.sh"
+
+
+rule collect_contig_lengths:
+    input:
+        "resources/ATB/assemblies-concatenated/{batch}.fasta",
+    output:
+        "results/contig_lengths/{batch}.tsv",
+    conda:
+        "../envs/seqkit.yaml"
+    threads: 1
+    log:
+        "log/collect_contig_lengths/{batch}.txt",
+    benchmark:
+        "log/benchmark/collect_contig_lengths/{batch}.txt"
+    shell:
+        """
+seqkit fx2tab -H -l -i -Q {input} | cut -f 1,3 > {output} 2> {log}
+        """
