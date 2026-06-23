@@ -7,6 +7,7 @@ Install dependencies:
 [mamba](https://github.com/conda-forge/miniforge?tab=readme-ov-file#install)
 and
 [Snakemake](https://snakemake.readthedocs.io/en/stable/getting_started/installation.html#full-installation).
+(It is recommended to use Snakemake version 9 or later.)
 
 Download the repository (including submodules):
 
@@ -231,7 +232,7 @@ The current version of the database, v1.7, uses 1.4GB disk space.
 For details of SpacePHARER, please see
 [the corresponding page](spacepharer.md).
 
-## 2. Running the workflow :material-run
+## 2. Running the workflow :material-run:
 
 The workflow is fully automated and should complete with one command.
 For details on what happens under the hood, see the tab 'Workflow details'.

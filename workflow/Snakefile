@@ -21,6 +21,10 @@ Example use:
 N.B. Variables are set in the configuration files under `config`.
 """
 
+from snakemake.utils import min_version
+
+min_version("8.26.0")
+
 # Step 1: Load configuration
 # ---------------------------------------------------------
 

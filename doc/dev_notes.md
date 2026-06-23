@@ -136,6 +136,18 @@ If you have genome sequences in the directory `/path/to/genomes/`
 with a '.fa' file extension, this will move them into the batch folder "my_test",
 and that makes CRISPRscape see your genomes as input.
 
+!!! info "Sample names in fasta files"
+
+    Note that all fasta files in the batch will be concatenated into
+    one long fasta file. To separate them back into their corresponding
+    samples, you need to have the sample names in the sequence IDs of
+    the fasta files. For example, in ATB fasta IDs are like:
+    `SAMN30577462.contig00001 len=228074 cov=48.3 corr=0 origname=NODE_1_length_228074_cov_48.273485_pilon sw=shovill-spades/1.1.0 date=20230630`
+    Therefore, CRISPRscape works best if you follow this
+    '[sample].[contig]' naming convention in the fasta files.
+    (Everything after the space is only for your own convenience and
+    is not explicitly used in the workflow.)
+
 ## Modified CCTyper installation
 
 We found that the default conda-based installation of CRISPRCasTyper would
