@@ -2,6 +2,7 @@ name: padloc
 
 dependencies:
  - padloc=2.0.0
+ - parallel=20251122
 
 channels:
  - conda-forge

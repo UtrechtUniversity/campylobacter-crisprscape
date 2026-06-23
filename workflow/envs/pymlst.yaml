@@ -2,6 +2,7 @@ name: pymlst
 
 dependencies:
  - pymlst=2.2.1
+ - parallel=20251122
 
 channels:
  - conda-forge
