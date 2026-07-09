@@ -96,6 +96,9 @@ rule concatenate_padloc_all:
     shell:
         r"""
 batches=( {input} )
-head -1 ${{batches[0]}} > {output}
-sed --separate 1d ${{batches[@]}} >> {output}
+echo "System_number,Contig,System,Protein" > {output}
+for batch in ${{batches[@]}}
+do
+    grep -e "^[0-9]*," ${{batch}} | cut -f 1-3,4 -d ',' >> {output}
+done
         """
