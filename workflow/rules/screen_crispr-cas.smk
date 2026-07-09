@@ -18,6 +18,9 @@ rule crisprcastyper:
     conda:
         "../envs/cctyper.yaml"
     threads: config["cctyper"]["threads"]
+    resources:
+        mem=int(config["cctyper"]["memory"]),
+        time=int(config["cctyper"]["time"]),
     log:
         "log/cctyper/{batch}.txt",
     benchmark:
@@ -57,7 +60,10 @@ rule parse_cctyper:
         input_dir=subpath(input.crispr_cas, parent=True),
     conda:
         "../envs/pandas.yaml"
-    threads: 1
+    threads: config["parse_cctyper"]["threads"]
+    resources:
+        mem=int(config["parse_cctyper"]["memory"]),
+        time=int(config["parse_cctyper"]["time"]),
     log:
         "log/parse_cctyper/{batch}.txt",
     benchmark:
@@ -77,6 +83,9 @@ rule extract_sequences:
     conda:
         "../envs/seqkit.yaml"
     threads: 1
+    resources:
+        mem=int(config["default_job"]["memory"]),
+        time=int(config["default_job"]["time"]),
     log:
         "log/extract_sequences/{batch}.txt",
     benchmark:
@@ -93,6 +102,9 @@ rule create_cctyper_crispr_table:
     conda:
         "../envs/R_tidyverse.yaml"
     threads: 1
+    resources:
+        mem=int(config["default_job"]["memory"]),
+        time=int(config["default_job"]["time"]),
     log:
         "log/cctyper/create_cctyper_crispr_table.txt",
     benchmark:
@@ -109,6 +121,9 @@ rule concatenate_cctyper_spacers:
     conda:
         "../envs/bash.yaml"
     threads: 1
+    resources:
+        mem=int(config["default_job"]["memory"]),
+        time=int(config["default_job"]["time"]),
     log:
         "log/concatenate_cctyper_spacers.txt",
     benchmark:
@@ -127,6 +142,9 @@ rule prepare_cctyper_spacer_table:
     conda:
         "../envs/seqkit.yaml"
     threads: 1
+    resources:
+        mem=int(config["default_job"]["memory"]),
+        time=int(config["default_job"]["time"]),
     log:
         "log/prepare_cctyper_spacer_table.txt",
     benchmark:
@@ -145,6 +163,9 @@ rule deduplicate_cctyper_spacers:
     conda:
         "../envs/seqkit.yaml"
     threads: 1
+    resources:
+        mem=int(config["default_job"]["memory"]),
+        time=int(config["default_job"]["time"]),
     log:
         "log/deduplicate_cctyper_spacers.txt",
     benchmark:
@@ -174,6 +195,9 @@ rule cluster_cctyper_spacers:
     conda:
         "../envs/cdhit.yaml"
     threads: 1
+    resources:
+        mem=int(config["default_job"]["memory"]),
+        time=int(config["default_job"]["time"]),
     log:
         "log/cluster_cctyper_spacers.txt",
     benchmark:
@@ -195,6 +219,9 @@ rule cluster_unique_spacers_cctyper:
     conda:
         "../envs/cdhit.yaml"
     threads: 1
+    resources:
+        mem=int(config["default_job"]["memory"]),
+        time=int(config["default_job"]["time"]),
     log:
         "log/cluster_unique_spacers_cctyper.txt",
     benchmark:
@@ -216,6 +243,9 @@ rule create_spacer_table_cctyper:
     conda:
         "../envs/pyfaidx_pandas.yaml"
     threads: 1
+    resources:
+        mem=int(config["default_job"]["memory"]),
+        time=int(config["default_job"]["time"]),
     log:
         "log/create_spacer_table_cctyper.txt",
     benchmark:
@@ -235,6 +265,9 @@ rule convert_spacer_formats_cctyper:
     conda:
         "../envs/pyfaidx_pandas.yaml"
     threads: 1
+    resources:
+        mem=int(config["default_job"]["memory"]),
+        time=int(config["default_job"]["time"]),
     log:
         "log/convert_spacer_formats_cctyper.txt",
     benchmark:

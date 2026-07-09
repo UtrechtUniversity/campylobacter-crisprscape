@@ -14,6 +14,9 @@ rule download_padloc_database:
     conda:
         "../envs/padloc.yaml"
     threads: 1
+    resources:
+        mem=int(config["default_job"]["memory"]),
+        time=int(config["default_job"]["time"]),
     log:
         "log/download_padloc_database.txt",
     benchmark:
@@ -33,6 +36,9 @@ rule padloc:
     conda:
         "../envs/padloc.yaml"
     threads: config["padloc"]["threads"]
+    resources:
+        mem=int(config["padloc"]["memory"]),
+        time=int(config["padloc"]["time"]),
     log:
         "log/padloc/{batch}.txt",
     benchmark:
@@ -56,6 +62,9 @@ rule concatenate_padloc_batches:
     conda:
         "../envs/bash.yaml"
     threads: config["padloc"]["threads"]
+    resources:
+        mem=int(config["default_job"]["memory"]),
+        time=int(config["default_job"]["time"]),
     log:
         "log/concatenate_padloc/{batch}.txt",
     benchmark:
@@ -77,6 +86,9 @@ rule concatenate_padloc_all:
     conda:
         "../envs/bash.yaml"
     threads: 1
+    resources:
+        mem=int(config["default_job"]["memory"]),
+        time=int(config["default_job"]["time"]),
     log:
         "log/concatenate_padloc_all.txt",
     benchmark:

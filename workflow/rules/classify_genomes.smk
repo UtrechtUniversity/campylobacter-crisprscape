@@ -10,6 +10,9 @@ rule download_mlst_database:
     conda:
         "../envs/pymlst.yaml"
     threads: 1
+    resources:
+        mem=int(config["default_job"]["memory"]),
+        time=int(config["default_job"]["time"]),
     log:
         "log/download_mlst_database.txt",
     benchmark:
@@ -29,6 +32,9 @@ rule mlst:
     conda:
         "../envs/pymlst.yaml"
     threads: config["mlst"]["threads"]
+    resources:
+        mem=int(config["mlst"]["memory"]),
+        time=int(config["mlst"]["time"]),
     log:
         "log/mlst/{batch}.txt",
     benchmark:
@@ -51,6 +57,9 @@ rule concatenate_mlst_batches:
     conda:
         "../envs/bash.yaml"
     threads: config["mlst"]["threads"]
+    resources:
+        mem=int(config["default_job"]["memory"]),
+        time=int(config["default_job"]["time"]),
     log:
         "log/concatenate_mlst/{batch}.txt",
     benchmark:
@@ -72,6 +81,9 @@ rule concatenate_mlst_all:
     conda:
         "../envs/bash.yaml"
     threads: 1
+    resources:
+        mem=int(config["default_job"]["memory"]),
+        time=int(config["default_job"]["time"]),
     log:
         "log/concatenate_mlst_all.txt",
     benchmark:
@@ -94,6 +106,9 @@ rule download_genomad_database:
     conda:
         "../envs/genomad.yaml"
     threads: 1
+    resources:
+        mem=int(config["default_job"]["memory"]),
+        time=int(config["default_job"]["time"]),
     log:
         "log/download_genomad_database.txt",
     benchmark:
@@ -118,6 +133,9 @@ rule genomad:
     conda:
         "../envs/genomad.yaml"
     threads: config["genomad"]["threads"]
+    resources:
+        mem=int(config["genomad"]["memory"]),
+        time=int(config["genomad"]["time"]),
     log:
         "log/genomad/{batch}.txt",
     benchmark:
@@ -148,6 +166,9 @@ rule collect_genomad_predictions:
     conda:
         "../envs/R_tidyverse.yaml"
     threads: 1
+    resources:
+        mem=int(config["default_job"]["memory"]),
+        time=int(config["default_job"]["time"]),
     log:
         "log/collect_genomad_predictions.txt",
     benchmark:
@@ -172,6 +193,9 @@ rule jaeger:
     conda:
         "../envs/jaeger.yaml"
     threads: config["jaeger"]["threads"]
+    resources:
+        mem=int(config["jaeger"]["memory"]),
+        time=int(config["jaeger"]["time"]),
     log:
         "log/jaeger/{batch}.txt",
     benchmark:
@@ -197,6 +221,9 @@ rule collect_jaeger_predictions:
     conda:
         "../envs/R_tidyverse.yaml"
     threads: 1
+    resources:
+        mem=int(config["default_job"]["memory"]),
+        time=int(config["default_job"]["time"]),
     log:
         "log/collect_jaeger_predictions.txt",
     benchmark:
@@ -217,6 +244,9 @@ rule simplify_checkm:
     conda:
         "../envs/bash.yaml"
     threads: 1
+    resources:
+        mem=int(config["default_job"]["memory"]),
+        time=int(config["default_job"]["time"]),
     log:
         "log/simplify_checkm.txt",
     benchmark:
@@ -247,6 +277,9 @@ rule dereplicate_genomes:
     conda:
         "../envs/drep.yaml"
     threads: config["drep"]["threads"]
+    resources:
+        mem=int(config["drep"]["memory"]),
+        time=int(config["drep"]["time"]),
     log:
         "log/drep/{batch}.txt",
     benchmark:
@@ -271,6 +304,9 @@ rule collect_dereplications:
     conda:
         "../envs/R_tidyverse.yaml"
     threads: 1
+    resources:
+        mem=int(config["default_job"]["memory"]),
+        time=int(config["default_job"]["time"]),
     log:
         "log/collect_dereplications.txt",
     benchmark:

@@ -16,36 +16,70 @@ PhageScope_databases:
   - "GOV2"
   - "STV"
 
+# Required resources for each job are listed here:
+# CPU threads, memory in megabytes and time in minutes
 mlst:
   threads: 20
+  memory: 4096
+  time: 30
   species: "campylobacter jejuni/coli"
 
 drep:
   threads: 20
+  memory: 4096
+  time: 480
 
 cctyper:
   threads: 4
+  memory: 8192
+  time: 1200
+
+parse_cctyper:
+  threads: 1
+  memory: 1024
+  time: 360
+
+crispridentify:
+  threads: 1
+  memory: 12288
+  time: 180
 
 padloc:
   threads: 20
-
-extract_arrays:
-  threads: 10
+  memory: 1024
+  time: 30
 
 genomad:
   threads: 20
+  memory: 2048
+  time: 60
 
 jaeger:
   threads: 16
+  memory: 24576
+  time: 360
 
 download_spacepharer_databases:
   threads: 4
+  memory: 512
+  time: 150
 
 spacepharer:
   threads: 20
+  memory: 76800
+  time: 120
 
 kma:
   threads: 16
+  memory: 2048
+  time: 120
 
 bakta_convert:
   threads: 20
+  memory: 4096
+  time: 30
+
+default_job:
+  threads: 1
+  memory: 1024
+  time: 60

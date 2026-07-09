@@ -29,6 +29,9 @@ rule concatenate_batches:
     conda:
         "../envs/bash.yaml"
     threads: 1
+    resources:
+        mem=int(config["default_job"]["memory"]),
+        time=int(config["default_job"]["time"]),
     log:
         "log/concatenate_{batch}.txt",
     benchmark:
@@ -48,6 +51,9 @@ rule convert_bakta_annotations:
     conda:
         "../envs/bakta.yaml"
     threads: config["bakta_convert"]["threads"]
+    resources:
+        mem=int(config["bakta_convert"]["memory"]),
+        time=int(config["bakta_convert"]["time"]),
     log:
         out="log/convert_bakta_annotations/{batch}.out",
         err="log/convert_bakta_annotations/{batch}.err",
@@ -65,6 +71,9 @@ rule collect_contig_lengths:
     conda:
         "../envs/seqkit.yaml"
     threads: 1
+    resources:
+        mem=int(config["default_job"]["memory"]),
+        time=int(config["default_job"]["time"]),
     log:
         "log/collect_contig_lengths/{batch}.txt",
     benchmark:
