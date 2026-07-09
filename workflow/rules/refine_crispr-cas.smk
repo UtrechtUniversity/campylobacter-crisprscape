@@ -10,8 +10,9 @@ rule split_crispridentify_input:
         "../envs/seqkit.yaml"
     threads: 1
     resources:
-        mem=int(config["default_job"]["memory"]),
-        time=int(config["default_job"]["time"]),
+        mem_mb=int(config["default_job"]["memory"]),
+        walltime=int(config["default_job"]["time"]),
+        runtime=int(config["default_job"]["time"]),
     log:
         "log/split_crispridentify_input/{batch}.txt",
     benchmark:
@@ -35,8 +36,9 @@ rule crispridentify:
         "../envs/crispridentify.yaml"
     threads: config["crispridentify"]["threads"]
     resources:
-        mem=int(config["crispridentify"]["memory"]),
-        time=int(config["crispridentify"]["time"]),
+        mem_mb=int(config["crispridentify"]["memory"]),
+        walltime=int(config["crispridentify"]["time"]),
+        runtime=int(config["crispridentify"]["time"]),
     log:
         "log/crispridentify/{batch}.txt",
     benchmark:
@@ -65,8 +67,9 @@ rule create_crispridentify_crispr_table:
         "../envs/R_tidyverse.yaml"
     threads: 1
     resources:
-        mem=int(config["default_job"]["memory"]),
-        time=int(config["default_job"]["time"]),
+        mem_mb=int(config["default_job"]["memory"]),
+        walltime=int(config["default_job"]["time"]),
+        runtime=int(config["default_job"]["time"]),
     log:
         "log/create_crispridentify_crispr_table.txt",
     benchmark:
@@ -87,8 +90,9 @@ rule concatenate_crispridentify_spacers:
         "../envs/bash.yaml"
     threads: 1
     resources:
-        mem=int(config["default_job"]["memory"]),
-        time=int(config["default_job"]["time"]),
+        mem_mb=int(config["default_job"]["memory"]),
+        walltime=int(config["default_job"]["time"]),
+        runtime=int(config["default_job"]["time"]),
     log:
         "log/concatenate_crispridentify_spacers.txt",
     benchmark:
@@ -108,8 +112,9 @@ rule prepare_crispridentify_spacer_table:
         "../envs/seqkit.yaml"
     threads: 1
     resources:
-        mem=int(config["default_job"]["memory"]),
-        time=int(config["default_job"]["time"]),
+        mem_mb=int(config["default_job"]["memory"]),
+        walltime=int(config["default_job"]["time"]),
+        runtime=int(config["default_job"]["time"]),
     log:
         "log/prepare_crispridentify_spacer_table.txt",
     benchmark:
@@ -129,8 +134,9 @@ rule deduplicate_crispridentify_spacers:
         "../envs/seqkit.yaml"
     threads: 1
     resources:
-        mem=int(config["default_job"]["memory"]),
-        time=int(config["default_job"]["time"]),
+        mem_mb=int(config["default_job"]["memory"]),
+        walltime=int(config["default_job"]["time"]),
+        runtime=int(config["default_job"]["time"]),
     log:
         "log/deduplicate_crispridentify_spacers.txt",
     benchmark:
@@ -161,8 +167,9 @@ rule cluster_crispridentify_spacers:
         "../envs/cdhit.yaml"
     threads: 1
     resources:
-        mem=int(config["default_job"]["memory"]),
-        time=int(config["default_job"]["time"]),
+        mem_mb=int(config["default_job"]["memory"]),
+        walltime=int(config["default_job"]["time"]),
+        runtime=int(config["default_job"]["time"]),
     log:
         "log/cluster_crispridentify_spacers.txt",
     benchmark:
@@ -185,8 +192,9 @@ rule cluster_unique_spacers_crispridentify:
         "../envs/cdhit.yaml"
     threads: 1
     resources:
-        mem=int(config["default_job"]["memory"]),
-        time=int(config["default_job"]["time"]),
+        mem_mb=int(config["default_job"]["memory"]),
+        walltime=int(config["default_job"]["time"]),
+        runtime=int(config["default_job"]["time"]),
     log:
         "log/cluster_unique_spacers_crispridentify.txt",
     benchmark:
@@ -209,8 +217,9 @@ rule create_spacer_table_crispridentify:
         "../envs/pyfaidx_pandas.yaml"
     threads: 1
     resources:
-        mem=int(config["default_job"]["memory"]),
-        time=int(config["default_job"]["time"]),
+        mem_mb=int(config["default_job"]["memory"]),
+        walltime=int(config["default_job"]["time"]),
+        runtime=int(config["default_job"]["time"]),
     log:
         "log/create_spacer_table_crispridentify.txt",
     benchmark:
@@ -231,8 +240,9 @@ rule convert_spacer_formats_crispridentify:
         "../envs/pyfaidx_pandas.yaml"
     threads: 1
     resources:
-        mem=int(config["default_job"]["memory"]),
-        time=int(config["default_job"]["time"]),
+        mem_mb=int(config["default_job"]["memory"]),
+        walltime=int(config["default_job"]["time"]),
+        runtime=int(config["default_job"]["time"]),
     log:
         "log/convert_spacer_formats_crispridentify.txt",
     benchmark:

@@ -19,8 +19,9 @@ rule crisprcastyper:
         "../envs/cctyper.yaml"
     threads: config["cctyper"]["threads"]
     resources:
-        mem=int(config["cctyper"]["memory"]),
-        time=int(config["cctyper"]["time"]),
+        mem_mb=int(config["cctyper"]["memory"]),
+        walltime=int(config["cctyper"]["time"]),
+        runtime=int(config["cctyper"]["time"]),
     log:
         "log/cctyper/{batch}.txt",
     benchmark:
@@ -62,8 +63,9 @@ rule parse_cctyper:
         "../envs/pandas.yaml"
     threads: config["parse_cctyper"]["threads"]
     resources:
-        mem=int(config["parse_cctyper"]["memory"]),
-        time=int(config["parse_cctyper"]["time"]),
+        mem_mb=int(config["parse_cctyper"]["memory"]),
+        walltime=int(config["parse_cctyper"]["time"]),
+        runtime=int(config["parse_cctyper"]["time"]),
     log:
         "log/parse_cctyper/{batch}.txt",
     benchmark:
@@ -84,8 +86,9 @@ rule extract_sequences:
         "../envs/seqkit.yaml"
     threads: 1
     resources:
-        mem=int(config["default_job"]["memory"]),
-        time=int(config["default_job"]["time"]),
+        mem_mb=int(config["default_job"]["memory"]),
+        walltime=int(config["default_job"]["time"]),
+        runtime=int(config["default_job"]["time"]),
     log:
         "log/extract_sequences/{batch}.txt",
     benchmark:
@@ -103,8 +106,9 @@ rule create_cctyper_crispr_table:
         "../envs/R_tidyverse.yaml"
     threads: 1
     resources:
-        mem=int(config["default_job"]["memory"]),
-        time=int(config["default_job"]["time"]),
+        mem_mb=int(config["default_job"]["memory"]),
+        walltime=int(config["default_job"]["time"]),
+        runtime=int(config["default_job"]["time"]),
     log:
         "log/cctyper/create_cctyper_crispr_table.txt",
     benchmark:
@@ -122,8 +126,9 @@ rule concatenate_cctyper_spacers:
         "../envs/bash.yaml"
     threads: 1
     resources:
-        mem=int(config["default_job"]["memory"]),
-        time=int(config["default_job"]["time"]),
+        mem_mb=int(config["default_job"]["memory"]),
+        walltime=int(config["default_job"]["time"]),
+        runtime=int(config["default_job"]["time"]),
     log:
         "log/concatenate_cctyper_spacers.txt",
     benchmark:
@@ -143,8 +148,9 @@ rule prepare_cctyper_spacer_table:
         "../envs/seqkit.yaml"
     threads: 1
     resources:
-        mem=int(config["default_job"]["memory"]),
-        time=int(config["default_job"]["time"]),
+        mem_mb=int(config["default_job"]["memory"]),
+        walltime=int(config["default_job"]["time"]),
+        runtime=int(config["default_job"]["time"]),
     log:
         "log/prepare_cctyper_spacer_table.txt",
     benchmark:
@@ -164,8 +170,9 @@ rule deduplicate_cctyper_spacers:
         "../envs/seqkit.yaml"
     threads: 1
     resources:
-        mem=int(config["default_job"]["memory"]),
-        time=int(config["default_job"]["time"]),
+        mem_mb=int(config["default_job"]["memory"]),
+        walltime=int(config["default_job"]["time"]),
+        runtime=int(config["default_job"]["time"]),
     log:
         "log/deduplicate_cctyper_spacers.txt",
     benchmark:
@@ -196,8 +203,9 @@ rule cluster_cctyper_spacers:
         "../envs/cdhit.yaml"
     threads: 1
     resources:
-        mem=int(config["default_job"]["memory"]),
-        time=int(config["default_job"]["time"]),
+        mem_mb=int(config["default_job"]["memory"]),
+        walltime=int(config["default_job"]["time"]),
+        runtime=int(config["default_job"]["time"]),
     log:
         "log/cluster_cctyper_spacers.txt",
     benchmark:
@@ -220,8 +228,9 @@ rule cluster_unique_spacers_cctyper:
         "../envs/cdhit.yaml"
     threads: 1
     resources:
-        mem=int(config["default_job"]["memory"]),
-        time=int(config["default_job"]["time"]),
+        mem_mb=int(config["default_job"]["memory"]),
+        walltime=int(config["default_job"]["time"]),
+        runtime=int(config["default_job"]["time"]),
     log:
         "log/cluster_unique_spacers_cctyper.txt",
     benchmark:
@@ -244,8 +253,9 @@ rule create_spacer_table_cctyper:
         "../envs/pyfaidx_pandas.yaml"
     threads: 1
     resources:
-        mem=int(config["default_job"]["memory"]),
-        time=int(config["default_job"]["time"]),
+        mem_mb=int(config["default_job"]["memory"]),
+        walltime=int(config["default_job"]["time"]),
+        runtime=int(config["default_job"]["time"]),
     log:
         "log/create_spacer_table_cctyper.txt",
     benchmark:
@@ -266,8 +276,9 @@ rule convert_spacer_formats_cctyper:
         "../envs/pyfaidx_pandas.yaml"
     threads: 1
     resources:
-        mem=int(config["default_job"]["memory"]),
-        time=int(config["default_job"]["time"]),
+        mem_mb=int(config["default_job"]["memory"]),
+        walltime=int(config["default_job"]["time"]),
+        runtime=int(config["default_job"]["time"]),
     log:
         "log/convert_spacer_formats_cctyper.txt",
     benchmark:

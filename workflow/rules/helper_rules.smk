@@ -30,8 +30,9 @@ rule concatenate_batches:
         "../envs/bash.yaml"
     threads: 1
     resources:
-        mem=int(config["default_job"]["memory"]),
-        time=int(config["default_job"]["time"]),
+        mem_mb=int(config["default_job"]["memory"]),
+        walltime=int(config["default_job"]["time"]),
+        runtime=int(config["default_job"]["time"]),
     log:
         "log/concatenate_{batch}.txt",
     benchmark:
@@ -52,8 +53,9 @@ rule convert_bakta_annotations:
         "../envs/bakta.yaml"
     threads: config["bakta_convert"]["threads"]
     resources:
-        mem=int(config["bakta_convert"]["memory"]),
-        time=int(config["bakta_convert"]["time"]),
+        mem_mb=int(config["bakta_convert"]["memory"]),
+        walltime=int(config["bakta_convert"]["time"]),
+        runtime=int(config["bakta_convert"]["time"]),
     log:
         out="log/convert_bakta_annotations/{batch}.out",
         err="log/convert_bakta_annotations/{batch}.err",
@@ -72,8 +74,9 @@ rule collect_contig_lengths:
         "../envs/seqkit.yaml"
     threads: 1
     resources:
-        mem=int(config["default_job"]["memory"]),
-        time=int(config["default_job"]["time"]),
+        mem_mb=int(config["default_job"]["memory"]),
+        walltime=int(config["default_job"]["time"]),
+        runtime=int(config["default_job"]["time"]),
     log:
         "log/collect_contig_lengths/{batch}.txt",
     benchmark:

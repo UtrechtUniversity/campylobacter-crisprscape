@@ -13,8 +13,9 @@ rule spacepharer_spacer_setup:
         "../envs/spacepharer.yaml"
     threads: config["spacepharer"]["threads"]
     resources:
-        mem=int(config["spacepharer"]["memory"]),
-        time=int(config["spacepharer"]["time"]),
+        mem_mb=int(config["spacepharer"]["memory"]),
+        walltime=int(config["spacepharer"]["time"]),
+        runtime=int(config["spacepharer"]["time"]),
     log:
         "log/spacepharer/spacepharer_spacer_setup.txt",
     benchmark:
@@ -50,8 +51,9 @@ rule download_phage_database:
         "../envs/bash.yaml"
     threads: config["download_spacepharer_databases"]["threads"]
     resources:
-        mem=int(config["download_spacepharer_databases"]["memory"]),
-        time=int(config["download_spacepharer_databases"]["time"]),
+        mem_mb=int(config["download_spacepharer_databases"]["memory"]),
+        walltime=int(config["download_spacepharer_databases"]["time"]),
+        runtime=int(config["download_spacepharer_databases"]["time"]),
     log:
         out="log/download_phage_database.out",
         err="log/download_phage_database.err",
@@ -86,8 +88,9 @@ rule spacepharer_phage_setup:
         "../envs/spacepharer.yaml"
     threads: config["spacepharer"]["threads"]
     resources:
-        mem=int(config["spacepharer"]["memory"]),
-        time=int(config["spacepharer"]["time"]),
+        mem_mb=int(config["spacepharer"]["memory"]),
+        walltime=int(config["spacepharer"]["time"]),
+        runtime=int(config["spacepharer"]["time"]),
     log:
         "log/spacepharer/spacepharer_phage_setup.txt",
     benchmark:
@@ -118,8 +121,9 @@ rule spacepharer_phage:
         "../envs/spacepharer.yaml"
     threads: config["spacepharer"]["threads"]
     resources:
-        mem=int(config["spacepharer"]["memory"]),
-        time=int(config["spacepharer"]["time"]),
+        mem_mb=int(config["spacepharer"]["memory"]),
+        walltime=int(config["spacepharer"]["time"]),
+        runtime=int(config["spacepharer"]["time"]),
     log:
         "log/spacepharer/spacepharer_phage.txt",
     benchmark:
@@ -147,8 +151,9 @@ rule download_plasmid_database:
         "../envs/bash.yaml"
     threads: 1
     resources:
-        mem=int(config["default_job"]["memory"]),
-        time=int(config["default_job"]["time"]),
+        mem_mb=int(config["default_job"]["memory"]),
+        walltime=int(config["default_job"]["time"]),
+        runtime=int(config["default_job"]["time"]),
     log:
         out="log/download_plasmid_database.out",
         err="log/download_plasmid_database.err",
@@ -170,8 +175,9 @@ rule spacepharer_plasmid_setup:
         "../envs/spacepharer.yaml"
     threads: config["spacepharer"]["threads"]
     resources:
-        mem=int(config["spacepharer"]["memory"]),
-        time=int(config["spacepharer"]["time"]),
+        mem_mb=int(config["spacepharer"]["memory"]),
+        walltime=int(config["spacepharer"]["time"]),
+        runtime=int(config["spacepharer"]["time"]),
     log:
         "log/spacepharer/spacepharer_plasmid_setup.txt",
     benchmark:
@@ -202,8 +208,9 @@ rule spacepharer_plasmid:
         "../envs/spacepharer.yaml"
     threads: config["spacepharer"]["threads"]
     resources:
-        mem=int(config["spacepharer"]["memory"]),
-        time=int(config["spacepharer"]["time"]),
+        mem_mb=int(config["spacepharer"]["memory"]),
+        walltime=int(config["spacepharer"]["time"]),
+        runtime=int(config["spacepharer"]["time"]),
     log:
         "log/spacepharer/spacepharer_plasmid.txt",
     benchmark:
@@ -232,8 +239,9 @@ rule create_spacepharer_table:
         "../envs/bash.yaml"
     threads: 1
     resources:
-        mem=int(config["default_job"]["memory"]),
-        time=int(config["default_job"]["time"]),
+        mem_mb=int(config["default_job"]["memory"]),
+        walltime=int(config["default_job"]["time"]),
+        runtime=int(config["default_job"]["time"]),
     log:
         "log/create_spacepharer_table.txt",
     script:
@@ -254,8 +262,9 @@ rule kma_indexing:
         "../envs/kma.yaml"
     threads: config["kma"]["threads"]
     resources:
-        mem=int(config["default"]["memory"]),
-        time=int(config["default"]["time"]),
+        mem_mb=int(config["default"]["memory"]),
+        walltime=int(config["default"]["time"]),
+        runtime=int(config["default"]["time"]),
     log:
         "log/kma/kma_index.txt",
     benchmark:
@@ -282,8 +291,9 @@ rule kma:
         "../envs/kma.yaml"
     threads: config["kma"]["threads"]
     resources:
-        mem=int(config["kma"]["memory"]),
-        time=int(config["kma"]["time"]),
+        mem_mb=int(config["kma"]["memory"]),
+        walltime=int(config["kma"]["time"]),
+        runtime=int(config["kma"]["time"]),
     log:
         "log/kma/kma.txt",
     benchmark:
@@ -308,8 +318,9 @@ rule collect_kma:
         "../envs/bash.yaml"
     threads: 1
     resources:
-        mem=int(config["default_job"]["memory"]),
-        time=int(config["default_job"]["time"]),
+        mem_mb=int(config["default_job"]["memory"]),
+        walltime=int(config["default_job"]["time"]),
+        runtime=int(config["default_job"]["time"]),
     log:
         "log/kma/collect_kma.txt",
     benchmark:

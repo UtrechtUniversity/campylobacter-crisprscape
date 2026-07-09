@@ -15,8 +15,9 @@ rule download_padloc_database:
         "../envs/padloc.yaml"
     threads: 1
     resources:
-        mem=int(config["default_job"]["memory"]),
-        time=int(config["default_job"]["time"]),
+        mem_mb=int(config["default_job"]["memory"]),
+        walltime=int(config["default_job"]["time"]),
+        runtime=int(config["default_job"]["time"]),
     log:
         "log/download_padloc_database.txt",
     benchmark:
@@ -37,8 +38,9 @@ rule padloc:
         "../envs/padloc.yaml"
     threads: config["padloc"]["threads"]
     resources:
-        mem=int(config["padloc"]["memory"]),
-        time=int(config["padloc"]["time"]),
+        mem_mb=int(config["padloc"]["memory"]),
+        walltime=int(config["padloc"]["time"]),
+        runtime=int(config["padloc"]["time"]),
     log:
         "log/padloc/{batch}.txt",
     benchmark:
@@ -63,8 +65,9 @@ rule concatenate_padloc_batches:
         "../envs/bash.yaml"
     threads: config["padloc"]["threads"]
     resources:
-        mem=int(config["default_job"]["memory"]),
-        time=int(config["default_job"]["time"]),
+        mem_mb=int(config["default_job"]["memory"]),
+        walltime=int(config["default_job"]["time"]),
+        runtime=int(config["default_job"]["time"]),
     log:
         "log/concatenate_padloc/{batch}.txt",
     benchmark:
@@ -87,8 +90,9 @@ rule concatenate_padloc_all:
         "../envs/bash.yaml"
     threads: 1
     resources:
-        mem=int(config["default_job"]["memory"]),
-        time=int(config["default_job"]["time"]),
+        mem_mb=int(config["default_job"]["memory"]),
+        walltime=int(config["default_job"]["time"]),
+        runtime=int(config["default_job"]["time"]),
     log:
         "log/concatenate_padloc_all.txt",
     benchmark:

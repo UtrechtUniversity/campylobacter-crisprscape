@@ -11,8 +11,9 @@ rule download_mlst_database:
         "../envs/pymlst.yaml"
     threads: 1
     resources:
-        mem=int(config["default_job"]["memory"]),
-        time=int(config["default_job"]["time"]),
+        mem_mb=int(config["default_job"]["memory"]),
+        walltime=int(config["default_job"]["time"]),
+        runtime=int(config["default_job"]["time"]),
     log:
         "log/download_mlst_database.txt",
     benchmark:
@@ -33,8 +34,9 @@ rule mlst:
         "../envs/pymlst.yaml"
     threads: config["mlst"]["threads"]
     resources:
-        mem=int(config["mlst"]["memory"]),
-        time=int(config["mlst"]["time"]),
+        mem_mb=int(config["mlst"]["memory"]),
+        walltime=int(config["mlst"]["time"]),
+        runtime=int(config["mlst"]["time"]),
     log:
         "log/mlst/{batch}.txt",
     benchmark:
@@ -58,8 +60,9 @@ rule concatenate_mlst_batches:
         "../envs/bash.yaml"
     threads: config["mlst"]["threads"]
     resources:
-        mem=int(config["default_job"]["memory"]),
-        time=int(config["default_job"]["time"]),
+        mem_mb=int(config["default_job"]["memory"]),
+        walltime=int(config["default_job"]["time"]),
+        runtime=int(config["default_job"]["time"]),
     log:
         "log/concatenate_mlst/{batch}.txt",
     benchmark:
@@ -82,8 +85,9 @@ rule concatenate_mlst_all:
         "../envs/bash.yaml"
     threads: 1
     resources:
-        mem=int(config["default_job"]["memory"]),
-        time=int(config["default_job"]["time"]),
+        mem_mb=int(config["default_job"]["memory"]),
+        walltime=int(config["default_job"]["time"]),
+        runtime=int(config["default_job"]["time"]),
     log:
         "log/concatenate_mlst_all.txt",
     benchmark:
@@ -107,8 +111,9 @@ rule download_genomad_database:
         "../envs/genomad.yaml"
     threads: 1
     resources:
-        mem=int(config["default_job"]["memory"]),
-        time=int(config["default_job"]["time"]),
+        mem_mb=int(config["default_job"]["memory"]),
+        walltime=int(config["default_job"]["time"]),
+        runtime=int(config["default_job"]["time"]),
     log:
         "log/download_genomad_database.txt",
     benchmark:
@@ -134,8 +139,9 @@ rule genomad:
         "../envs/genomad.yaml"
     threads: config["genomad"]["threads"]
     resources:
-        mem=int(config["genomad"]["memory"]),
-        time=int(config["genomad"]["time"]),
+        mem_mb=int(config["genomad"]["memory"]),
+        walltime=int(config["genomad"]["time"]),
+        runtime=int(config["genomad"]["time"]),
     log:
         "log/genomad/{batch}.txt",
     benchmark:
@@ -167,8 +173,9 @@ rule collect_genomad_predictions:
         "../envs/R_tidyverse.yaml"
     threads: 1
     resources:
-        mem=int(config["default_job"]["memory"]),
-        time=int(config["default_job"]["time"]),
+        mem_mb=int(config["default_job"]["memory"]),
+        walltime=int(config["default_job"]["time"]),
+        runtime=int(config["default_job"]["time"]),
     log:
         "log/collect_genomad_predictions.txt",
     benchmark:
@@ -194,8 +201,9 @@ rule jaeger:
         "../envs/jaeger.yaml"
     threads: config["jaeger"]["threads"]
     resources:
-        mem=int(config["jaeger"]["memory"]),
-        time=int(config["jaeger"]["time"]),
+        mem_mb=int(config["jaeger"]["memory"]),
+        walltime=int(config["jaeger"]["time"]),
+        runtime=int(config["jaeger"]["time"]),
     log:
         "log/jaeger/{batch}.txt",
     benchmark:
@@ -222,8 +230,9 @@ rule collect_jaeger_predictions:
         "../envs/R_tidyverse.yaml"
     threads: 1
     resources:
-        mem=int(config["default_job"]["memory"]),
-        time=int(config["default_job"]["time"]),
+        mem_mb=int(config["default_job"]["memory"]),
+        walltime=int(config["default_job"]["time"]),
+        runtime=int(config["default_job"]["time"]),
     log:
         "log/collect_jaeger_predictions.txt",
     benchmark:
@@ -245,8 +254,9 @@ rule simplify_checkm:
         "../envs/bash.yaml"
     threads: 1
     resources:
-        mem=int(config["default_job"]["memory"]),
-        time=int(config["default_job"]["time"]),
+        mem_mb=int(config["default_job"]["memory"]),
+        walltime=int(config["default_job"]["time"]),
+        runtime=int(config["default_job"]["time"]),
     log:
         "log/simplify_checkm.txt",
     benchmark:
@@ -278,8 +288,9 @@ rule dereplicate_genomes:
         "../envs/drep.yaml"
     threads: config["drep"]["threads"]
     resources:
-        mem=int(config["drep"]["memory"]),
-        time=int(config["drep"]["time"]),
+        mem_mb=int(config["drep"]["memory"]),
+        walltime=int(config["drep"]["time"]),
+        runtime=int(config["drep"]["time"]),
     log:
         "log/drep/{batch}.txt",
     benchmark:
@@ -305,8 +316,9 @@ rule collect_dereplications:
         "../envs/R_tidyverse.yaml"
     threads: 1
     resources:
-        mem=int(config["default_job"]["memory"]),
-        time=int(config["default_job"]["time"]),
+        mem_mb=int(config["default_job"]["memory"]),
+        walltime=int(config["default_job"]["time"]),
+        runtime=int(config["default_job"]["time"]),
     log:
         "log/collect_dereplications.txt",
     benchmark:
