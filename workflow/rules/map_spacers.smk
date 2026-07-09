@@ -205,9 +205,9 @@ rule spacepharer_plasmid:
         mem=int(config["spacepharer"]["memory"]),
         time=int(config["spacepharer"]["time"]),
     log:
-        "log/spacepharer/spacepharer_phage.txt",
+        "log/spacepharer/spacepharer_plasmid.txt",
     benchmark:
-        "log/benchmark/spacepharer/spacepharer_phage.txt"
+        "log/benchmark/spacepharer/spacepharer_plasmid.txt"
     shell:
         r"""
 spacepharer predictmatch {input.spacer_db} {input.phage_db}\
