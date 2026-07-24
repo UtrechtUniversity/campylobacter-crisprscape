@@ -15,8 +15,19 @@ assert len(BATCH_PATHS) > 0, (
 for batch in BATCH_PATHS:
     assert Path(batch).is_dir(), f"-- Batches must be directories, got {batch} --"
 
-BATCHES = [batch.name for batch in BATCH_PATHS]
+ANNOTATION_PATHS = list(Path("resources/ATB/annotations/").glob("atb.bakta.*"))
+assert len(ANNOTATION_PATHS) > 0, (
+    "-- No annotation files found in resources/ATB/annotations.\n"
+    "Please run the script bin/prepare_genomes.sh to prepare input. --\n"
+)
 
+for annotation in ANNOTATION_PATHS:
+    assert Path(
+        annotation
+    ).is_dir(), f"-- Batches must be directories, got {annotation} --"
+
+BATCHES = [batch.name for batch in BATCH_PATHS]
+ANNOTATIONS = [annotation.name for annotation in ANNOTATION_PATHS]
 
 ## Helper rules (not fitting any particular goal)
 
@@ -45,10 +56,10 @@ cat {input}/*.fa > {output} 2> {log}
 
 rule convert_bakta_annotations:
     input:
-        batch_dir="resources/ATB/annotations/{batch}",
+        annotation_dir="resources/ATB/annotations/{annotation}",
     output:
-        gff=directory("resources/ATB/annotations/{batch}/gff"),
-        tsv=directory("resources/ATB/annotations/{batch}/tsv"),
+        gff=directory("resources/ATB/annotations/{annotation}/gff"),
+        tsv=directory("resources/ATB/annotations/{annotation}/tsv"),
     conda:
         "../envs/bakta.yaml"
     threads: config["bakta_convert"]["threads"]
@@ -57,12 +68,97 @@ rule convert_bakta_annotations:
         walltime=int(config["bakta_convert"]["time"]),
         runtime=int(config["bakta_convert"]["time"]),
     log:
-        out="log/convert_bakta_annotations/{batch}.out",
-        err="log/convert_bakta_annotations/{batch}.err",
+        out="log/convert_bakta_annotations/{annotation}.out",
+        err="log/convert_bakta_annotations/{annotation}.err",
     benchmark:
-        "log/benchmark/convert_bakta_annotations/{batch}.txt"
+        "log/benchmark/convert_bakta_annotations/{annotation}.txt"
     script:
         "../scripts/convert_bakta_json.sh"
+
+
+rule calculate_pangenomes:
+    input:
+        "resources/ATB/annotations/{annotation}/gff",
+    output:
+        multiext(
+            "results/panaroo/{annotation}/",
+            entropy="alignment_entropy.csv",
+            state="alignment_resume_state.json",
+            cds="combined_DNA_CDS.fasta",
+            prot_cdhit="combined_protein_cdhit_out.txt",
+            prot_cdhit_clstr="combined_protein_cdhit_out.txt.clstr",
+            protein="combined_protein_CDS.fasta",
+            embl_filt="core_alignment_filtered_header.embl",
+            embl="core_alignment_header.embl",
+            align="core_gene_alignment.aln",
+            align_filt="core_gene_alignment_filtered.aln",
+            graph="final_graph.gml",
+            data="gene_data.csv",
+            pres_abs="gene_presence_absence.csv",
+            roary="gene_presence_absence_roary.csv",
+            rtab="gene_presence_absence.Rtab",
+            pan_ref="pan_genome_reference.fa",
+            pre_graph="pre_filt_graph.gml",
+            struct="struct_presence_absence.Rtab",
+            summary="summary_statistics.txt",
+        ),
+        aligned=directory("results/panaroo/{annotation}/aligned_gene_sequences"),
+        general=directory("results/panaroo/{annotation}"),
+    params:
+        out_dir=subpath(output[0], parent=True),
+    conda:
+        "../envs/panaroo.yaml"
+    threads: config["panaroo"]["threads"]
+    resources:
+        mem_mb=int(config["panaroo"]["memory"]),
+        walltime=int(config["panaroo"]["time"]),
+        runtime=int(config["panaroo"]["time"]),
+    log:
+        "log/calculate_pangenomes/{annotation}.txt",
+    benchmark:
+        "log/benchmark/calculate_pangenomes/{annotation}.txt"
+    shell:
+        """
+panaroo -i {input}/*.gff3 -o {params.out_dir} --clean-mode strict -t {threads}\
+ -a core --aligner mafft --core_threshold 0.95 --remove-invalid-genes\
+ > {log} 2>&1
+        """
+
+
+rule merge_pangenomes:
+    input:
+        expand("results/panaroo/{annotation}/", annotation=ANNOTATIONS),
+    output:
+        multiext(
+            "results/panaroo/merged/",
+            cds="combined_DNA_CDS.fasta",
+            graph="final_graph.gml",
+            data="gene_data.csv",
+            pres_abs="gene_presence_absence.csv",
+            roary="gene_presence_absence_roary.csv",
+            rtab="gene_presence_absence.Rtab",
+            pan_ref="pan_genome_reference.fa",
+            struct="struct_presence_absence.Rtab",
+            summary="summary_statistics.txt",
+        ),
+    params:
+        out_dir=subpath(output[0], parent=True),
+    conda:
+        "../envs/panaroo.yaml"
+    threads: config["panaroo"]["threads"]
+    resources:
+        mem_mb=int(config["panaroo"]["memory"]),
+        walltime=int(config["panaroo"]["time"]),
+        runtime=int(config["panaroo"]["time"]),
+    log:
+        "log/merge_pangenomes.txt",
+    benchmark:
+        "log/benchmark/merge_pangenomes.txt"
+    shell:
+        """
+panaroo-merge -d {input} -o {params.out_dir} -t {threads}\
+ --core_threshold 0.95 > {log} 2>&1
+        """
 
 
 rule collect_contig_lengths:

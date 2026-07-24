@@ -79,6 +79,11 @@ bakta_convert:
   memory: 4096
   time: 30
 
+panaroo:
+  threads: 20
+  memory: 102400
+  time: 600
+
 default_job:
   threads: 1
   memory: 1024
