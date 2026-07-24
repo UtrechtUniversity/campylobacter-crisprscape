@@ -1,0 +1,8 @@
+name: panaroo
+
+dependencies:
+ - panaroo=1.8.0
+
+channels:
+ - conda-forge
+ - bioconda

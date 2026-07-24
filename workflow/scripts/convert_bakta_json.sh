@@ -11,7 +11,7 @@ exec 2> "${snakemake_log[err]}" # also send stderr to a log file
 . "${snakemake[scriptdir]}/utils.sh"
 
 threads=${snakemake[threads]}
-batch_dir="${snakemake_input[batch_dir]}"
+batch_dir="${snakemake_input[annotation_dir]}"
 
 mkdir -p "${batch_dir}/gff"
 mkdir -p "${batch_dir}/tsv"
