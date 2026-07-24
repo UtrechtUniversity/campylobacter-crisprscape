@@ -1,5 +1,11 @@
 .gitkeep
 .Rproj.user
+/.snakemake/
 
 /.quarto/
-containers/
+/containers/
+/log/
+/resources/
+/results/
+/workflow/notebooks/*
+!/workflow/notebooks/*.qmd
