@@ -60,7 +60,7 @@ rule parse_cctyper:
     params:
         input_dir=subpath(input.crispr_cas, parent=True),
     conda:
-        "../envs/pandas.yaml"
+        "../envs/pyfaidx_pandas.yaml"
     threads: config["parse_cctyper"]["threads"]
     resources:
         mem_mb=int(config["parse_cctyper"]["memory"]),
