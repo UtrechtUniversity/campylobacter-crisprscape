@@ -228,6 +228,32 @@ rule create_spacer_table_crispridentify:
         "../scripts/make_cluster_table.py"
 
 
+rule prepare_spacer_cluster_fasta_crispridentify:
+    input:
+        rules.create_spacer_table_crispridentify.output.cluster,
+    output:
+        common="results/spacers/most_common-final.fasta",
+        short="results/spacers/shortest-final.fasta",
+        long="results/spacers/longest_common-final.fasta",
+    conda:
+        "../envs/seqkit.yaml"
+    threads: 1
+    resources:
+        mem_mb=int(config["default_job"]["memory"]),
+        walltime=int(config["default_job"]["time"]),
+        runtime=int(config["default_job"]["time"]),
+    log:
+        "log/prepare_spacer_cluster_fasta_crispridentify.txt",
+    benchmark:
+        "log/benchmark/prepare_spacer_cluster_fasta_crispridentify.txt"
+    shell:
+        """
+grep -v "Cluster" {input} | cut -f 1,3 | seqkit tab2fx -o {output.common} > {log} 2>&1
+grep -v "Cluster" {input} | cut -f 1,6 | seqkit tab2fx -o {output.short} > {log} 2>&1
+grep -v "Cluster" {input} | cut -f 1,8 | seqkit tab2fx -o {output.long} > {log} 2>&1
+        """
+
+
 rule convert_spacer_formats_crispridentify:
     input:
         "results/spacers-final.tsv",
