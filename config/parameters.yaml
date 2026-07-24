@@ -70,9 +70,9 @@ spacepharer:
   time: 120
 
 kma:
-  threads: 16
+  threads: 8
   memory: 2048
-  time: 120
+  time: 60
 
 bakta_convert:
   threads: 20

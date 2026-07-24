@@ -3,16 +3,15 @@
 ## CCTyper extender:
 ## Read the output files to generate useful files for downstream processing:
 ## 1. BED files for CRISPR-Cas loci, CRISPR arrays and cas genes
-## 2. (Optionally) use the BED files to extract regions from FASTA file?
-## 3. Comprehensive CRISPR and cas gene output in one file
+## 2. Comprehensive CRISPR and cas gene output in one file
 ##
 ## To make this, I will need a number of functions:
 ##  - Take a directory from the command-line
 ##  - Identify relevant CCTyper output files
 ##      - CRISPR_Cas.tab for CRISPR-Cas locus (reports positions of cas genes!)
-##      - cas_operons*.tab for cas gene info
+##      - cas_operons_putative.tab for cas gene info
 ##      - hmmer.tab for gene lengths
-##      - crisprs_*.tab for CRISPR array info
+##      - crisprs_all.tab for CRISPR array info
 ##
 ## For the BED files, use the following fields:
 ## 1. contig ID ('chromosome')
@@ -106,15 +105,9 @@ def annotate_cas_operon(operon, work_dir):
     6. Interference completeness
     7. Adaptation completeness
     """
-    cas_file = work_dir / "cas_operons_putative.tab"
+    cas_file = snakemake.input["cas"]
     cas_data = pd.read_csv(cas_file, sep="\t")
-    cas_file_extra = work_dir / "cas_operons.tab"
-    if cas_file_extra.is_file():
-        cas_data = pd.concat([cas_data, pd.read_csv(cas_file_extra, sep="\t")])
-    else:
-        pass
-
-    hmmer_file = work_dir / "hmmer.tab"
+    hmmer_file = snakemake.input["hmmer"]
     hmmer_data = pd.read_csv(hmmer_file, sep="\t")
 
     contig = operon.split("@")[0]
@@ -211,7 +204,7 @@ def annotate_crispr_array(crispr, work_dir):
     12. Spacer length standard error of the mean (SEM)
     """
     ## Read CRISPR array information to return as a list
-    crispr_file = work_dir / "crisprs_all.tab"
+    crispr_file = snakemake.input["crispr"]
     crispr_data = pd.read_csv(crispr_file, sep="\t")
     crispr_info = []
 
@@ -407,6 +400,28 @@ def extract_bed_entries(info_df):
     return 0
 
 
+def verify_presence(lists: list, pattern: str, position: int):
+    """
+    Check the presence of an ID in a nested list with CRISPR-Cas information,
+    using the corresponding position. E.g., if you want to check if 'crispr1'
+    is present in the list [['sample1', 'contig1', 'crispr1', 0, 500, ...], [...]],
+    you provide this nested list, the pattern 'crispr1', and position 2
+    (0-based, so the third position is 2). It then checks if 'crispr1'
+    is written in any sublist at position 2 and return True if that is the case,
+    False otherwise.
+    """
+    for i in range(len(lists)):
+        try:
+            if lists[i][position] == pattern:
+                return True
+        except TypeError:
+            # If the list contains NA values, the test is 'ambiguous',
+            # so skip those and just continue.
+            continue
+
+    return False
+
+
 def main():
     with open(snakemake.log[0], "w") as sys.stdout:
         # Check if the provided directory exists and is a directory
@@ -424,6 +439,8 @@ def main():
             print("CRISPR-Cas found in %s" % work_dir.name)
 
             cc_info = extract_crispr_cas_info(crispr_cas_file=crispr_cas_file)
+            # Write one line with CRISPR-Cas info from the whole input file
+            # (this can be very long for concatenated batch files!)
             print("\nCRISPR-Cas info: %s" % cc_info)
 
             for index in range(len(cc_info)):
@@ -471,34 +488,41 @@ def main():
             print("Sample %s has no complete CRISPR-Cas system." % work_dir.name)
 
         ## 2. Look for seperately reported cas operons
-        cas_file = work_dir / "cas_operons.tab"
-        if cas_file.is_file():
-            print("\nSample %s has a file for separate cas operons." % work_dir.name)
+        cas_file = snakemake.input["cas"]
+        with open(cas_file, "r") as infile:
+            infile.readline()  # Skip the first (header) line
 
-            with open(cas_file, "r") as infile:
-                infile.readline()  # Skip the first (header) line
+            for line in infile:
+                elements = line.split("\t")
+                operon = elements[1]  # The second entry (0-based) is the operon ID
+                sample = operon.split(".")[0]
+                contig = operon.split("@")[0]
+                start = int(elements[2])
+                stop = int(elements[3])
+                prediction = elements[4]
 
-                for line in infile:
-                    elements = line.split("\t")
-                    operon = elements[1]  # The second entry (0-based) is the operon ID
-                    sample = operon.split(".")[0]
-                    contig = operon.split("@")[0]
-                    start = int(elements[2])
-                    stop = int(elements[3])
+                # only consider operons that are not predicted to be 'False':
+                if prediction != "False":
+                    # And then only those that are not part of a CRISPR-Cas locus
+                    if verify_presence(
+                        lists=crispr_cas_info, pattern=operon, position=16
+                    ):
+                        # If there is any match, continue with the next
+                        continue
+                    else:
+                        crispr_cas_info.append(
+                            [sample, contig, "Only_cas"]
+                            + 13 * [np.nan]
+                            + [operon]
+                            + [np.nan]
+                            + [start, stop]
+                            + annotate_cas_operon(operon=operon, work_dir=work_dir)
+                        )
+                        print(" - separate cas operon: %s" % operon)
 
-                    print(" - separate cas operon: %s" % operon)
-
-                    crispr_cas_info.append(
-                        [sample, contig, "Only_cas"]
-                        + 13 * [np.nan]
-                        + [operon]
-                        + [np.nan]
-                        + [start, stop]
-                        + annotate_cas_operon(operon=operon, work_dir=work_dir)
-                    )
-
-        else:
-            print("\nSample %s has no (extra) cas operons." % work_dir.name)
+                else:
+                    # if the prediction is False, continue searching
+                    continue
 
         ## 3. Finally, check for CRISPR arrays that may have no cas genes nearby
         crispr_file = Path(snakemake.input["orphan"])
@@ -517,7 +541,9 @@ def main():
                     # Now check if it is not part of a CRISPR-Cas system
                     # (To make doubly sure)
                     try:
-                        if any(crispr_id in sublist for sublist in cc_info):
+                        if verify_presence(
+                            lists=crispr_cas_info, pattern=crispr_id, position=3
+                        ):
                             pass  # Ignore the CRISPR that is already saved as CRISPR-Cas
                         else:
                             print(" - orphan CRISPR: %s" % crispr_id)

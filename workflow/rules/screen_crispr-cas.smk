@@ -76,12 +76,18 @@ rule parse_cctyper:
 
 rule extract_sequences:
     input:
-        bed="results/cctyper-parse/{batch}/CRISPR-Cas.bed",
+        crisprcas="results/cctyper-parse/{batch}/CRISPR-Cas.bed",
+        crispr="results/cctyper-parse/{batch}/CRISPR_arrays.bed",
+        cas="results/cctyper-parse/{batch}/Cas_operons.bed",
         genomes="resources/ATB/assemblies-concatenated/{batch}.fasta",
     output:
-        bed_dir=directory("results/crispr_fasta/{batch}"),
+        out_dir=directory("results/crispr_fasta/{batch}"),
         crispr_cas="results/crispr_fasta/{batch}/CRISPR-Cas.fasta",
-        flanks="results/crispr_fasta/{batch}/CRISPR-Cas-with_flanks.fasta",
+        cc_flanks="results/crispr_fasta/{batch}/CRISPR-Cas-with_flanks.fasta",
+        crispr="results/crispr_fasta/{batch}/Orphan_CRISPRs.fasta",
+        cr_flanks="results/crispr_fasta/{batch}/Orphan_CRISPRs-with_flanks.fasta",
+        cas="results/crispr_fasta/{batch}/Cas_operons.fasta",
+        ca_flanks="results/crispr_fasta/{batch}/Cas_operons-with_flanks.fasta",
     conda:
         "../envs/seqkit.yaml"
     threads: 1
