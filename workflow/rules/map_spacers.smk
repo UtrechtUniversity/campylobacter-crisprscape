@@ -253,7 +253,7 @@ rule create_spacepharer_table:
 
 rule kma_indexing:
     input:
-        spacers="results/spacers-final.fasta",
+        spacers="results/spacers/most_common-final.fasta",
     output:
         indexed_spacers="results/kma/spacer_DB/spacers.name",
     params:
@@ -262,9 +262,9 @@ rule kma_indexing:
         "../envs/kma.yaml"
     threads: config["kma"]["threads"]
     resources:
-        mem_mb=int(config["default"]["memory"]),
-        walltime=int(config["default"]["time"]),
-        runtime=int(config["default"]["time"]),
+        mem_mb=int(config["default_job"]["memory"]),
+        walltime=int(config["default_job"]["time"]),
+        runtime=int(config["default_job"]["time"]),
     log:
         "log/kma/kma_index.txt",
     benchmark:
@@ -275,18 +275,46 @@ kma index -i {input.spacers} -o {params} > {log} 2>&1
         """
 
 
+rule mask_crispr_arrays:
+    input:
+        assembly="resources/ATB/assemblies-concatenated/{batch}.fasta",
+        gene_locations="results/cctyper-parse/{batch}/CRISPR-Cas.bed",
+    output:
+        temp("resources/ATB/assemblies-concatenated/{batch}-masked_crisprs.fasta"),
+    conda:
+        "../envs/bedtools.yaml"
+    threads: 1
+    resources:
+        mem_mb=int(config["default_job"]["memory"]),
+        walltime=int(config["default_job"]["time"]),
+        runtime=int(config["default_job"]["time"]),
+    log:
+        "log/mask_crispr_arrays/{batch}.txt",
+    benchmark:
+        "log/benchmark/mask_crispr_arrays/{batch}.txt"
+    shell:
+        """
+maskFastaFromBed -fi {input.assembly} -bed {input.gene_locations}\
+ -fo {output} > {log} 2>&1
+        """
+
+
 rule kma:
     input:
         genomes=expand(
-            "resources/ATB/assemblies-concatenated/{batch}.fasta", batch=BATCHES
+            "resources/ATB/assemblies-concatenated/{batch}-masked_crisprs.fasta",
+            batch=BATCHES,
         ),
         indexed_spacers="results/kma/spacer_DB/spacers.name",
-        spacers="results/spacers-final.fasta",
     output:
-        "results/kma/CRISPR.frag.gz",
+        frag="results/kma/CRISPR-Cas.frag.gz",
+        aln="results/kma/CRISPR-Cas.aln",
+        fsa="results/kma/CRISPR-Cas.fsa",
+        res="results/kma/CRISPR-Cas.res",
+        sam="results/kma/CRISPR-Cas.sam",
     params:
         output=subpath(output[0], strip_suffix=".frag.gz"),
-        indexed_spacers=subpath(input.indexed_spacers, parent=True),
+        indexed_spacers=subpath(input.indexed_spacers, strip_suffix=".name"),
     conda:
         "../envs/kma.yaml"
     threads: config["kma"]["threads"]
@@ -300,18 +328,14 @@ rule kma:
         "log/benchmark/kma/kma.txt"
     shell:
         r"""
-grep ">" {input.spacers} | cut -f 2 -d ">" | cut -f 1 -d "-" | sort -u > tmp_file
-ls -1 {input.genomes} > all_genomes.txt
-genomes=$(grep -x ".*[0-9]\\.fasta" all_genomes.txt | grep -v -f tmp_file)
-
-kma -hmm -i ${{genomes}} -o {params.output} -t_db "{params.indexed_spacers}/spacers" > {log} 2>&1
-rm -f tmp_file all_genomes.txt
+kma -hmm -sam 2308 -i {input.genomes} -o {params.output}\
+ -t_db "{params.indexed_spacers}" -t {threads} > {output.sam} 2> {log}
         """
 
 
 rule collect_kma:
     input:
-        "results/kma/CRISPR.frag.gz",
+        "results/kma/CRISPR-Cas.frag.gz",
     output:
         "results/kma/CRISPR_alignment.tsv",
     conda:
@@ -327,12 +351,26 @@ rule collect_kma:
         "log/benchmark/kma/collect_kma.txt"
     shell:
         r"""
-echo -e "spacer\tgenome" > {output}
-zcat {input} | cut -f 6,7 | cut -f 1 -d " " > tmp_file
-while read line; do
-    match=$(echo $line | cut -f 2)
-    crispr=$(echo $line | cut -f 1 | cut -f 1,6,7,10,11 -d "_")
-    echo -e "$crispr\t$match" >> {output}
-done < tmp_file
-rm -f tmp_file
+echo -e "spacer\ttarget_contig\tstart\tend" > {output}
+zless {input} | cut -f 6-9 >> {output}
         """
+
+
+rule calculate_kma_mismatches:
+    input:
+        sam=rules.kma.output.sam,
+    output:
+        table="results/kma/CRISPR_mismatches.tsv",
+    conda:
+        "../envs/pyfaidx_pandas.yaml"
+    threads: 1
+    resources:
+        mem_mb=int(config["default_job"]["memory"]),
+        walltime=int(config["default_job"]["time"]),
+        runtime=int(config["default_job"]["time"]),
+    log:
+        "log/kma/calculate_kma_mismatches.txt",
+    benchmark:
+        "log/benchmark/kma/calculate_kma_mismatches.txt"
+    script:
+        "../scripts/calculate_mapping_mismatches.py"
