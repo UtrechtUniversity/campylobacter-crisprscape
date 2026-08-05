@@ -16,6 +16,9 @@ PhageScope_databases:
   - "GOV2"
   - "STV"
 
+extract_sequences:
+  flank: "5000"
+
 # Required resources for each job are listed here:
 # CPU threads, memory in megabytes and time in minutes
 mlst:

@@ -382,6 +382,32 @@ def extract_bed_entries(info_df):
     else:
         pass
 
+    orphan_crispr_bed_df = (
+        info_df[info_df["System"] == "Orphan_CRISPR"]
+        .filter(
+            [
+                "Contig",
+                "CRISPR_start",
+                "CRISPR_end",
+                "CRISPR_ID",
+                "N_repeats",
+                "Strand_cas",
+            ]
+        )
+        .dropna()
+    )
+
+    if not orphan_crispr_bed_df.empty:
+        orphan_crispr_bed_df.to_csv(
+            snakemake.output["orphan_bed"],
+            index=False,
+            header=False,
+            sep="\t",
+            float_format="%.0f",
+        )
+    else:
+        pass
+
     cas_bed_df = info_df.filter(
         ["Contig", "Cas_start", "Cas_end", "Operon_ID", "N_genes", "Strand_cas"]
     ).dropna()
@@ -525,21 +551,22 @@ def main():
                     continue
 
         ## 3. Finally, check for CRISPR arrays that may have no cas genes nearby
-        crispr_file = Path(snakemake.input["orphan"])
-        if crispr_file.is_file():
-            print("\nSample %s has at least one orphan CRISPR array." % work_dir.name)
+        crispr_file = Path(snakemake.input["crispr"])
 
-            # Start reading the CRISPR array IDs
-            with open(crispr_file, "r") as infile:
-                infile.readline()  # Skip the first (header) line
-                for line in infile:
-                    elements = line.split("\t")
-                    crispr_id = elements[1]  # The second entry (0-based) is the ID
-                    sample = crispr_id.split(".")[0]
-                    contig = crispr_id.split("_")[0]
+        # Start reading the CRISPR array IDs
+        with open(crispr_file, "r") as infile:
+            infile.readline()  # Skip the first (header) line
+            for line in infile:
+                elements = line.split("\t")
+                crispr_id = elements[1]  # The second entry (0-based) is the ID
+                sample = crispr_id.split(".")[0]
+                contig = crispr_id.split("_")[0]
+                trusted = elements[11]
 
+                # only consider CRISPR arrays that are 'trusted':
+                # default = repeat ID > 70%, spacer ID < 55% and spacer SEM < 3.5
+                if trusted != "False":
                     # Now check if it is not part of a CRISPR-Cas system
-                    # (To make doubly sure)
                     try:
                         if verify_presence(
                             lists=crispr_cas_info, pattern=crispr_id, position=3
@@ -568,9 +595,6 @@ def main():
                             + ["."]
                             + 2 * [np.nan]
                         )
-
-        else:
-            print("\nSample %s has no orphan CRISPRs." % work_dir.name)
 
         ## Combine the information in one dataframe
         crispr_cas_df_columns = [

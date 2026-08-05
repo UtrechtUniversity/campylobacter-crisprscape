@@ -51,11 +51,11 @@ rule parse_cctyper:
         cas="results/cctyper/{batch}/cas_operons_putative.tab",
         hmmer="results/cctyper/{batch}/hmmer.tab",
         crispr="results/cctyper/{batch}/crisprs_all.tab",
-        orphan="results/cctyper/{batch}/crisprs_orphan.tab",
     output:
         table="results/cctyper-parse/{batch}/CRISPR-Cas.tsv",
         locus_bed="results/cctyper-parse/{batch}/CRISPR-Cas.bed",
         array_bed="results/cctyper-parse/{batch}/CRISPR_arrays.bed",
+        orphan_bed="results/cctyper-parse/{batch}/Orphan_CRISPRs.bed",
         operon_bed="results/cctyper-parse/{batch}/Cas_operons.bed",
     params:
         input_dir=subpath(input.crispr_cas, parent=True),
@@ -76,18 +76,23 @@ rule parse_cctyper:
 
 rule extract_sequences:
     input:
-        crisprcas="results/cctyper-parse/{batch}/CRISPR-Cas.bed",
-        crispr="results/cctyper-parse/{batch}/CRISPR_arrays.bed",
-        cas="results/cctyper-parse/{batch}/Cas_operons.bed",
+        crisprcas=rules.parse_cctyper.output.locus_bed,
+        crispr=rules.parse_cctyper.output.array_bed,
+        orphan=rules.parse_cctyper.output.orphan_bed,
+        cas=rules.parse_cctyper.output.operon_bed,
         genomes="resources/ATB/assemblies-concatenated/{batch}.fasta",
     output:
         out_dir=directory("results/crispr_fasta/{batch}"),
         crispr_cas="results/crispr_fasta/{batch}/CRISPR-Cas.fasta",
         cc_flanks="results/crispr_fasta/{batch}/CRISPR-Cas-with_flanks.fasta",
-        crispr="results/crispr_fasta/{batch}/Orphan_CRISPRs.fasta",
-        cr_flanks="results/crispr_fasta/{batch}/Orphan_CRISPRs-with_flanks.fasta",
+        crispr="results/crispr_fasta/{batch}/CRISPR_arrays.fasta",
+        cr_flanks="results/crispr_fasta/{batch}/CRISPR_arrays-with_flanks.fasta",
+        orphan="results/crispr_fasta/{batch}/Orphan_CRISPRs.fasta",
+        or_flanks="results/crispr_fasta/{batch}/Orphan_CRISPRs-with_flanks.fasta",
         cas="results/crispr_fasta/{batch}/Cas_operons.fasta",
         ca_flanks="results/crispr_fasta/{batch}/Cas_operons-with_flanks.fasta",
+    params:
+        flank=config["extract_sequences"]["flank"],
     conda:
         "../envs/seqkit.yaml"
     threads: 1
@@ -276,7 +281,7 @@ rule prepare_spacer_cluster_fasta_cctyper:
     output:
         common="results/spacers/most_common-primary.fasta",
         short="results/spacers/shortest-primary.fasta",
-        long="results/spacers/longest_common-primary.fasta",
+        long="results/spacers/longest-primary.fasta",
     conda:
         "../envs/seqkit.yaml"
     threads: 1
