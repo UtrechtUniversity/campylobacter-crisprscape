@@ -234,7 +234,7 @@ rule prepare_spacer_cluster_fasta_crispridentify:
     output:
         common="results/spacers/most_common-final.fasta",
         short="results/spacers/shortest-final.fasta",
-        long="results/spacers/longest_common-final.fasta",
+        long="results/spacers/longest-final.fasta",
     conda:
         "../envs/seqkit.yaml"
     threads: 1
