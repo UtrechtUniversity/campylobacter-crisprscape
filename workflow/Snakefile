@@ -72,6 +72,15 @@ rule all:
         "results/padloc_table.csv",
         # Genome dereplication (at 99.99% identity, using dRep+fastANI)
         "results/dereplication_table.tsv",
+        # Pangenome analysis
+        expand(
+            "results/panaroo/merged/{file}",
+            file=[
+                "gene_data.csv",
+                "gene_presence_absence.csv",
+                "summary_statistics.txt",
+            ],
+        ),
         # Contig lengths (to calculate distance from contig ends)
         expand("results/contig_lengths/{batch}.tsv", batch=BATCHES),
         ## CRISPR-related outputs: 1. pre-screening
@@ -80,6 +89,10 @@ rule all:
         "results/cluster-cctyper/spacer_cluster_summary.tsv",
         "results/spacers-primary.fasta",
         "results/spacers-primary.tsv",
+        expand(
+            "results/spacers/{representative}-primary.fasta",
+            representative=["most_common", "shortest", "longest"],
+        ),
         # CRISPR output 2. CRISPRidentify output (refinement)
         "results/crisprs-final.tsv",
         expand(
@@ -88,6 +101,10 @@ rule all:
         ),
         "results/spacer_clusters-final.tsv",
         "results/cluster-crispridentify/spacer_cluster_summary.tsv",
+        expand(
+            "results/spacers/{representative}-final.fasta",
+            representative=["most_common", "shortest", "longest"],
+        ),
         # CRISPR arrays formatted for visualisation
         expand(
             "results/arrays/array_{what}s-{stage}.txt",
@@ -98,6 +115,6 @@ rule all:
         "results/phage_matches.tsv",
         "results/plasmid_matches.tsv",
         # KMA output (mapping spacers to input Campy genomes)
-        "results/kma/CRISPR.frag.gz",
         "results/kma/CRISPR_alignment.tsv",
+        "results/kma/CRISPR_mismatches.tsv",
     default_target: True
