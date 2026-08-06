@@ -218,6 +218,8 @@ but with this method two modules are disabled: strand and _cas_ prediction
 
 ### CCTyper
 
+#### Command-line error
+
 CCTyper assumes its output directory does not yet exist, while Snakemake
 will automatically prepare directories of the rules it is running.
 To solve this conflict, the rule running CCTyper has to start with something
@@ -226,3 +228,76 @@ like:
 ```bash
 rm -r {output_directory} && cctyper ...
 ```
+
+#### Confusing output files
+
+CCTyper also has some peculiarities in its output files.
+It [may report](https://github.com/Russel88/CRISPRCasTyper/issues/39)
+CRISPR arrays, _Cas_ operons and complete CRISPR-Cas loci in seperate files.
+For each of these, it creates a sort of preselection file (`putative`) and
+one or more files with final results. However, these are not identically
+names between these (partial) systems, and the naming of these files may be somewhat
+confusing.
+
+For example, CCTyper may generate `CRISPR_Cas.tab` and `CRISPR_Cas_putative.tab`.
+These may list the same contigs: `CRISPR_Cas.tab` lists the most likely CRISPR array
+and _Cas_ operon combination, while `CRISPR_Cas_putative.tab` has the same _Cas_
+operon with a less likely CRISRP array, for example. This seems reasonable.
+
+For _Cas_ operons, there is `cas_operons.tab` and `cas_operons_putative.tab`.
+`cas_operons_putative.tab` lists all potential _Cas_ operons, and `cas_operons.tab`
+only lists those that are part of a CRISPR-Cas system as listed in `CRISPR_Cas.tab`.
+This is also reasonable. `cas_operons_putative.tab` may be searched for potential
+'orphan _Cas_ operons'. (Operons without a CRISPR array.)
+
+Finally, things get a little complicated with CRISPR arrays. CCTyper may write
+four files: `crisprs_all.tab`, `crisprs_near_cas.tab`, `crisprs_orphan.tab` and
+`crisprs_putative.tab`.
+First of all, 'putative' is not the file that has every potential CRISPR array:
+`crisprs_all.tab` may have far more entries. `crisprs_all.tab` appears like the
+file that is the most comprehensive. It includes all entries in `crisprs_orphan.tab`,
+so may be used to collect both CRISPR-Cas arrays and orphan CRISPRs.
+However, when searching for the IDs in `crisprs_near_cas.tab` and `crisprs_putative.tab`
+in `crisprs_all.tab` (which I expected would all be present), I found that only
+a small part was there.
+For example, I have a `crisprs_near_cas.tab` file with 1121 entries, and `crisprs_all.tab`
+has 12119. Of the CRISPR IDs listed in the 'near cas' file, only 30 are also in
+`crisprs_all.tab`.
+
+Somehow, the number of the CRISPR arrays (the one appended to their ID) is shifted
+in `crisprs_near_cas.tab`. Matching the tables based on Contig ID + start and
+end positions works okay and returns 1171 entries.
+(Out of the 4 entries not in `crisprs_all.tab`, 2 were actually missing -
+where did they come from?? -
+and 2 were sub-arrays with fewer repeats compared to the CRISPR listed in
+`crisprs_all.tab` -
+also, where did those come from?)
+
+Now the question remains: if `crisprs_all.tab` has 12199 entries,
+and `crisprs_near_cas.tab` has 1121 and `crisprs_orphan.tab` has 9040,
+what are the remaining 2038 CRISPR arrays??
+ --> these are labeled as 'Trusted: FALSE'. Which is a score assigned in the
+[MinCED](https://github.com/Russel88/CRISPRCasTyper/blob/607fe87faae90104d9f4fea987157e781d203294/cctyper/minced.py#L60)
+step of CCTyper.
+It says:
+
+- repeat identity is greater than X (default 70%),
+- spacer identity is smaller than Y (default 55%),
+- spacer length standard error of the mean is smaller than Z (default 3.5)
+
+In short, this ensures that arrays have near-identical repeats,
+have spacers that are not direct copies (are sufficiently dissimilar),
+and have a stable spacer length.
+
+For a comprehensive view of the CRISPR results, it may therefore be useful to:
+
+- Load complete arrays from `CRISPR_Cas.tab`
+
+- take all CRISPRs from `crisprs_all.tab`,
+    - filter for Trusted == True,
+    - mark as complete CRISPR-Cas system if array is present in `CRISPR_Cas.tab`,
+    - the remaining ones are all putative orphans! (no need to scan `crispr_orphan.tab`)
+- similar for _Cas_ operons, start from `cas_operons_putative.tab`,
+    - filter Prediction != False
+    - mark as complete if operon in CRISPR_Cas
+    - the remaining ones are 'orphan operons'
