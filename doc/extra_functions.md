@@ -41,8 +41,8 @@ these plasmid/phage predictions to estimate the targets of the CRISPRs.
 
 ## Mapping spacers back to input genomes
 
-CRISPRscape maps the identified spacers back to the genomes, ignoring
-the genomes from which they derive, to predict what their targets
+CRISPRscape maps the identified spacers back to the genomes, masking
+the CRISPR-Cas loci in their respective genomes, to predict what their targets
 (protospacers) may be. Spacers are mapped back to genomes using the
 fast k-mer based tool
 [KMA](https://github.com/genomicepidemiology/kma) (version 1.5.0).
@@ -50,6 +50,13 @@ fast k-mer based tool
 By using the KMA flag `-hmm`, the output files (`*.frag.gz`) become easier
 to interpret: it add columns with (1) target name, (2) start and (3) stop
 positions. With this option enabled, KMA "uses a HMM to assign template".
+Furthermore, we use the flag/option `-sam 2308` to also create a SAM
+file that is parsed to calculate the number of mismatches per matching
+spacer/contig pair. The number 2308 is a bitwise flag, meaning that the
+resulting SAM file should not have unmapped (4), not primary alignments (256),
+and supplementary alignments (2048). In other words, it only prints the
+(primary) mapping results! (See also this
+[SAM flag calculation tool](https://broadinstitute.github.io/picard/explain-flags.html).)
 
 ## Genome dereplication
 
