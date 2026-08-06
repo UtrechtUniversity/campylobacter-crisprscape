@@ -3,6 +3,13 @@
 Run CCTyper on four batches and compare runtimes between 'parallel' method
 and with concatenated input files.
 
+## System characteristics
+
+Benchmarks were run on a Linux machine, with Red Hat Enterprise Linux
+version 9.7. Each job was run on an Intel Xeon Gold 6430 processor
+that has a total of 128 threads, running on 2537MHz.
+CCTyper and PADLOC were with 20 threads each, Jaeger with 16.
+
 ## Times based on parallel
 
 - fast = atb.assembly.r0.2.batch.103 (1h40m)
