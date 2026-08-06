@@ -122,6 +122,8 @@ rule calculate_pangenomes:
 panaroo -i {input}/*.gff3 -o {params.out_dir} --clean-mode strict -t {threads}\
  -a core --aligner mafft --core_threshold 0.95 --remove-invalid-genes\
  > {log} 2>&1
+
+touch {output.entropy} {output.align} {output.align_filt} {output.embl} {output.embl_filt}
         """
 
 
