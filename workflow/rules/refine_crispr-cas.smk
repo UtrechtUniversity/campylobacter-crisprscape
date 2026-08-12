@@ -3,7 +3,8 @@
 
 rule split_crispridentify_input:
     input:
-        "results/crispr_fasta/{batch}/CRISPR-Cas-with_flanks.fasta",
+        crisprcas="results/crispr_fasta/{batch}/CRISPR-Cas-with_flanks.fasta",
+        orphancrispr="results/crispr_fasta/{batch}/Orphan_CRISPRs-with_flanks.fasta"
     output:
         directory("results/crispr_fasta/{batch}/split_with_flanks"),
     conda:
@@ -19,14 +20,16 @@ rule split_crispridentify_input:
         "log/benchmark/split_crispridentify_input/{batch}.txt"
     shell:
         r"""
-seqkit split2 {input} -s 1 -N -O {output} > {log} 2>&1
+for fasta in {input}
+do
+    seqkit split2 ${{fasta}} -s 1 -N -O {output} > {log} 2>&1
+done
         """
 
 
 rule crispridentify:
     input:
         folder="results/crispr_fasta/{batch}/split_with_flanks",
-        fasta="results/crispr_fasta/{batch}/CRISPR-Cas-with_flanks.fasta",
     output:
         spacers="results/crispridentify/{batch}/Complete_spacer_dataset.fasta",
         summary="results/crispridentify/{batch}/Complete_summary.csv",
