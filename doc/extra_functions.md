@@ -58,6 +58,14 @@ and supplementary alignments (2048). In other words, it only prints the
 (primary) mapping results! (See also this
 [SAM flag calculation tool](https://broadinstitute.github.io/picard/explain-flags.html).)
 
+## Pangenome analysis
+
+To further evaluate the spacer target genes, we conduct a pangenome analysis
+using [Panaroo](https://gthlab.au/panaroo/) (version 1.8.0). This allows us
+to determine which genes are core genes and which are accessory genes.
+The hypothesis is that accessory genes are more likely to be targeted
+than core genes.
+
 ## Genome dereplication
 
 When calculating the prevalence of CRISPR-Cas for a species of interest, it

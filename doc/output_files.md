@@ -18,13 +18,13 @@
 
 The results of CCTyper are by default written to:
 
-``` bash
+```bash
 results/cctyper/[batch_id]/
 ```
 
 For example:
 
-``` bash
+```bash
 $ ls -F results/cctyper/atb.assembly.incr_release.202408.batch.38/
 arguments.tab             crisprs_all.tab crisprs_putative.tab  Flank.ntf  plot.png
 cas_operons_putative.tab  crisprs.gff           Flank.ndb       Flank.nto  plot.svg
@@ -52,7 +52,7 @@ the number of CRISPR repeats or _cas_ genes found,
 and whether the _cas_ genes were on the template or reverse complement strand.
 For example:
 
-``` bash
+```bash
 $ head -2 results/cctyper-parse/atb.assembly.incr_release.202408.batch.38/*bed
 ==> results/cctyper-parse/atb.assembly.incr_release.202408.batch.38/Cas_operons.bed <==
 SAMEA115501754.contig00002 112331 116642 SAMEA115501754.contig00002@4 4 +
@@ -65,6 +65,10 @@ SAMEA115501782.contig00002 125998 127282 SAMEA115501782.contig00002_80 20 +
 ==> results/cctyper-parse/atb.assembly.incr_release.202408.batch.38/CRISPR-Cas.bed <==
 SAMEA115501754.contig00002 112331 117088 SAMEA115501754.contig00002_56 5 +
 SAMEA115501782.contig00002 121539 127282 SAMEA115501782.contig00002_80 20 +
+
+==> results/cctyper-parse/atb.assembly.incr_release.202408.batch.38/Orphan_CRISPRs.bed <==
+SAMEA112866769.contig00003      61637   61797   SAMEA112866769.contig00003_1    3       .
+SAMEA112866769.contig00036      7022    7081    SAMEA112866769.contig00036_3    2       .
 ```
 
 Furthermore, the script summarises all characteristics of the CRISPR array and
@@ -72,7 +76,7 @@ _cas_ genes in a single file: `results/cctyper-parse/[batch]/CRISPR-Cas.tsv`.
 
 It has 28 columns, which are:
 
-``` bash
+```bash
 $ head -1 results/cctyper-parse/atb.assembly.incr_release.202408.batch.38/CRISPR-Cas.tsv | tr "\t" "\n" | nl
      1 Sample_accession
      2 Contig
@@ -118,13 +122,15 @@ For this, we use a custom script:
 [`bin/extract_crispr-cas_from_fasta.sh`](https://github.com/UtrechtUniversity/campylobacter-crisprscape/blob/main/bin/extract_crispr-cas_from_fasta.sh)
 .
 This script extracts the regions from start to stop, with (up to)
-5000bp up- and downstream of the region. These are then written to FASTA files
-in the subdirectory `results/crispr_fasta/`
+5000bp up- and downstream of the region (default flank size;
+setting adjustable in `config/parameters.yaml`).
+These are then written to FASTA files in the subdirectory `results/crispr_fasta/`
 
-``` bash
+```bash
 $ ls -sh results/crispr_fasta/atb.assembly.incr_release.202408.batch.38/
-total 188K
- 48K CRISPR-Cas.fasta  140K CRISPR-Cas-with_flanks.fasta
+total 1.8M
+ 48K Cas_operons.fasta               20K CRISPR_arrays.fasta               52K CRISPR-Cas.fasta               12K Orphan_CRISPRs.fasta
+164K Cas_operons-with_flanks.fasta  740K CRISPR_arrays-with_flanks.fasta  144K CRISPR-Cas-with_flanks.fasta  636K Orphan_CRISPRs-with_flanks.fasta
 ```
 
 ### 1.4 Concatenate spacers
@@ -132,7 +138,7 @@ total 188K
 All spacers detected during the primary screening step of CRISPRscape
 are concatenated in one file with `cat`.
 
-``` bash
+```bash
 $ ls -sh results/spacers-primary.fasta 
 360K results/spacers-primary.fasta
 
@@ -177,7 +183,7 @@ to summarise the spacer cluster information in one table. This scripts,
 parses the output of CD-HIT to create a tab-separated table
 `results/spacers-primary.tsv` that looks like:
 
-``` bash
+```bash
 $ head results/spacers-primary.tsv 
 Spacer_ID Sequence Length Cluster Spacer_base_ID Spacer_position
 SAMN39693127.contig00003_1:1 TGCGTGGGCGACCTTTTGTATAAACAAGTT 30 1129 SAMN39693127.contig00003_1 1
@@ -191,7 +197,7 @@ SAMN39693127.contig00007_2:1 CGTAGAATACGATGAAAG 18 1635 SAMN39693127.contig00007
 SAMN39693127.contig00010_3:1 TTAAAGTCCCTAAAAATAGGCATTTTTTGCTTTAGGTTAGGTAC 44 781 SAMN39693127.contig00010_3 1
 ```
 
-The results per cluster are summarised in a separate table  that lists
+The results per cluster are summarised in a separate table that lists
 the number of sequences per cluster, the most common spacer sequence,
 the shortest and the longest sequence: `results/spacer_clusters-primary.tsv`.
 
@@ -282,19 +288,28 @@ which the spacers derive. This is done with KMA, generating output like
 described in [its documentation](https://github.com/genomicepidemiology/kma#result-explanation).
 
 From that, we collect a list of spacers and the genome contig to which it maps:
-`results/kma/CRISPR-alignments.tsv`.
+`results/kma/CRISPR_alignments.tsv`. Mismatches are calculated from the CIGAR
+string in the SAM file and recorded in `results/kma/CRISPR_mismatches.tsv`.
 
 ```bash
 $ ls -shF results/kma
-total 564K
-276K CRISPR_alignment.tsv   44K CRISPR.aln  184K CRISPR.frag.gz   20K CRISPR.fsa   36K CRISPR.res  4.0K spacer_DB/
+total 1.5M
+100K CRISPR_alignment.tsv   32K CRISPR-Cas.aln  128K CRISPR-Cas.frag.gz     8.0K CRISPR-Cas.fsa
+ 20K CRISPR-Cas.res        1.1M CRISPR-Cas.sam   80K CRISPR_mismatches.tsv  4.0K spacer_DB/
 
 $ head -5 results/kma/CRISPR_alignment.tsv
-spacer  genome
-SAMN39693127-contig00003_9409_9906      SAMN39693127-contig00003_1_-_CRISPR_1_9409_9906_spacer_1 SAMEA115501831.contig00001
-SAMN39693127-contig00003_9409_9906      SAMN39693127-contig00003_1_-_CRISPR_1_9409_9906_spacer_1 SAMEA115501785.contig00006
-SAMN39693127-contig00003_9409_9906      SAMN39693127-contig00003_1_-_CRISPR_1_9409_9906_spacer_1 SAMEA115501713.contig00005
-SAMN39693127-contig00003_9409_9906      SAMN39693127-contig00003_1_-_CRISPR_1_9409_9906_spacer_1 SAMEA115501708.contig00005
+spacer  target_contig   start   end
+3       SAMEA115501819.contig00055      192     608
+4       SAMEA6935876.contig00065        96      476
+4       SAMEA115501832.contig00051      96      474
+4       SAMEA115501827.contig00014      160     576
+
+$ head -5 results/kma/CRISPR_mismatches.tsv 
+Contig  Spacer_cluster  Mismatches
+SAMEA115501819.contig00055      3       0
+SAMEA6935876.contig00065        4       1
+SAMEA115501832.contig00051      4       0
+SAMEA115501827.contig00014      4       0
 ```
 
 This contig information can be matched with the output of
@@ -307,7 +322,7 @@ The workflow includes classical MLST with pyMLST and the pubMLST database.
 The output is a simple table with two columns containing the genome's name
 and its assigned sequence type (if any):
 
-``` bash
+```bash
 $ head results/mlst_table.tsv
 Genome          ST
 SAMN10081961    48
@@ -367,7 +382,7 @@ For geNomad, we combine the prediction scores with available plasmid or
 virus information into one tab-separatede dataframe:
 `results/genomad_predictions.tsv`.
 
-``` bash
+```bash
 $ ls -sh results/genomad_predictions.tsv 
 2.0M results/genomad_predictions.tsv
 

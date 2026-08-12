@@ -1,10 +1,20 @@
 cff-version: 1.2.0
-message: "If you use this software, please cite it as below."
+message: "If you use this software, please cite it using these metadata."
+date-released: 2024-09-26
+
 authors:
   - family-names: Nooij
     given-names: Sam
     orcid: https://orcid.org/0000-0001-5892-5637
-title: "Campylobacter CRISPR-scape"
-version: 0
+  - family-names: Van Walt Meijer
+    given-names: Gijswillem S.A.
 
-date-released: 2024-09-26
+title: "Campylobacter CRISPRscape"
+version: 0.3.2
+repository-code: "https://github.com/UtrechtUniversity/campylobacter-crisprscape"
+license: BSD-3-Clause
+keywords:
+  - "microbial genomics"
+  - "CRISPR-Cas"
+  - "bioinformatics"
+  - "research"

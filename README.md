@@ -31,9 +31,6 @@ Or look at the computer-generated Wiki with integrated chatbot assistant at
   - Separate 'main' workflow steps from 'optional/extra' steps?
   - CRISPR spacer target prediction
     - map to
-      - masked ATB genomes (KMA)
-      - PLSDB (SpacePHARER)
-      - PhageScope (SpacePHARER)
       - VIRE (t.b.d.)
       - MEGAISurv metagenomes (t.b.d)
     - mini-benchmark different mapping algorithms?
@@ -42,11 +39,9 @@ Or look at the computer-generated Wiki with integrated chatbot assistant at
       - SpacePHARER
     - (where feasible) connect spacer hits with functional annotations
       - Bakta annotations from ATB are available!
-  - Conduct pangenome analysis (to tell which genes are core and which accessory genes - link to target prediction)
   - Build a database like [this spacerdb](https://spacers.jgi.doe.gov/database/overview/)?
   - Integrate downstream analyses with Snakemake?
     - run RMarkdown/Quarto notebooks automatically
-  - Extract orphan CRISPR arrays from CCTyper -> send to CRISPRidentify
 
 ## Workflow description
 
